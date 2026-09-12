@@ -18,12 +18,12 @@ const CYCLE = ['present', 'absent', 'holiday', 'leave', 'sunday'] as const;
 
 const CELL_STYLE: Record<string, string> = {
     present:
-        'bg-[#E4EFE7] text-[#356B4B] dark:bg-[#1B2A20] dark:text-[#8FBF9E]',
-    sunday: 'bg-[#E4EFE7] text-[#356B4B] dark:bg-[#1B2A20] dark:text-[#8FBF9E]',
-    absent: 'bg-[#F5E1DF] text-[#A13A32] dark:bg-[#2E1815] dark:text-[#D9756C]',
+        'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300',
+    sunday: 'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300',
+    absent: 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300',
     holiday:
-        'bg-[#F0E9E7] text-[#948581] dark:bg-[#241C1A] dark:text-[#B0A29D]',
-    leave: 'bg-[#F5E7D6] text-[#96631A] dark:bg-[#2E2412] dark:text-[#D6A85C]',
+        'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+    leave: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
 };
 
 const CELL_LABEL: Record<string, string> = {

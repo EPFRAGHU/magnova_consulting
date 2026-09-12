@@ -2,7 +2,6 @@ import { Link } from '@inertiajs/react';
 import {
     Building2,
     CalendarCheck,
-    FileSpreadsheet,
     FileText,
     LayoutGrid,
     Receipt,
@@ -29,7 +28,6 @@ import { index as attendanceIndex } from '@/routes/attendance';
 import { index as wagesIndex } from '@/routes/wages';
 import { index as invoicesIndex } from '@/routes/invoices';
 import { index as payslipsIndex } from '@/routes/payslips';
-import { index as ecrIndex } from '@/routes/ecr';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -67,11 +65,6 @@ const mainNavItems: NavItem[] = [
         title: 'Payslips',
         href: payslipsIndex(),
         icon: FileText,
-    },
-    {
-        title: 'ECR Export',
-        href: ecrIndex(),
-        icon: FileSpreadsheet,
     },
 ];
 

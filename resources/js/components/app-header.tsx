@@ -2,7 +2,6 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     Building2,
     CalendarCheck,
-    FileSpreadsheet,
     FileText,
     LayoutGrid,
     Menu,
@@ -44,7 +43,6 @@ import { index as attendanceIndex } from '@/routes/attendance';
 import { index as wagesIndex } from '@/routes/wages';
 import { index as invoicesIndex } from '@/routes/invoices';
 import { index as payslipsIndex } from '@/routes/payslips';
-import { index as ecrIndex } from '@/routes/ecr';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
@@ -59,10 +57,9 @@ const mainNavItems: NavItem[] = [
     { title: 'Wages', href: wagesIndex(), icon: Wallet },
     { title: 'Invoices', href: invoicesIndex(), icon: Receipt },
     { title: 'Payslips', href: payslipsIndex(), icon: FileText },
-    { title: 'ECR Export', href: ecrIndex(), icon: FileSpreadsheet },
 ];
 
-const activeItemStyles = 'text-primary';
+const activeItemStyles = 'bg-accent text-primary';
 
 export function AppHeader({ breadcrumbs = [] }: Props) {
     const page = usePage();
@@ -172,7 +169,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                             src={auth.user?.avatar}
                                             alt={auth.user?.name}
                                         />
-                                        <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                        <AvatarFallback className="bg-accent text-accent-foreground rounded-lg">
                                             {getInitials(auth.user?.name ?? '')}
                                         </AvatarFallback>
                                     </Avatar>
@@ -189,7 +186,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
             </div>
             {breadcrumbs.length > 1 && (
                 <div className="border-sidebar-border/70 flex w-full border-b">
-                    <div className="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">
+                    <div className="text-muted-foreground mx-auto flex h-12 w-full items-center justify-start px-4 md:max-w-7xl">
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>
                 </div>

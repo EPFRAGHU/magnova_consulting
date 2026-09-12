@@ -1,16 +1,14 @@
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-// Muted, palette-consistent status colors (see theme spec: success/warning/neutral + a
-// quiet danger tone for the same rose family, no saturated colors).
 const SUCCESS =
-    'bg-[#E4EFE7] text-[#356B4B] border-[#CFE2D5] dark:bg-[#1B2A20] dark:text-[#8FBF9E] dark:border-[#2A3F30]';
+    'border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300';
 const WARNING =
-    'bg-[#F5E7D6] text-[#96631A] border-[#EAD6B4] dark:bg-[#2E2412] dark:text-[#D6A85C] dark:border-[#43371C]';
+    'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300';
 const NEUTRAL =
-    'bg-[#F0E9E7] text-[#948581] border-[#E3D6D3] dark:bg-[#241C1A] dark:text-[#B0A29D] dark:border-[#3A2E2A]';
+    'border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300';
 const DANGER =
-    'bg-[#F5E1DF] text-[#A13A32] border-[#E9C7C3] dark:bg-[#2E1815] dark:text-[#D9756C] dark:border-[#432420]';
+    'border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300';
 
 const COLORS: Record<string, string> = {
     draft: NEUTRAL,
