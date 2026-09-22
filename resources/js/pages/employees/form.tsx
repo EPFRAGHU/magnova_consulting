@@ -16,6 +16,7 @@ type Employee = {
     client_id: number;
     employee_code: string | null;
     name: string;
+    gender: 'male' | 'female' | null;
     uan: string | null;
     epf_member_id: string | null;
     esic_no: string | null;
@@ -53,7 +54,7 @@ export default function EmployeeForm({
                 <Form {...submitOptions} className="max-w-3xl space-y-6">
                     {({ errors, processing }) => (
                         <>
-                            <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="grid gap-4 sm:grid-cols-3">
                                 <div className="grid gap-2">
                                     <Label htmlFor="name">Name</Label>
                                     <Input
@@ -63,6 +64,19 @@ export default function EmployeeForm({
                                         required
                                     />
                                     <InputError message={errors.name} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="gender">Gender</Label>
+                                    <SelectNative
+                                        id="gender"
+                                        name="gender"
+                                        defaultValue={employee?.gender ?? ''}
+                                    >
+                                        <option value="">Select gender</option>
+                                        <option value="male">Male (M)</option>
+                                        <option value="female">Female (F)</option>
+                                    </SelectNative>
+                                    <InputError message={errors.gender} />
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="client_id">Client</Label>

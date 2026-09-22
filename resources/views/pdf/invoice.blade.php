@@ -4,56 +4,57 @@
     <meta charset="utf-8">
     <style>
         * { box-sizing: border-box; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 9px; color: #000; }
+        @page { size: A4 portrait; margin: 0; }
+        html, body { width: 8.27in; height: 11.69in; margin: 0; padding: 0; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 10.5px; line-height: 1.2; color: #000; }
         table { border-collapse: collapse; width: 100%; }
         td, th { vertical-align: top; }
-
-        .frame { border: 1.2px solid #000; }
-        .frame > tbody > tr > td { border-top: 1.2px solid #000; padding: 6px 8px; }
+        .page { width: 7.50in; height: 10.85in; margin: 0.35in; }
+        .frame { width: 7.50in; height: 10.85in; min-height: 10.85in; border: 1.4px solid #000; }
+        .frame > tbody { height: 100%; }
+        .frame > tbody > tr:last-child { height: 100%; }
+        .frame > tbody > tr:last-child > td { vertical-align: bottom; }
+        .frame > tbody > tr > td { border-top: 1.4px solid #000; padding: 8px 10px; }
         .frame > tbody > tr:first-child > td { border-top: none; }
-
-        .strip td { font-size: 9px; font-weight: bold; }
-        .strip .center { text-align: center; font-size: 12px; }
-        .strip .right { text-align: right; }
-
-        .company-block td { text-align: center; }
-        .company-block .name { font-size: 15px; font-weight: bold; }
-        .company-block .meta { font-size: 9px; margin-top: 2px; }
-        .logo-spacer { width: 50px; }
-
+        .topline td { font-size: 10.5px; font-weight: bold; }
+        .topline .title { text-align: center; font-size: 15px; }
+        .topline .right { text-align: right; }
+        .company { text-align: center; }
+        .company-logo { width: 52px; height: auto; margin-bottom: 2px; }
+        .company .name { font-size: 18px; font-weight: bold; }
+        .company .service { font-size: 11.5px; margin-top: 3px; }
+        .company .meta { font-size: 9.5px; margin-top: 3px; }
         .two-col > tbody > tr > td { width: 50%; padding: 0; border-top: none; }
-        .two-col > tbody > tr > td:first-child { border-right: 1.2px solid #000; padding-right: 8px; }
-        .two-col > tbody > tr > td:last-child { padding-left: 8px; }
-
-        .kv td { padding: 1px 0; font-size: 9px; }
-        .kv .k { width: 95px; font-weight: bold; }
-        .kv .c { width: 8px; }
-
-        .section-title { font-weight: bold; font-size: 9.5px; margin-bottom: 3px; }
-
-        table.items { table-layout: fixed; }
-        table.items th, table.items td { border: 1px solid #000; padding: 3px 4px; font-size: 8.5px; }
-        table.items th { background: #eee; text-align: center; font-weight: bold; }
-        table.items td.amt, table.items th.amt { text-align: right; }
-        table.items td.center { text-align: center; }
-        table.items .col-sr { width: 22px; }
-        table.items .col-desc { width: auto; }
-        table.items .col-hsn { width: 48px; }
-        table.items .col-qty { width: 34px; }
-        table.items .col-unit { width: 34px; }
-        table.items .col-price { width: 56px; }
-        table.items .col-tax { width: 34px; }
-        table.items .col-amt { width: 62px; }
-        table.items tr.total-row td { font-weight: bold; border-top: 1.5px solid #000; }
-
-        .words-line { font-size: 9.5px; margin: 2px 0; }
-        .settled-line { font-size: 8.5px; color: #333; }
-        .tax-breakdown { font-size: 8.5px; margin-top: 2px; }
-
-        .footer-col { width: 33.33%; padding: 0 6px; font-size: 8.5px; }
-        .footer-col:not(:first-child) { border-left: 1.2px solid #000; }
-        .footer-title { font-weight: bold; margin-bottom: 3px; }
-        .sign-line { margin-top: 28px; border-top: 1px solid #000; padding-top: 3px; }
+        .two-col > tbody > tr > td:first-child { border-right: 1.4px solid #000; padding-right: 10px; }
+        .two-col > tbody > tr > td:last-child { padding-left: 10px; }
+        .kv td { padding: 2px 0; font-size: 9.5px; }
+        .kv .label { width: 98px; font-weight: bold; }
+        .kv .colon { width: 9px; }
+        .section-title { font-weight: bold; font-size: 11px; margin-bottom: 5px; }
+        .summary-title { text-align: center; font-weight: bold; font-size: 11.5px; margin-bottom: 6px; }
+        table.summary { table-layout: fixed; }
+        table.summary th, table.summary td { border: 1px solid #000; padding: 5px 4px; font-size: 9px; }
+        table.summary th { text-align: center; background: #eee; font-weight: bold; vertical-align: middle; }
+        table.summary td.center, table.summary th.center { text-align: center; }
+        table.summary td.amount { text-align: right; }
+        table.summary .col-sl { width: 7%; }
+        table.summary .col-rank { width: 31%; }
+        table.summary .col-rate { width: 18%; }
+        table.summary .col-persons { width: 14%; }
+        table.summary .col-duties { width: 14%; }
+        table.summary .col-amount { width: 16%; }
+        table.summary .total td { font-weight: bold; }
+        table.charges { table-layout: fixed; margin-top: 8px; }
+        table.charges td { padding: 3px 4px; font-size: 9.5px; word-wrap: break-word; }
+        table.charges .label { width: 78%; }
+        table.charges .amount { text-align: right; width: 22%; }
+        table.charges .strong td { font-weight: bold; border-top: 1px solid #000; }
+        .words-line { font-size: 10.5px; margin: 3px 0 5px; }
+        .tax-line { font-size: 9.5px; margin-top: 4px; }
+        .footer-col { width: 33.33%; padding: 0 8px; font-size: 9.25px; word-wrap: break-word; }
+        .footer-col:not(:first-child) { border-left: 1.4px solid #000; }
+        .footer-title { font-weight: bold; font-size: 10px; margin-bottom: 4px; }
+        .sign-line { margin-top: 32px; border-top: 1px solid #000; padding-top: 4px; }
     </style>
 </head>
 <body>
@@ -63,68 +64,44 @@
     $monthName = \Carbon\Carbon::create()->month($invoice->month)->format('F');
     $billingPeriodStart = \Carbon\Carbon::create($invoice->year, $invoice->month, 1);
     $billingPeriodEnd = $billingPeriodStart->copy()->endOfMonth();
-    $terms = $tenant->terms_and_conditions ?: config('magnova.default_terms_and_conditions');
-    $hsnSac = config('magnova.hsn_sac_code');
-    $taxPct = (float) config('magnova.cgst_pct') + (float) config('magnova.sgst_pct');
-    $totalAmount = 0;
+    $hsnSac = $client->sac_code ?: config('magnova.hsn_sac_code');
+    $supplierName = $tenant->name ?: 'M/s Magnova Consulting Pvt. Ltd.';
+    $receiverName = $client->billingName();
+    $receiverAddress = $client->billingAddress();
+    $supplierAddress = $tenant->address;
+    $epfo = (float) $invoice->epf_employer;
+    $edliAndAdmin = (float) $invoice->epf_admin + (float) $invoice->edli_cont;
+    $esic = (float) $invoice->esi_employer;
+    $taxableSubtotal = (float) $invoice->taxable_value;
 @endphp
 
+<div class="page">
 <table class="frame">
     <tbody>
         <tr>
             <td>
-                <table class="strip">
+                <table class="topline">
                     <tr>
-                        <td style="width:33%">Page No. 1 of 1</td>
-                        <td class="center" style="width:34%">TAX INVOICE</td>
-                        <td class="right" style="width:33%">Original Copy</td>
+                        <td style="width:33%">Ref no: {{ $invoice->ref_no ?: '—' }}</td>
+                        <td class="title" style="width:34%">TAX INVOICE</td>
+                        <td class="right" style="width:33%">Invoice No: {{ $invoice->invoice_no }}</td>
                     </tr>
                 </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <table class="company-block">
+                <div class="company">
+                    @if (!empty($logoDataUri))
+                        <img class="company-logo" src="{{ $logoDataUri }}" alt="Magnova">
+                    @endif
+                    <div class="name">{{ strtoupper($supplierName) }}</div>
+                    <div class="service">Security and Manpower Service Provider</div>
+                    <div class="meta">CIN NO: {{ config('magnova.company_cin') ?: '—' }} &nbsp;&nbsp; GSTIN NO: {{ $tenant->gstin ?: '—' }}</div>
+                    @if ($supplierAddress)
+                        <div class="meta">{{ $supplierAddress }}</div>
+                    @endif
+                </div>
+                <table class="topline" style="margin-top:6px">
                     <tr>
-                        <td class="logo-spacer">@include('pdf.partials.logo-mark')</td>
-                        <td>
-                            <div class="name">{{ $tenant->name }}</div>
-                            <div class="meta">
-                                {{ $tenant->address }}<br>
-                                @if($tenant->contact_phone) Mobile: {{ $tenant->contact_phone }} @endif
-                                @if($tenant->contact_email) &nbsp;|&nbsp; Email: {{ $tenant->contact_email }} @endif
-                                <br>
-                                @if($tenant->gstin) GSTIN - {{ $tenant->gstin }} @endif
-                                @if($tenant->pan) &nbsp;|&nbsp; PAN - {{ $tenant->pan }} @endif
-                            </div>
-                        </td>
-                        <td class="logo-spacer"></td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <table class="two-col">
-                    <tr>
-                        <td>
-                            <div class="section-title">Invoice Details</div>
-                            <table class="kv">
-                                <tr><td class="k">Invoice Number</td><td class="c">:</td><td>{{ $invoice->invoice_no }}</td></tr>
-                                <tr><td class="k">Invoice Date</td><td class="c">:</td><td>{{ $invoice->invoice_date->format('d-m-Y') }}</td></tr>
-                                <tr><td class="k">Due Date</td><td class="c">:</td><td>{{ $invoice->due_date?->format('d-m-Y') ?? '-' }}</td></tr>
-                                <tr><td class="k">Place of Supply</td><td class="c">:</td><td>{{ $invoice->place_of_supply ?? '-' }}</td></tr>
-                                <tr><td class="k">Reverse Charge</td><td class="c">:</td><td>{{ $invoice->reverse_charge ? 'Yes' : 'No' }}</td></tr>
-                            </table>
-                        </td>
-                        <td>
-                            <div class="section-title">Contract Details</div>
-                            <table class="kv">
-                                <tr><td class="k">Site / Unit</td><td class="c">:</td><td>{{ $client->unit_label ?? $client->name }}</td></tr>
-                                <tr><td class="k">GEMC No.</td><td class="c">:</td><td>{{ $client->gemc_no ?? '-' }}</td></tr>
-                                <tr><td class="k">Billing Period</td><td class="c">:</td><td>{{ $billingPeriodStart->format('d-m-Y') }} to {{ $billingPeriodEnd->format('d-m-Y') }}</td></tr>
-                            </table>
-                        </td>
+                        <td style="width:50%">Bill for the month of {{ $monthName }}-{{ $invoice->year }}</td>
+                        <td class="right" style="width:50%">Date: {{ optional($invoice->invoice_date)->format('d-m-Y') ?: '—' }}</td>
                     </tr>
                 </table>
             </td>
@@ -134,15 +111,27 @@
                 <table class="two-col">
                     <tr>
                         <td>
-                            <div class="section-title">Billing Details</div>
-                            <div><strong>Name:</strong> {{ $client->billingName() }}</div>
-                            <div><strong>Address:</strong> {{ $client->billingAddress() }}</div>
-                            @if($client->gstin)<div>GSTIN: {{ $client->gstin }}</div>@endif
+                            <div class="section-title">Details of Receiver (Billed To)</div>
+                            <table class="kv">
+                                <tr><td class="label">Name</td><td class="colon">:</td><td>{{ $receiverName ?: '—' }}</td></tr>
+                                <tr><td class="label">Address</td><td class="colon">:</td><td>{!! $receiverAddress ? nl2br(e($receiverAddress)) : '—' !!}</td></tr>
+                                <tr><td class="label">GSTIN</td><td class="colon">:</td><td>{{ $client->gstin ?: '—' }}</td></tr>
+                                <tr><td class="label">SAC Code</td><td class="colon">:</td><td>{{ $hsnSac }}</td></tr>
+                                @if ($client->contact_phone)
+                                    <tr><td class="label">Contact No.</td><td class="colon">:</td><td>{{ $client->contact_phone }}</td></tr>
+                                @endif
+                            </table>
                         </td>
                         <td>
-                            <div class="section-title">Duty Site Details</div>
-                            <div><strong>Site:</strong> {{ $client->name }}{{ $client->unit_label ? ' - '.$client->unit_label : '' }}</div>
-                            <div><strong>Address:</strong> {{ $client->address }}</div>
+                            <div class="section-title">Details of Parties (Billed From)</div>
+                            <table class="kv">
+                                <tr><td class="label">Name</td><td class="colon">:</td><td>{{ $supplierName }}</td></tr>
+                                <tr><td class="label">Address</td><td class="colon">:</td><td>{!! $supplierAddress ? nl2br(e($supplierAddress)) : '—' !!}</td></tr>
+                                <tr><td class="label">GSTIN</td><td class="colon">:</td><td>{{ $tenant->gstin ?: '—' }}</td></tr>
+                                <tr><td class="label">PAN No.</td><td class="colon">:</td><td>{{ $tenant->pan ?: '—' }}</td></tr>
+                                <tr><td class="label">Contact No.</td><td class="colon">:</td><td>{{ $tenant->contact_phone ?: '—' }}</td></tr>
+                                <tr><td class="label">Billing Period</td><td class="colon">:</td><td>{{ $billingPeriodStart->format('d-m-Y') }} to {{ $billingPeriodEnd->format('d-m-Y') }}</td></tr>
+                            </table>
                         </td>
                     </tr>
                 </table>
@@ -150,83 +139,51 @@
         </tr>
         <tr>
             <td>
-                <table class="items">
+                <div class="summary-title">Summary of Duties Performed in the Month of {{ $monthName }} {{ $invoice->year }}</div>
+                <table class="summary">
                     <thead>
                         <tr>
-                            <th class="col-sr">Sr.</th>
-                            <th class="col-desc">Item Description</th>
-                            <th class="col-hsn">HSN/SAC</th>
-                            <th class="col-qty">Qty</th>
-                            <th class="col-unit">Unit</th>
-                            <th class="col-price">List Price</th>
-                            <th class="col-tax">Tax %</th>
-                            <th class="col-amt amt">Amount (Rs.)</th>
+                            <th class="col-sl">Sl No</th>
+                            <th class="col-rank">Particulars (Rank)</th>
+                            <th class="col-rate">Rate Per Person Per Day</th>
+                            <th class="col-persons">No. of Persons Engaged</th>
+                            <th class="col-duties">No. of Duties</th>
+                            <th class="col-amount">Total Amount</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @php $sr = 1; @endphp
-                        @foreach ($itemGroups as $group)
-                            @php $rowAmount = round($group['amount'] * (1 + $taxPct / 100), 2); $totalAmount += $rowAmount; @endphp
+                        @foreach ($dutySummary as $index => $item)
                             <tr>
-                                <td class="center">{{ $sr++ }}</td>
-                                <td>{{ $group['designation'] }} &ndash; Manpower Supply Service</td>
-                                <td class="center">{{ $hsnSac }}</td>
-                                <td class="center">{{ number_format($group['qty'], 2) }}</td>
-                                <td class="center">Day</td>
-                                <td class="amt">{{ number_format($group['rate'], 2) }}</td>
-                                <td class="center">{{ number_format($taxPct, 2) }}</td>
-                                <td class="amt">{{ number_format($rowAmount, 2) }}</td>
+                                <td class="center">{{ $index + 1 }}</td>
+                                <td>{{ $item['rank'] }}</td>
+                                <td class="amount">{{ number_format($item['rate'], 2) }}</td>
+                                <td class="center">{{ $item['persons'] }}</td>
+                                <td class="center">{{ number_format($item['duties'], 2) }}</td>
+                                <td class="amount">{{ number_format($item['amount'], 2) }}</td>
                             </tr>
                         @endforeach
-                        @php
-                            $charges = [
-                                ['EPF Cont. @ '.config('magnova.epf_employer_pct').'% on Wages', $invoice->epf_employer],
-                                ['EPF Admin Charges @ '.config('magnova.epf_admin_pct').'%', $invoice->epf_admin],
-                                ['EDLI Cont. @ '.config('magnova.edli_cont_pct').'%', $invoice->edli_cont],
-                                ['ESI @ '.config('magnova.esi_employer_pct').'%', $invoice->esi_employer],
-                                ['Service Charges @ '.config('magnova.service_charge_pct').'%', $invoice->service_charge],
-                            ];
-                        @endphp
-                        @foreach ($charges as [$label, $amount])
-                            @php $rowAmount = round($amount * (1 + $taxPct / 100), 2); $totalAmount += $rowAmount; @endphp
-                            <tr>
-                                <td class="center">{{ $sr++ }}</td>
-                                <td>{{ $label }}</td>
-                                <td class="center">{{ $hsnSac }}</td>
-                                <td class="center">1.00</td>
-                                <td class="center">Lump</td>
-                                <td class="amt">{{ number_format($amount, 2) }}</td>
-                                <td class="center">{{ number_format($taxPct, 2) }}</td>
-                                <td class="amt">{{ number_format($rowAmount, 2) }}</td>
-                            </tr>
-                        @endforeach
-                        <tr>
-                            <td class="center">{{ $sr++ }}</td>
-                            <td>Discount</td>
-                            <td class="center">-</td>
-                            <td class="center">-</td>
-                            <td class="center">-</td>
-                            <td class="amt">-</td>
-                            <td class="center">-</td>
-                            <td class="amt">0.00</td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="7" class="center">Total</td>
-                            <td class="amt">{{ number_format($totalAmount, 2) }}</td>
+                        <tr class="total">
+                            <td colspan="5">TOTAL WAGES</td>
+                            <td class="amount">{{ number_format($invoice->base_amount, 2) }}</td>
                         </tr>
                     </tbody>
+                </table>
+                <table class="charges">
+                    <tr><td class="label">EPFO @ {{ number_format(config('magnova.epf_employee_pct'), 2) }}% on capped monthly wages</td><td class="amount">{{ number_format($epfo, 2) }}</td></tr>
+                    <tr><td class="label">EDLI and EPF Admin Charges @ {{ number_format(config('magnova.epf_admin_pct') + config('magnova.edli_cont_pct'), 2) }}% on capped monthly wages</td><td class="amount">{{ number_format($edliAndAdmin, 2) }}</td></tr>
+                    <tr><td class="label">ESIC @ {{ number_format(config('magnova.esi_employer_pct'), 2) }}% on monthly wages</td><td class="amount">{{ number_format($esic, 2) }}</td></tr>
+                    <tr><td class="label">Bonus @ {{ number_format(config('magnova.bonus_pct'), 2) }}% on capped monthly wages</td><td class="amount">{{ number_format($bonus, 2) }}</td></tr>
+                    <tr class="strong"><td class="label">SUB-TOTAL (Taxable Value)</td><td class="amount">{{ number_format($taxableSubtotal, 2) }}</td></tr>
+                    <tr><td class="label">Service Charges @ {{ number_format(config('magnova.service_charge_pct'), 2) }}%</td><td class="amount">{{ number_format($invoice->service_charge, 2) }}</td></tr>
+                    <tr><td class="label">GST @ {{ number_format(config('magnova.cgst_pct') + config('magnova.sgst_pct'), 2) }}%</td><td class="amount">{{ number_format($invoice->cgst + $invoice->sgst, 2) }}</td></tr>
+                    <tr class="strong"><td class="label">GRAND TOTAL</td><td class="amount">{{ number_format($invoice->grand_total, 2) }}</td></tr>
                 </table>
             </td>
         </tr>
         <tr>
             <td>
-                <div class="words-line">Rs. {{ $amountInWords }} Only</div>
-                <div class="settled-line">Settled by - Bank: 0.00 | Invoice Balance: {{ number_format($invoice->grand_total, 2) }}</div>
-                <div class="tax-breakdown">
-                    Sale @18% = {{ number_format($invoice->taxable_value, 2) }}
-                    &nbsp;|&nbsp; CGST = {{ number_format($invoice->cgst, 2) }}, SGST = {{ number_format($invoice->sgst, 2) }}
-                    &nbsp;|&nbsp; Total Sale = {{ number_format($invoice->taxable_value, 2) }}, Tax = {{ number_format($invoice->cgst + $invoice->sgst, 2) }}, Cess = 0.00
-                </div>
+                <div class="words-line">Amount in words: {{ $amountInWords }} Only</div>
+                <div class="tax-line">Taxable Value: {{ number_format($taxableSubtotal, 2) }} &nbsp;|&nbsp; CGST: {{ number_format($invoice->cgst, 2) }} &nbsp;|&nbsp; SGST: {{ number_format($invoice->sgst, 2) }} &nbsp;|&nbsp; Invoice Balance: {{ number_format($invoice->grand_total, 2) }}</div>
             </td>
         </tr>
         <tr>
@@ -234,20 +191,20 @@
                 <table>
                     <tr>
                         <td class="footer-col">
-                            <div class="footer-title">Terms and Conditions</div>
-                            <div>{!! nl2br(e($terms)) !!}</div>
-                        </td>
-                        <td class="footer-col">
                             <div class="footer-title">Bank Details</div>
-                            <div>Account Number: {{ $tenant->bank_account_no ?? '-' }}</div>
-                            <div>Bank: {{ $tenant->bank_name ?? '-' }}</div>
-                            <div>IFSC: {{ $tenant->bank_ifsc ?? '-' }}</div>
-                            <div>Branch: {{ $tenant->bank_branch ?? '-' }}</div>
-                            <div>Name: {{ $tenant->name }}</div>
+                            <div>Bank: {{ $tenant->bank_name ?: '—' }}</div>
+                            <div>Account No.: {{ $tenant->bank_account_no ?: '—' }}</div>
+                            <div>Account Type: {{ config('magnova.bank_account_type') ?: '—' }}</div>
+                            <div>IFSC Code: {{ $tenant->bank_ifsc ?: '—' }}</div>
+                            <div>Branch: {{ $tenant->bank_branch ?: '—' }}</div>
                         </td>
                         <td class="footer-col">
-                            <div class="footer-title">For {{ $tenant->name }}</div>
-                            <div class="sign-line">Signature</div>
+                            <div class="footer-title">Terms and Conditions</div>
+                            <div>{!! nl2br(e($tenant->terms_and_conditions ?: config('magnova.default_terms_and_conditions'))) !!}</div>
+                        </td>
+                        <td class="footer-col">
+                            <div class="footer-title">For {{ $supplierName }}</div>
+                            <div class="sign-line">Authorized Signature</div>
                         </td>
                     </tr>
                 </table>
@@ -255,5 +212,6 @@
         </tr>
     </tbody>
 </table>
+</div>
 </body>
 </html>

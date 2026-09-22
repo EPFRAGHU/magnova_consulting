@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Employee;
 use App\Services\PdfExportService;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -54,7 +55,7 @@ class AttendanceController extends Controller
         $data = $request->validate([
             'employee_id' => ['required', 'exists:employees,id'],
             'date' => ['required', 'date'],
-            'status' => ['required', 'in:present,absent,holiday,leave,sunday'],
+            'status' => ['required', 'in:present,absent,holiday,leave,sunday,off'],
         ]);
 
         $employee = Employee::findOrFail($data['employee_id']);
@@ -83,6 +84,57 @@ class AttendanceController extends Controller
                     ->update(['status' => $data['status']]);
             }
         }
+
+        return back();
+    }
+
+    public function save(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'month' => ['required', 'integer', 'min:1', 'max:12'],
+            'year' => ['required', 'integer', 'min:2000'],
+            'records' => ['present', 'array'],
+            'records.*.employee_id' => ['required', 'exists:employees,id'],
+            'records.*.date' => ['required', 'date_format:Y-m-d'],
+            'records.*.status' => ['required', 'in:present,absent,holiday,leave,sunday,off'],
+        ]);
+
+        $daysInMonth = Carbon::create($data['year'], $data['month'], 1)->daysInMonth;
+        $employeeIds = collect($data['records'])
+            ->pluck('employee_id')
+            ->unique()
+            ->values();
+        $employees = Employee::whereIn('id', $employeeIds)->get()->keyBy('id');
+
+        foreach ($data['records'] as $record) {
+            $date = Carbon::createFromFormat('Y-m-d', $record['date']);
+
+            abort_unless(
+                $date->year === (int) $data['year'] &&
+                    $date->month === (int) $data['month'] &&
+                    $date->day <= $daysInMonth &&
+                    $employees->has((int) $record['employee_id']),
+                422,
+                'Attendance contains an invalid employee or date.',
+            );
+        }
+
+        DB::transaction(function () use ($data, $employees): void {
+            foreach ($data['records'] as $record) {
+                $employee = $employees->get((int) $record['employee_id']);
+
+                Attendance::updateOrCreate(
+                    [
+                        'employee_id' => $employee->id,
+                        'date' => $record['date'],
+                    ],
+                    [
+                        'tenant_id' => $employee->tenant_id,
+                        'status' => $record['status'],
+                    ],
+                );
+            }
+        });
 
         return back();
     }

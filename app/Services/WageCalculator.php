@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 
 class WageCalculator
 {
-    public function calculateForEmployee(Employee $employee, int $month, int $year, float $bonus = 0): Wage
+    public function calculateForEmployee(Employee $employee, int $month, int $year): Wage
     {
         $workingDays = Attendance::query()
             ->where('employee_id', $employee->id)
@@ -23,8 +23,12 @@ class WageCalculator
 
         $ratePerDay = (float) $employee->rate_per_day;
         $grossWages = round($workingDays * $ratePerDay, 2);
-        $epfEmployee = round($grossWages * config('magnova.epf_employee_pct') / 100, 2);
-        $esicEmployee = round($grossWages * config('magnova.esic_employee_pct') / 100, 2);
+        $bonus = round(
+            min($grossWages, config('magnova.bonus_cap')) * config('magnova.bonus_pct') / 100,
+            2,
+        );
+        $epfEmployee = round(min($grossWages, 15000) * config('magnova.epf_employee_pct') / 100, 2);
+        $esicEmployee = round(min($grossWages, 21000) * config('magnova.esic_employee_pct') / 100, 2);
         $netSalary = round($grossWages + $bonus - $epfEmployee - $esicEmployee, 2);
 
         return Wage::updateOrCreate(

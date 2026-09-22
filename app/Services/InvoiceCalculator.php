@@ -26,18 +26,36 @@ class InvoiceCalculator
         // uniform rate x duties figure — employees are billed at different
         // rates (skilled vs unskilled), so those can diverge.
         $baseAmount = round((float) $wages->sum('gross_wages'), 2);
-        $epfEmployer = round($baseAmount * config('magnova.epf_employer_pct') / 100, 2);
-        $epfAdmin = round($baseAmount * config('magnova.epf_admin_pct') / 100, 2);
-        $edliCont = round($baseAmount * config('magnova.edli_cont_pct') / 100, 2);
-        $esiEmployer = round($baseAmount * config('magnova.esi_employer_pct') / 100, 2);
-        $serviceCharge = round($baseAmount * config('magnova.service_charge_pct') / 100, 2);
-        $taxableValue = round($baseAmount + $epfEmployer + $epfAdmin + $edliCont + $esiEmployer + $serviceCharge, 2);
+
+        // These are calculated per employee, as in the workbook's wage rows,
+        // so the statutory caps are applied before the values are totalled.
+        // The invoice workbook uses EPF at 12% (not the 13% wage-register
+        // employer setting) and includes bonus in the taxable subtotal.
+        $epfEmployer = round($wages->sum(
+            fn (Wage $wage) => min((float) $wage->gross_wages, 15000)
+                * config('magnova.epf_employee_pct') / 100,
+        ), 2);
+        $epfAdmin = round($wages->sum(
+            fn (Wage $wage) => min((float) $wage->gross_wages, 15000)
+                * config('magnova.epf_admin_pct') / 100,
+        ), 2);
+        $edliCont = round($wages->sum(
+            fn (Wage $wage) => min((float) $wage->gross_wages, 15000)
+                * config('magnova.edli_cont_pct') / 100,
+        ), 2);
+        $esiEmployer = round($wages->sum(
+            fn (Wage $wage) => min((float) $wage->gross_wages, 21000)
+                * config('magnova.esi_employer_pct') / 100,
+        ), 2);
+        $bonus = round((float) $wages->sum('bonus'), 2);
+        $taxableValue = round(
+            $baseAmount + $epfEmployer + $epfAdmin + $edliCont + $esiEmployer + $bonus,
+            2,
+        );
         $cgst = round($taxableValue * config('magnova.cgst_pct') / 100, 2);
         $sgst = round($taxableValue * config('magnova.sgst_pct') / 100, 2);
-        // Verified against real Magnova invoices: the grand total is rounded
-        // to the nearest whole rupee, even though every line item above it
-        // keeps paise precision.
-        $grandTotal = round($taxableValue + $cgst + $sgst);
+        $serviceCharge = round($taxableValue * config('magnova.service_charge_pct') / 100, 2);
+        $grandTotal = round($taxableValue + $serviceCharge + $cgst + $sgst, 2);
 
         return DB::transaction(function () use ($client, $month, $year, $invoiceNo, $wages, $noOfPersons, $noOfDuties, $ratePerDay, $baseAmount, $epfEmployer, $epfAdmin, $edliCont, $esiEmployer, $taxableValue, $serviceCharge, $cgst, $sgst, $grandTotal) {
             $existing = Invoice::where('client_id', $client->id)

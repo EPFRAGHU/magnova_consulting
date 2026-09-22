@@ -29,3 +29,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/.claude
+/.serena
+/magnova
+*.xlsx

@@ -76,6 +76,7 @@ class EmployeeController extends Controller
             'client_id' => ['required', 'exists:clients,id'],
             'employee_code' => ['nullable', 'string', 'max:50'],
             'name' => ['required', 'string', 'max:255'],
+            'gender' => ['nullable', 'in:male,female'],
             'uan' => ['nullable', 'string', 'max:20'],
             'epf_member_id' => ['nullable', 'string', 'max:50'],
             'esic_no' => ['nullable', 'string', 'max:50'],

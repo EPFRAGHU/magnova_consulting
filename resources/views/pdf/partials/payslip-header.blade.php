@@ -3,7 +3,7 @@
 @endphp
 <table class="payslip-header-table">
     <tr>
-        <td class="logo-cell">@include('pdf.partials.logo-mark')</td>
+        <td class="logo-cell">@include('pdf.partials.logo-mark', ['logoDataUri' => $logoDataUri])</td>
         <td>
             <div class="company-name">Magnova Consulting Pvt. Ltd.</div>
             <div class="company-address">{{ $wage->employee->tenant->address }}</div>

@@ -15,6 +15,7 @@ type EmployeeRow = {
     id: number;
     employee_code: string | null;
     name: string;
+    gender: 'male' | 'female' | null;
     designation: string | null;
     skill_category: string;
     rate_per_day: string;
@@ -67,6 +68,9 @@ export default function EmployeesIndex({
                                             Name
                                         </th>
                                         <th className="px-6 py-2 font-medium">
+                                            M/F
+                                        </th>
+                                        <th className="px-6 py-2 font-medium">
                                             Client
                                         </th>
                                         <th className="px-6 py-2 font-medium">
@@ -95,6 +99,13 @@ export default function EmployeesIndex({
                                             </td>
                                             <td className="px-6 py-2">
                                                 {employee.name}
+                                            </td>
+                                            <td className="px-6 py-2">
+                                                {employee.gender === 'male'
+                                                    ? 'M'
+                                                    : employee.gender === 'female'
+                                                      ? 'F'
+                                                      : '-'}
                                             </td>
                                             <td className="px-6 py-2">
                                                 {employee.client.name}
@@ -140,7 +151,7 @@ export default function EmployeesIndex({
                                     {employees.length === 0 && (
                                         <tr>
                                             <td
-                                                colSpan={8}
+                                                colSpan={9}
                                                 className="text-muted-foreground px-6 py-6 text-center"
                                             >
                                                 No employees found.

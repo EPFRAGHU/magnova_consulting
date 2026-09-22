@@ -16,6 +16,7 @@ class PdfExportService
 {
     public function __construct(
         private readonly NumberToWordsService $words,
+        private readonly WageRegisterCalculator $wageRegisterCalculator,
     ) {}
 
     public function payslip(Wage $wage): PdfBuilder
@@ -26,6 +27,7 @@ class PdfExportService
             'wage' => $wage,
             'ytd' => $this->ytdFor($wage),
             'netSalaryWords' => $this->words->amountToWords((float) $wage->net_salary),
+            'logoDataUri' => $this->logoDataUri(),
         ])->setPaper('a4');
     }
 
@@ -44,6 +46,7 @@ class PdfExportService
             'year' => $year,
             'ytd' => $ytd,
             'netSalaryWords' => $netSalaryWords,
+            'logoDataUri' => $this->logoDataUri(),
         ])->setPaper('a4');
     }
 
@@ -51,21 +54,54 @@ class PdfExportService
     {
         $invoice->loadMissing('client', 'lineItems.employee', 'tenant');
 
-        $itemGroups = $invoice->lineItems
-            ->groupBy(fn ($item) => $item->employee->designation ?? 'Manpower Supply')
+        $dutySummary = $invoice->lineItems
+            ->groupBy(function ($item) {
+                $designation = trim((string) ($item->employee->designation ?? ''));
+
+                if ($designation === '') {
+                    $designation = ucfirst((string) $item->employee->skill_category).' Security Guard';
+                }
+
+                if (strtolower($designation) === 'security guard' && $item->employee->gender) {
+                    $designation .= ' '.ucfirst((string) $item->employee->gender);
+                }
+
+                return $designation;
+            })
             ->map(fn ($items, $designation) => [
-                'designation' => $designation,
-                'qty' => (float) $items->sum('working_days'),
+                'rank' => $designation,
                 'rate' => (float) ($items->first()->rate_per_day ?? 0),
+                'persons' => $items->count(),
+                'duties' => (float) $items->sum('working_days'),
                 'amount' => (float) $items->sum('wage_amount'),
             ])
             ->values();
+        $bonus = (float) $invoice->lineItems->sum(
+            fn ($item) => round(
+                min((float) $item->wage_amount, (float) config('magnova.bonus_cap'))
+                    * (float) config('magnova.bonus_pct') / 100,
+                2,
+            ),
+        );
 
         return Pdf::loadView('pdf.invoice', [
             'invoice' => $invoice,
-            'itemGroups' => $itemGroups,
+            'dutySummary' => $dutySummary,
+            'bonus' => $bonus,
             'amountInWords' => $this->words->amountToWords((float) $invoice->grand_total),
+            'logoDataUri' => $this->logoDataUri(),
         ])->setPaper('a4');
+    }
+
+    private function logoDataUri(): ?string
+    {
+        $logoPath = base_path('magnovapng.png');
+
+        if (! is_file($logoPath)) {
+            return null;
+        }
+
+        return 'data:image/png;base64,'.base64_encode((string) file_get_contents($logoPath));
     }
 
     public function attendanceSheet(Client $client, int $month, int $year): PdfBuilder
@@ -73,7 +109,7 @@ class PdfExportService
         $employees = Employee::where('client_id', $client->id)
             ->where('status', 'active')
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get(['id', 'employee_code', 'name', 'gender', 'designation']);
 
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
 
@@ -91,25 +127,39 @@ class PdfExportService
             'month' => $month,
             'year' => $year,
             'daysInMonth' => $daysInMonth,
-        ])->setPaper('a4', 'landscape');
+        ])->setPaper('ledger', 'landscape');
     }
 
     public function wageRegister(Client $client, int $month, int $year): PdfBuilder
     {
-        $wages = Wage::whereHas('employee', fn ($q) => $q->where('client_id', $client->id))
+        $employees = Employee::query()
+            ->where('client_id', $client->id)
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get()
+            ->values();
+        $existingWages = Wage::query()
+            ->whereIn('employee_id', $employees->pluck('id'))
             ->where('month', $month)
             ->where('year', $year)
-            ->with('employee')
             ->get()
-            ->sortBy(fn (Wage $wage) => $wage->employee->name)
-            ->values();
+            ->keyBy('employee_id');
+        $rows = $employees->map(
+            fn (Employee $employee, int $index) => $this->wageRegisterCalculator->row(
+                $employee,
+                $existingWages->get($employee->id),
+                $month,
+                $year,
+                $index + 1,
+            ),
+        );
 
         return Pdf::loadView('pdf.wage-register', [
             'client' => $client,
-            'wages' => $wages,
+            'rows' => $rows,
             'month' => $month,
             'year' => $year,
-        ])->setPaper('a4', 'landscape');
+        ])->setPaper('a3', 'landscape');
     }
 
     /**

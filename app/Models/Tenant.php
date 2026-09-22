@@ -13,7 +13,10 @@ class Tenant extends Model implements TenantContract
 
     protected $fillable = [
         'name', 'slug', 'gstin', 'pan', 'contact_email', 'contact_phone',
-        'address', 'bank_name', 'bank_account_no', 'bank_ifsc', 'bank_branch', 'subscription_status',
+        'address', 'establishment_address1', 'establishment_address2', 'establishment_city',
+        'establishment_district', 'establishment_pin', 'establishment_mobile',
+        'establishment_email', 'establishment_website', 'bank_name', 'bank_account_no',
+        'bank_ifsc', 'bank_branch', 'subscription_status',
         'terms_and_conditions',
     ];
 

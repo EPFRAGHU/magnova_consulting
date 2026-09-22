@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\Auth\LoginOtpController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EcrController;
@@ -12,6 +13,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
+Route::middleware('guest')->group(function () {
+    Route::post('login/otp/request', [LoginOtpController::class, 'request'])->name('login.otp.request');
+    Route::post('login/otp/verify', [LoginOtpController::class, 'verify'])->name('login.otp.verify');
+    Route::post('login/otp/resend', [LoginOtpController::class, 'resend'])->name('login.otp.resend');
+});
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -19,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('employees', EmployeeController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
     Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::post('attendance/save', [AttendanceController::class, 'save'])->name('attendance.save');
     Route::post('attendance', [AttendanceController::class, 'update'])->name('attendance.update');
     Route::get('attendance/sheet', [AttendanceController::class, 'sheet'])->name('attendance.sheet');
 

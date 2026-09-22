@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'brevo' => [
+        'sms' => [
+            'enabled' => env('BREVO_SMS_ENABLED', false),
+            'api_key' => env('BREVO_API_KEY'),
+            'sender' => env('BREVO_SMS_SENDER', 'EPFDASH'),
+            'endpoint' => env('BREVO_SMS_ENDPOINT', 'https://api.brevo.com/v3/transactionalSMS/send'),
+            'timeout' => (int) env('BREVO_SMS_TIMEOUT', 10),
+        ],
+    ],
+
 ];

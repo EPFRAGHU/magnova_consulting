@@ -25,7 +25,7 @@ export default function Profile() {
                 <Heading
                     variant="small"
                     title="Profile"
-                    description="Update your name and email address"
+                    description="Update your name, email address, and mobile number"
                 />
 
                 <Form
@@ -73,6 +73,29 @@ export default function Profile() {
                                 <InputError
                                     className="mt-2"
                                     message={errors.email}
+                                />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="mobile_number">Mobile number</Label>
+
+                                <Input
+                                    id="mobile_number"
+                                    type="tel"
+                                    className="mt-1 block w-full"
+                                    defaultValue={auth.user.mobile_number ?? ''}
+                                    name="mobile_number"
+                                    autoComplete="tel"
+                                    placeholder="+91 9876543210"
+                                />
+
+                                <p className="text-sm text-muted-foreground">
+                                    Use an Indian mobile number to enable OTP login.
+                                </p>
+
+                                <InputError
+                                    className="mt-2"
+                                    message={errors.mobile_number}
                                 />
                             </div>
 

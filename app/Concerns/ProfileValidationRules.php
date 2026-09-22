@@ -3,6 +3,7 @@
 namespace App\Concerns;
 
 use App\Models\User;
+use App\Services\PhoneNumberService;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 
@@ -18,6 +19,25 @@ trait ProfileValidationRules
         return [
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
+            'mobile_number' => [
+                'nullable',
+                'string',
+                'max:20',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if ($value === null || $value === '') {
+                        return;
+                    }
+
+                    try {
+                        app(PhoneNumberService::class)->normalize((string) $value);
+                    } catch (\InvalidArgumentException $exception) {
+                        $fail($exception->getMessage());
+                    }
+                },
+                $userId === null
+                    ? Rule::unique(User::class, 'mobile_number')
+                    : Rule::unique(User::class, 'mobile_number')->ignore($userId),
+            ],
         ];
     }
 

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance;
 use App\Models\Client;
 use App\Models\Employee;
 use App\Models\Wage;
 use App\Services\PdfExportService;
 use App\Services\WageCalculator;
+use App\Services\WageRegisterCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class WageController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, WageRegisterCalculator $registerCalculator): Response
     {
         $clientId = $request->integer('client_id') ?: null;
         $month = $request->integer('month') ?: (int) now()->format('n');
@@ -35,39 +35,15 @@ class WageController extends Controller
             ->get()
             ->keyBy('employee_id');
 
-        $rows = $employees->map(function (Employee $employee) use ($existingWages, $month, $year) {
-            if ($existing = $existingWages->get($employee->id)) {
-                return [
-                    'employee_id' => $employee->id,
-                    'name' => $employee->name,
-                    'employee_code' => $employee->employee_code,
-                    'working_days' => (float) $existing->working_days,
-                    'rate_per_day' => (float) $existing->rate_per_day,
-                    'bonus' => (float) $existing->bonus,
-                    'saved' => true,
-                ];
-            }
-
-            $workingDays = (float) Attendance::query()
-                ->where('employee_id', $employee->id)
-                ->whereYear('date', $year)
-                ->whereMonth('date', $month)
-                ->get()
-                ->sum(fn (Attendance $a) => match ($a->status) {
-                    'present', 'sunday' => 1,
-                    default => 0,
-                });
-
-            return [
-                'employee_id' => $employee->id,
-                'name' => $employee->name,
-                'employee_code' => $employee->employee_code,
-                'working_days' => $workingDays,
-                'rate_per_day' => (float) $employee->rate_per_day,
-                'bonus' => 0,
-                'saved' => false,
-            ];
-        });
+        $rows = $employees->values()->map(
+            fn (Employee $employee, int $index) => $registerCalculator->row(
+                $employee,
+                $existingWages->get($employee->id),
+                $month,
+                $year,
+                $index + 1,
+            ),
+        );
 
         return Inertia::render('wages/index', [
             'rows' => $rows,
@@ -78,6 +54,12 @@ class WageController extends Controller
             'rates' => [
                 'epf_employee_pct' => config('magnova.epf_employee_pct'),
                 'esic_employee_pct' => config('magnova.esic_employee_pct'),
+                'bonus_pct' => config('magnova.bonus_pct'),
+                'bonus_cap' => config('magnova.bonus_cap'),
+                'edli_and_epf_admin_pct' => config('magnova.epf_admin_pct') + config('magnova.edli_cont_pct'),
+                'esic_employer_pct' => config('magnova.esi_employer_pct'),
+                'gst_pct' => config('magnova.cgst_pct') + config('magnova.sgst_pct'),
+                'agency_fee_pct' => config('magnova.service_charge_pct'),
             ],
         ]);
     }
@@ -89,12 +71,11 @@ class WageController extends Controller
             'year' => ['required', 'integer', 'min:2000'],
             'rows' => ['required', 'array'],
             'rows.*.employee_id' => ['required', 'exists:employees,id'],
-            'rows.*.bonus' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         foreach ($data['rows'] as $row) {
             $employee = Employee::findOrFail($row['employee_id']);
-            $calculator->calculateForEmployee($employee, $data['month'], $data['year'], (float) ($row['bonus'] ?? 0));
+            $calculator->calculateForEmployee($employee, $data['month'], $data['year']);
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Wages saved.']);

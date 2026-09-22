@@ -24,4 +24,13 @@ class DashboardTest extends TestCase
         $response = $this->get(route('dashboard'));
         $response->assertOk();
     }
+
+    public function test_dashboard_accepts_a_month_and_year_filter(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('dashboard', ['month' => 2, 'year' => 2025]));
+
+        $response->assertOk();
+    }
 }

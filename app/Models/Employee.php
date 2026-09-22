@@ -12,7 +12,7 @@ class Employee extends Model
     use BelongsToTenant, HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'tenant_id', 'client_id', 'employee_code', 'name', 'uan', 'epf_member_id',
+        'tenant_id', 'client_id', 'employee_code', 'name', 'gender', 'uan', 'epf_member_id',
         'esic_no', 'skill_category', 'designation', 'rate_per_day', 'date_of_joining',
         'status', 'bank_name', 'bank_account_no', 'bank_ifsc',
     ];
