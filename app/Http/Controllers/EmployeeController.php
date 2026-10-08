@@ -80,7 +80,7 @@ class EmployeeController extends Controller
             'uan' => ['nullable', 'string', 'max:20'],
             'epf_member_id' => ['nullable', 'string', 'max:50'],
             'esic_no' => ['nullable', 'string', 'max:50'],
-            'skill_category' => ['required', 'in:skilled,unskilled'],
+            'skill_category' => ['required', 'in:unskilled,semi_skilled,skilled,high_skilled'],
             'designation' => ['nullable', 'string', 'max:255'],
             'rate_per_day' => ['required', 'numeric', 'min:0'],
             'date_of_joining' => ['nullable', 'date'],

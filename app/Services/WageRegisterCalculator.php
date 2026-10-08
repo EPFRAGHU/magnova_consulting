@@ -77,7 +77,7 @@ class WageRegisterCalculator
             'name' => $employee->name,
             'employee_code' => $employee->employee_code,
             'nature_of_deployment' => $employee->designation
-                ?: ucfirst($employee->skill_category).' Security Guard',
+                ?: $employee->skillLabel().' Security Guard',
             'days_deployed' => $daysDeployed,
             'minimum_wage' => $minimumWage,
             'monthly_wage' => $monthlyWage,

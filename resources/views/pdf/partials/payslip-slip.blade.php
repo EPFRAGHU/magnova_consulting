@@ -20,7 +20,7 @@
     <tr>
         <td class="label">Designation</td>
         <td class="c">:</td>
-        <td class="value">{{ $employee->designation ?? '-' }} ({{ ucfirst($employee->skill_category) }})</td>
+        <td class="value">{{ $employee->designation ?? '-' }} ({{ $employee->skillLabel() }})</td>
         <td class="label">Bank Account No.</td>
         <td class="c">:</td>
         <td class="value">{{ $employee->bank_account_no ?? '-' }}</td>

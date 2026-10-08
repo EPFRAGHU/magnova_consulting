@@ -59,7 +59,7 @@ class PdfExportService
                 $designation = trim((string) ($item->employee->designation ?? ''));
 
                 if ($designation === '') {
-                    $designation = ucfirst((string) $item->employee->skill_category).' Security Guard';
+                    $designation = $item->employee->skillLabel().' Security Guard';
                 }
 
                 if (strtolower($designation) === 'security guard' && $item->employee->gender) {

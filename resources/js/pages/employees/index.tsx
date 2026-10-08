@@ -117,7 +117,7 @@ export default function EmployeesIndex({
                                                 {employee.designation ?? '-'}
                                             </td>
                                             <td className="px-6 py-2 capitalize">
-                                                {employee.skill_category}
+                                                {employee.skill_category.replace('_', '-')}
                                             </td>
                                             <td className="px-6 py-2">
                                                 {employee.rate_per_day}

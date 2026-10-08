@@ -145,9 +145,15 @@ export default function EmployeeForm({
                                         }
                                         required
                                     >
-                                        <option value="skilled">Skilled</option>
                                         <option value="unskilled">
                                             Unskilled
+                                        </option>
+                                        <option value="semi_skilled">
+                                            Semi-Skilled
+                                        </option>
+                                        <option value="skilled">Skilled</option>
+                                        <option value="high_skilled">
+                                            High-Skilled
                                         </option>
                                     </SelectNative>
                                     <InputError

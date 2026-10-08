@@ -25,6 +25,11 @@ class Employee extends Model
         ];
     }
 
+    public function skillLabel(): string
+    {
+        return ucwords(str_replace('_', '-', (string) $this->skill_category), '-');
+    }
+
     public function client()
     {
         return $this->belongsTo(Client::class);
