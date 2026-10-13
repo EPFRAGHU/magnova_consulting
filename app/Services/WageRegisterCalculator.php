@@ -106,21 +106,49 @@ class WageRegisterCalculator
         ];
     }
 
+    public function bonusFor(float $monthlyWage, int $month, int $year): float
+    {
+        if ($this->usesCurrentRules($month, $year)) {
+            return $monthlyWage > (float) config('magnova.esic_wage_ceiling')
+                ? 0.0
+                : round($monthlyWage * config('magnova.bonus_pct') / 100, 0);
+        }
+
+        return round(min($monthlyWage, config('magnova.bonus_cap')) * config('magnova.bonus_pct') / 100, 2);
+    }
+
     public function row(Employee $employee, ?Wage $wage, int $month, int $year, int $serialNumber): array
+    {
+        $daysDeployed = $this->workingDays($employee, $month, $year);
+        $minimumWage = (float) ($wage?->rate_per_day ?? $employee->rate_per_day);
+        $monthlyWage = round($daysDeployed * $minimumWage, 2);
+
+        return [
+            'serial_number' => $serialNumber,
+            'employee_id' => $employee->id,
+            'name' => $employee->name,
+            'employee_code' => $employee->employee_code,
+            'nature_of_deployment' => $employee->designation
+                ?: $employee->skillLabel().' Security Guard',
+            'days_deployed' => $daysDeployed,
+            'minimum_wage' => $minimumWage,
+            'monthly_wage' => $monthlyWage,
+            ...$this->figures($monthlyWage, $month, $year),
+            'saved' => $wage !== null,
+        ];
+    }
+
+    /** Every statutory and billing figure derived from one employee's Monthly Wage. */
+    public function figures(float $monthlyWage, int $month, int $year): array
     {
         $current = $this->usesCurrentRules($month, $year);
         $precision = $current ? 0 : 2;
         $esicCeiling = (float) config('magnova.esic_wage_ceiling');
 
-        $daysDeployed = $this->workingDays($employee, $month, $year);
-        $minimumWage = (float) ($wage?->rate_per_day ?? $employee->rate_per_day);
-        $monthlyWage = round($daysDeployed * $minimumWage, 2);
         $epfBase = $this->epfWageBase($monthlyWage, $month, $year);
         $aboveEsicCeiling = $current && $monthlyWage > $esicCeiling;
 
-        $bonus = $current
-            ? ($aboveEsicCeiling ? 0.0 : round($monthlyWage * config('magnova.bonus_pct') / 100, 0))
-            : round(min($monthlyWage, config('magnova.bonus_cap')) * config('magnova.bonus_pct') / 100, 2);
+        $bonus = $this->bonusFor($monthlyWage, $month, $year);
         $epfEmployer = round($epfBase * config('magnova.epf_employee_pct') / 100, $precision);
         $edliAndEpfAdmin = round(
             $epfBase * (config('magnova.epf_admin_pct') + config('magnova.edli_cont_pct')) / 100,
@@ -147,15 +175,6 @@ class WageRegisterCalculator
         );
 
         return [
-            'serial_number' => $serialNumber,
-            'employee_id' => $employee->id,
-            'name' => $employee->name,
-            'employee_code' => $employee->employee_code,
-            'nature_of_deployment' => $employee->designation
-                ?: $employee->skillLabel().' Security Guard',
-            'days_deployed' => $daysDeployed,
-            'minimum_wage' => $minimumWage,
-            'monthly_wage' => $monthlyWage,
             'epf_employer' => $epfEmployer,
             'edli_and_epf_admin' => $edliAndEpfAdmin,
             'esic_employer' => $esicEmployer,
@@ -168,7 +187,6 @@ class WageRegisterCalculator
             'esic_employee' => $esicEmployee,
             'other_deduction' => $otherDeduction,
             'net_payable_salary' => $netPayableSalary,
-            'saved' => $wage !== null,
         ];
     }
 }

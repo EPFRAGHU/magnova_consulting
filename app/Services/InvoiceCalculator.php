@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 
 class InvoiceCalculator
 {
+    public function __construct(private WageRegisterCalculator $register) {}
+
     public function generateForClient(Client $client, int $month, int $year, string $invoiceNo): Invoice
     {
         $wages = Wage::query()
@@ -58,6 +60,25 @@ class InvoiceCalculator
         $sgst = round($taxableValue * config('magnova.sgst_pct') / 100, 2);
         $serviceCharge = round($taxableValue * config('magnova.service_charge_pct') / 100, 2);
         $grandTotal = round($taxableValue + $serviceCharge + $cgst + $sgst, 2);
+
+        // From the current register rules the invoice is the sum of the Register
+        // of Wages rows, so both documents always show the same figures.
+        if ($this->register->usesCurrentRules($month, $year)) {
+            $figures = $wages->map(
+                fn (Wage $wage) => $this->register->figures((float) $wage->gross_wages, $month, $year),
+            );
+            $edliAndAdmin = round($figures->sum('edli_and_epf_admin'), 2);
+            $epfAdmin = round($edliAndAdmin / 2, 2);
+            $edliCont = round($edliAndAdmin - $epfAdmin, 2);
+            $epfEmployer = round($figures->sum('epf_employer'), 2);
+            $esiEmployer = round($figures->sum('esic_employer'), 2);
+            $taxableValue = round($figures->sum('total_gross_salary'), 2);
+            $gst = round($figures->sum('gst'), 2);
+            $cgst = round($gst / 2, 2);
+            $sgst = round($gst - $cgst, 2);
+            $serviceCharge = round($figures->sum('agency_fee'), 2);
+            $grandTotal = round($figures->sum('total_bill_amount'), 2);
+        }
 
         return DB::transaction(function () use ($client, $month, $year, $invoiceNo, $wages, $noOfPersons, $noOfDuties, $ratePerDay, $baseAmount, $epfEmployer, $epfAdmin, $edliCont, $esiEmployer, $taxableValue, $serviceCharge, $cgst, $sgst, $grandTotal) {
             $existing = Invoice::where('client_id', $client->id)

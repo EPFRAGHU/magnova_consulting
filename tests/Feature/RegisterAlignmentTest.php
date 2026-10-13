@@ -1,0 +1,109 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Attendance;
+use App\Models\Client;
+use App\Models\Employee;
+use App\Models\Tenant;
+use App\Models\Wage;
+use App\Services\InvoiceCalculator;
+use App\Services\PdfExportService;
+use App\Services\WageCalculator;
+use App\Services\WageRegisterCalculator;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class RegisterAlignmentTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /** @return array{0: Client, 1: array<int, Employee>} */
+    private function setUpUnit(int $month, int $year): array
+    {
+        $tenant = Tenant::create(['name' => 'Magnova Test', 'slug' => 'magnova-test']);
+        $client = Client::create(['tenant_id' => $tenant->id, 'name' => 'Unit A', 'active' => true]);
+        $employees = [];
+
+        foreach ([['Alpha', 1008, 26], ['Bravo', 1008, 12], ['Charlie', 918, 22]] as $i => [$name, $rate, $days]) {
+            $employee = Employee::create([
+                'tenant_id' => $tenant->id,
+                'client_id' => $client->id,
+                'employee_code' => 'T-'.$i,
+                'name' => $name,
+                'skill_category' => 'skilled',
+                'rate_per_day' => $rate,
+                'status' => 'active',
+            ]);
+
+            for ($day = 1; $day <= $days; $day++) {
+                Attendance::create([
+                    'tenant_id' => $tenant->id,
+                    'employee_id' => $employee->id,
+                    'date' => sprintf('%04d-%02d-%02d', $year, $month, $day),
+                    'status' => 'present',
+                ]);
+            }
+
+            $employees[] = $employee;
+        }
+
+        return [$client, $employees];
+    }
+
+    public function test_saved_wages_for_september_2026_match_the_register(): void
+    {
+        [, $employees] = $this->setUpUnit(9, 2026);
+        $register = app(WageRegisterCalculator::class);
+
+        foreach ($employees as $employee) {
+            $wage = app(WageCalculator::class)->calculateForEmployee($employee, 9, 2026);
+            $row = $register->row($employee, null, 9, 2026, 1);
+
+            $this->assertEquals($row['monthly_wage'], $wage->gross_wages);
+            $this->assertEquals($row['bonus'], $wage->bonus);
+            $this->assertEquals($row['epf_employee'], $wage->epf_employee);
+            $this->assertEquals($row['esic_employee'], $wage->esic_employee);
+            $this->assertEquals($row['net_payable_salary'], $wage->net_salary);
+        }
+
+        $first = Wage::where('employee_id', $employees[0]->id)->first();
+        $this->assertEquals(23848, $first->net_salary);
+        $this->assertEquals(0, $first->bonus);
+    }
+
+    public function test_invoice_for_september_2026_equals_the_register_totals(): void
+    {
+        [$client, $employees] = $this->setUpUnit(9, 2026);
+        $register = app(WageRegisterCalculator::class);
+
+        foreach ($employees as $employee) {
+            app(WageCalculator::class)->calculateForEmployee($employee, 9, 2026);
+        }
+
+        $invoice = app(InvoiceCalculator::class)->generateForClient($client, 9, 2026, 'INV-TEST-1');
+        $rows = collect($employees)->map(fn (Employee $e) => $register->row($e, null, 9, 2026, 1));
+
+        $this->assertEquals($rows->sum('monthly_wage'), $invoice->base_amount);
+        $this->assertEquals($rows->sum('epf_employer'), $invoice->epf_employer);
+        $this->assertEquals($rows->sum('edli_and_epf_admin'), $invoice->epf_admin + $invoice->edli_cont);
+        $this->assertEquals($rows->sum('esic_employer'), $invoice->esi_employer);
+        $this->assertEquals($rows->sum('total_gross_salary'), $invoice->taxable_value);
+        $this->assertEquals($rows->sum('agency_fee'), $invoice->service_charge);
+        $this->assertEquals($rows->sum('gst'), $invoice->cgst + $invoice->sgst);
+        $this->assertEquals($rows->sum('total_bill_amount'), $invoice->grand_total);
+
+        $this->assertStringStartsWith('%PDF', app(PdfExportService::class)->invoice($invoice)->output());
+    }
+
+    public function test_august_2026_wages_keep_the_earlier_logic(): void
+    {
+        [, $employees] = $this->setUpUnit(8, 2026);
+
+        $wage = app(WageCalculator::class)->calculateForEmployee($employees[0], 8, 2026);
+
+        $this->assertEquals(26208, $wage->gross_wages);
+        $this->assertEquals(1749.3, $wage->bonus);
+        $this->assertEquals(1800, $wage->epf_employee);
+    }
+}

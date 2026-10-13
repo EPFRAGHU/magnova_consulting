@@ -79,10 +79,10 @@ class PdfExportService
             ])
             ->values();
         $bonus = (float) $invoice->lineItems->sum(
-            fn ($item) => round(
-                min((float) $item->wage_amount, (float) config('magnova.bonus_cap'))
-                    * (float) config('magnova.bonus_pct') / 100,
-                2,
+            fn ($item) => $this->wageRegisterCalculator->bonusFor(
+                (float) $item->wage_amount,
+                (int) $invoice->month,
+                (int) $invoice->year,
             ),
         );
 
