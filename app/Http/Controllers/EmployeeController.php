@@ -18,7 +18,7 @@ class EmployeeController extends Controller
         $employees = Employee::query()
             ->with('client')
             ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
-            ->orderBy('name')
+            ->orderBySkill()
             ->get();
 
         return Inertia::render('employees/index', [

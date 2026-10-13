@@ -25,9 +25,29 @@ class Employee extends Model
         ];
     }
 
+    public const SKILL_ORDER = ['high_skilled', 'skilled', 'semi_skilled', 'unskilled'];
+
     public function skillLabel(): string
     {
         return ucwords(str_replace('_', '-', (string) $this->skill_category), '-');
+    }
+
+    public function skillSortKey(): string
+    {
+        $rank = array_search($this->skill_category, self::SKILL_ORDER, true);
+
+        return sprintf('%d|%s', $rank === false ? count(self::SKILL_ORDER) : $rank, mb_strtolower((string) $this->name));
+    }
+
+    public function scopeOrderBySkill($query)
+    {
+        $cases = collect(self::SKILL_ORDER)
+            ->map(fn (string $skill, int $rank) => "WHEN '{$skill}' THEN {$rank}")
+            ->implode(' ');
+
+        return $query
+            ->orderByRaw("CASE employees.skill_category {$cases} ELSE ".count(self::SKILL_ORDER).' END')
+            ->orderBy('employees.name');
     }
 
     public function client()

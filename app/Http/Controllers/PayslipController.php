@@ -23,7 +23,9 @@ class PayslipController extends Controller
             ->whereHas('employee', fn ($q) => $q->when($clientId, fn ($q2) => $q2->where('client_id', $clientId)))
             ->where('month', $month)
             ->where('year', $year)
-            ->get();
+            ->get()
+            ->sortBy(fn (Wage $wage) => $wage->employee->skillSortKey())
+            ->values();
 
         return Inertia::render('payslips/index', [
             'wages' => $wages,

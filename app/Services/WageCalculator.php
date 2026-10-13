@@ -55,6 +55,7 @@ class WageCalculator
         return Employee::query()
             ->where('client_id', $clientId)
             ->where('status', 'active')
+            ->orderBySkill()
             ->get()
             ->map(fn (Employee $employee) => $this->calculateForEmployee($employee, $month, $year));
     }

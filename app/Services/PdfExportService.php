@@ -34,8 +34,9 @@ class PdfExportService
     public function bulkPayslips(Collection $wages, int $month, int $year): PdfBuilder
     {
         $wages->loadMissing('employee.client');
+        $wages = $wages->sortBy(fn (Wage $wage) => $wage->employee->skillSortKey())->values();
 
-        $ytd = $wages->mapWithKeys(fn (Wage $wage) => [$wage->id => $this->ytdFor($wage)]);
+        $ytd =$wages->mapWithKeys(fn (Wage $wage) => [$wage->id => $this->ytdFor($wage)]);
         $netSalaryWords = $wages->mapWithKeys(fn (Wage $wage) => [
             $wage->id => $this->words->amountToWords((float) $wage->net_salary),
         ]);
@@ -55,6 +56,7 @@ class PdfExportService
         $invoice->loadMissing('client', 'lineItems.employee', 'tenant');
 
         $dutySummary = $invoice->lineItems
+            ->sortBy(fn ($item) => $item->employee->skillSortKey())
             ->groupBy(function ($item) {
                 $designation = trim((string) ($item->employee->designation ?? ''));
 
@@ -108,7 +110,7 @@ class PdfExportService
     {
         $employees = Employee::where('client_id', $client->id)
             ->where('status', 'active')
-            ->orderBy('name')
+            ->orderBySkill()
             ->get(['id', 'employee_code', 'name', 'gender', 'designation']);
 
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
@@ -135,7 +137,7 @@ class PdfExportService
         $employees = Employee::query()
             ->where('client_id', $client->id)
             ->where('status', 'active')
-            ->orderBy('name')
+            ->orderBySkill()
             ->get()
             ->values();
         $existingWages = Wage::query()

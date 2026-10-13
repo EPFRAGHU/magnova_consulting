@@ -37,6 +37,10 @@ class InvoiceController extends Controller
     public function show(Invoice $invoice): Response
     {
         $invoice->load('client', 'lineItems.employee');
+        $invoice->setRelation(
+            'lineItems',
+            $invoice->lineItems->sortBy(fn ($item) => $item->employee->skillSortKey())->values(),
+        );
 
         return Inertia::render('invoices/show', [
             'invoice' => $invoice,

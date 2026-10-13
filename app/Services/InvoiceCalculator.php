@@ -16,7 +16,9 @@ class InvoiceCalculator
             ->where('month', $month)
             ->where('year', $year)
             ->with('employee')
-            ->get();
+            ->get()
+            ->sortBy(fn (Wage $wage) => $wage->employee->skillSortKey())
+            ->values();
 
         $noOfDuties = (float) $wages->sum('working_days');
         $noOfPersons = $wages->count();
