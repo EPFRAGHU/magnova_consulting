@@ -59,16 +59,16 @@
                 <th class="col-days">Days Deployed in the Month</th>
                 <th class="col-minimum">Minimum Wage as per Central Minimum Wage Rate</th>
                 <th class="col-monthly">Monthly Wage (D*E)</th>
-                <th class="col-epf">EPF @12% of MIN(F, Rs. 15,000)</th>
-                <th class="col-edli">EDLI and EPF Admin @1% of MIN(F, Rs. 15,000)</th>
-                <th class="col-esic">ESIC @3.25% of MIN(F, Rs. 21,000)</th>
-                <th class="col-bonus">Bonus @8.33% of MIN(F, Rs. 21,000)</th>
+                <th class="col-epf">{{ $headings['epf'] }}</th>
+                <th class="col-edli">{{ $headings['edli'] }}</th>
+                <th class="col-esic">{{ $headings['esic'] }}</th>
+                <th class="col-bonus">{{ $headings['bonus'] }}</th>
                 <th class="col-gross">Total Gross salary of the Security Guards (F+G+H+I+J)</th>
                 <th class="col-gst">GST @ 18 % (K*0.18)</th>
                 <th class="col-agency">Agency Fee @3.85% of Total Gross Salary (K*0.0385)</th>
                 <th class="col-bill">Total Bill amount in Rs. Including GST (K+L+M)</th>
-                <th class="col-epf-individual">EPF individual @12% of MIN(F, Rs. 15,000)</th>
-                <th class="col-esic-individual">ESIC individual @0.75% of MIN(F, Rs. 21,000)</th>
+                <th class="col-epf-individual">{{ $headings['epf_individual'] }}</th>
+                <th class="col-esic-individual">{{ $headings['esic_individual'] }}</th>
                 <th class="col-other">Any Other Deduction (Professional Tax etc.)</th>
                 <th class="col-net">Net Payable Salary of the Guard (F+J) - (O+P+Q)</th>
             </tr>

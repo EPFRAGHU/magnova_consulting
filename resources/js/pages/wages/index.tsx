@@ -19,9 +19,29 @@ type Row = {
     nature_of_deployment: string;
     days_deployed: number;
     minimum_wage: number;
+    monthly_wage: number;
+    epf_employer: number;
+    edli_and_epf_admin: number;
+    esic_employer: number;
     bonus: number;
+    total_gross_salary: number;
+    gst: number;
+    agency_fee: number;
+    total_bill_amount: number;
+    epf_employee: number;
+    esic_employee: number;
     other_deduction: number;
+    net_payable_salary: number;
     saved: boolean;
+};
+
+type Headings = {
+    epf: string;
+    edli: string;
+    esic: string;
+    bonus: string;
+    epf_individual: string;
+    esic_individual: string;
 };
 
 export default function WagesIndex({
@@ -30,44 +50,33 @@ export default function WagesIndex({
     client_id: clientId,
     month,
     year,
-    rates,
+    headings,
 }: {
     rows: Row[];
     clients: ClientOption[];
     client_id: number | null;
     month: number;
     year: number;
-    rates: {
-        epf_employee_pct: number;
-        esic_employee_pct: number;
-        bonus_pct: number;
-        bonus_cap: number;
-        edli_and_epf_admin_pct: number;
-        esic_employer_pct: number;
-        gst_pct: number;
-        agency_fee_pct: number;
-    };
+    headings: Headings;
 }) {
     const [processing, setProcessing] = useState(false);
     const selectedClient = clients.find((client) => client.id === clientId);
     const monthName = MONTHS[month - 1]?.toUpperCase() ?? String(month);
 
-    const compute = (row: Row) => {
-        const monthlyWage = row.days_deployed * row.minimum_wage;
-        const bonus = round2((Math.min(monthlyWage, rates.bonus_cap) * rates.bonus_pct) / 100);
-        const epfEmployer = round2((Math.min(monthlyWage, 15000) * rates.epf_employee_pct) / 100);
-        const edliAndEpfAdmin = round2((Math.min(monthlyWage, 15000) * rates.edli_and_epf_admin_pct) / 100);
-        const esicEmployer = round2((Math.min(monthlyWage, 21000) * rates.esic_employer_pct) / 100);
-        const totalGrossSalary = round2(monthlyWage + epfEmployer + edliAndEpfAdmin + esicEmployer + bonus);
-        const gst = round2((totalGrossSalary * rates.gst_pct) / 100);
-        const agencyFee = round2((totalGrossSalary * rates.agency_fee_pct) / 100);
-        const totalBillAmount = round2(totalGrossSalary + gst + agencyFee);
-        const epf = round2((Math.min(monthlyWage, 15000) * rates.epf_employee_pct) / 100);
-        const esic = round2((Math.min(monthlyWage, 21000) * rates.esic_employee_pct) / 100);
-        const net = round2(monthlyWage + bonus - epf - esic - row.other_deduction);
-
-        return { monthlyWage, epfEmployer, edliAndEpfAdmin, esicEmployer, bonus, totalGrossSalary, gst, agencyFee, totalBillAmount, epf, esic, net };
-    };
+    const compute = (row: Row) => ({
+        monthlyWage: row.monthly_wage,
+        epfEmployer: row.epf_employer,
+        edliAndEpfAdmin: row.edli_and_epf_admin,
+        esicEmployer: row.esic_employer,
+        bonus: row.bonus,
+        totalGrossSalary: row.total_gross_salary,
+        gst: row.gst,
+        agencyFee: row.agency_fee,
+        totalBillAmount: row.total_bill_amount,
+        epf: row.epf_employee,
+        esic: row.esic_employee,
+        net: row.net_payable_salary,
+    });
 
     const calculatedRows = rows.map((row) => ({ row, values: compute(row) }));
     const totals = calculatedRows.reduce(
@@ -158,16 +167,16 @@ export default function WagesIndex({
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">Days Deployed in the Month</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">Minimum Wage as per Central Minimum Wage Rate</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">Monthly Wage (D*E)</th>
-                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">EPF @12% of MIN(F, Rs. 15,000)</th>
-                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">EDLI and EPF Admin @1% of MIN(F, Rs. 15,000)</th>
-                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">ESIC @3.25% of MIN(F, Rs. 21,000)</th>
-                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">Bonus @8.33% of MIN(F, Rs. 21,000)</th>
+                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">{headings.epf}</th>
+                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">{headings.edli}</th>
+                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">{headings.esic}</th>
+                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">{headings.bonus}</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">Total Gross salary of the Security Guards (F+G+H+I+J)</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">GST @ 18 % (K*0.18)</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">Agency Fee @3.85% of Total Gross Salary (K*0.0385)</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">Total Bill amount in Rs. Including GST (K+L+M)</th>
-                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">EPF individual @12% of MIN(F, Rs. 15,000)</th>
-                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">ESIC individual @0.75% of MIN(F, Rs. 21,000)</th>
+                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">{headings.epf_individual}</th>
+                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">{headings.esic_individual}</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">Any Other Deduction (Professional Tax etc.)</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">Net Payable Salary of the Guard (F+J) - (O+P+Q)</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight" />
@@ -229,10 +238,6 @@ export default function WagesIndex({
             </div>
         </>
     );
-}
-
-function round2(n: number) {
-    return Math.round(n * 100) / 100;
 }
 
 function formatRounded(n: number) {

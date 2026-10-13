@@ -13,6 +13,18 @@ return [
     'cgst_pct' => 9.00,
     'sgst_pct' => 9.00,
 
+    // Register of Wages ceilings. EPF/EDLI wage ceiling rose from 15,000 to
+    // 25,000 from 17 Sep 2026; months are blended day-by-day around the change.
+    'epf_wage_ceiling' => 15000,
+    'epf_wage_ceiling_changes' => [
+        ['from' => '2026-09-17', 'ceiling' => 25000],
+    ],
+    // ESIC and bonus are nil when Monthly Wage exceeds this amount.
+    'esic_wage_ceiling' => 21000,
+    // From this month the register rounds to whole rupees and drops ESIC and
+    // bonus entirely above the ceiling; earlier months keep the older logic.
+    'register_rules_from' => '2026-09-01',
+
     // HSN/SAC code for manpower supply services shown on the tax invoice.
     'hsn_sac_code' => '998522',
     'company_cin' => env('MAGNOVA_COMPANY_CIN'),

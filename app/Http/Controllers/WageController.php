@@ -51,16 +51,7 @@ class WageController extends Controller
             'client_id' => $clientId,
             'month' => $month,
             'year' => $year,
-            'rates' => [
-                'epf_employee_pct' => config('magnova.epf_employee_pct'),
-                'esic_employee_pct' => config('magnova.esic_employee_pct'),
-                'bonus_pct' => config('magnova.bonus_pct'),
-                'bonus_cap' => config('magnova.bonus_cap'),
-                'edli_and_epf_admin_pct' => config('magnova.epf_admin_pct') + config('magnova.edli_cont_pct'),
-                'esic_employer_pct' => config('magnova.esi_employer_pct'),
-                'gst_pct' => config('magnova.cgst_pct') + config('magnova.sgst_pct'),
-                'agency_fee_pct' => config('magnova.service_charge_pct'),
-            ],
+            'headings' => $registerCalculator->headings($month, $year),
         ]);
     }
 
