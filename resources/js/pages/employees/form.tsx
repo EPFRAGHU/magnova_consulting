@@ -140,11 +140,13 @@ export default function EmployeeForm({
                                         id="skill_category"
                                         name="skill_category"
                                         defaultValue={
-                                            employee?.skill_category ??
-                                            'unskilled'
+                                            employee?.skill_category ?? ''
                                         }
                                         required
                                     >
+                                        <option value="" disabled>
+                                            Select Skill Category
+                                        </option>
                                         <option value="high_skilled">
                                             High-Skilled
                                         </option>
