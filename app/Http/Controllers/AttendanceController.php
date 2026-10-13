@@ -29,7 +29,7 @@ class AttendanceController extends Controller
             ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
             ->where('status', 'active')
             ->orderBySkill()
-            ->get(['id', 'name', 'employee_code']);
+            ->get(['id', 'name', 'employee_code', 'designation']);
 
         $attendance = Attendance::query()
             ->whereIn('employee_id', $employees->pluck('id'))

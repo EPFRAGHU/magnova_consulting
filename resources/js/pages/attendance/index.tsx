@@ -10,7 +10,12 @@ import { dashboard } from '@/routes';
 import { index, save, sheet } from '@/routes/attendance';
 
 type ClientOption = { id: number; name: string; unit_label: string | null };
-type Employee = { id: number; name: string; employee_code: string | null };
+type Employee = {
+    id: number;
+    name: string;
+    employee_code: string | null;
+    designation: string | null;
+};
 
 type AttendanceMap = Record<number, Record<number, string>>;
 
@@ -194,6 +199,12 @@ export default function AttendanceIndex({
                                         >
                                             Employee
                                         </th>
+                                        <th
+                                            rowSpan={2}
+                                            className="w-20 px-1 py-2 align-bottom text-xs font-medium sm:w-28 sm:px-2"
+                                        >
+                                            Designation
+                                        </th>
                                         {days.map((date) => (
                                             <th
                                                 key={date.day}
@@ -250,6 +261,9 @@ export default function AttendanceIndex({
                                                     )}
                                                 </div>
                                             </td>
+                                            <td className="px-1 py-2 align-top text-xs leading-tight break-words sm:px-2">
+                                                {employee.designation ?? '-'}
+                                            </td>
                                             {days.map((date) => {
                                                 const status =
                                                     grid[employee.id]?.[date.day];
@@ -300,7 +314,7 @@ export default function AttendanceIndex({
                                     {employees.length === 0 && (
                                         <tr>
                                             <td
-                                                colSpan={daysInMonth + 2}
+                                                colSpan={daysInMonth + 3}
                                                 className="text-muted-foreground px-4 py-6 text-center"
                                             >
                                                 No active employees for this
