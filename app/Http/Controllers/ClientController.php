@@ -67,7 +67,10 @@ class ClientController extends Controller
 
     private function validated(Request $request): array
     {
-        $request->merge(['active' => $request->boolean('active')]);
+        $request->merge([
+            'active' => $request->boolean('active'),
+            'bonus_enabled' => $request->boolean('bonus_enabled'),
+        ]);
 
         return $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -82,6 +85,7 @@ class ClientController extends Controller
             'contact_phone' => ['nullable', 'string', 'max:20'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'active' => ['boolean'],
+            'bonus_enabled' => ['boolean'],
         ]);
     }
 }

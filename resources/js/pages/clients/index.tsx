@@ -18,6 +18,7 @@ type ClientRow = {
     contact_person: string | null;
     contact_phone: string | null;
     active: boolean;
+    bonus_enabled: boolean;
     employees_count: number;
 };
 
@@ -124,6 +125,11 @@ export default function ClientsIndex({
                                                     {client.active
                                                         ? 'Active'
                                                         : 'Inactive'}
+                                                </Badge>{' '}
+                                                <Badge variant="outline">
+                                                    {client.bonus_enabled
+                                                        ? 'Bonus on'
+                                                        : 'Bonus off'}
                                                 </Badge>
                                             </td>
                                             <td className="px-6 py-2 text-right whitespace-nowrap">

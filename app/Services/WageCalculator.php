@@ -16,7 +16,7 @@ class WageCalculator
 
         $ratePerDay = (float) $employee->rate_per_day;
         $grossWages = round($workingDays * $ratePerDay, 2);
-        $figures = $this->register->figures($grossWages, $month, $year);
+        $figures = $this->register->figures($grossWages, $month, $year, (bool) $employee->client?->bonus_enabled);
         $bonus = $figures['bonus'];
         $epfEmployee = $figures['epf_employee'];
         $esicEmployee = $figures['esic_employee'];
@@ -44,6 +44,7 @@ class WageCalculator
     public function calculateForClient(int $clientId, int $month, int $year): Collection
     {
         return Employee::query()
+            ->with('client')
             ->where('client_id', $clientId)
             ->where('status', 'active')
             ->orderBySkill()

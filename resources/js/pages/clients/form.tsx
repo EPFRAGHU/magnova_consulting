@@ -24,6 +24,7 @@ type Client = {
     contact_phone: string | null;
     contact_email: string | null;
     active: boolean;
+    bonus_enabled: boolean;
 };
 
 export default function ClientForm({ client }: { client?: Client }) {
@@ -200,6 +201,27 @@ export default function ClientForm({ client }: { client?: Client }) {
                                     <Label htmlFor="active">Active</Label>
                                 </div>
                                 <InputError message={errors.active} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        id="bonus_enabled"
+                                        name="bonus_enabled"
+                                        defaultChecked={
+                                            client?.bonus_enabled ?? false
+                                        }
+                                    />
+                                    <Label htmlFor="bonus_enabled">
+                                        Bonus applicable{' '}
+                                        <span className="text-muted-foreground font-normal">
+                                            (when ticked, every employee of this
+                                            unit gets bonus in wages, payslips
+                                            and invoices)
+                                        </span>
+                                    </Label>
+                                </div>
+                                <InputError message={errors.bonus_enabled} />
                             </div>
 
                             <div className="flex gap-2">

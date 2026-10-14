@@ -83,6 +83,7 @@ class PdfExportService
                 (float) $item->wage_amount,
                 (int) $invoice->month,
                 (int) $invoice->year,
+                (bool) $invoice->client?->bonus_enabled,
             ),
         );
 
@@ -135,6 +136,7 @@ class PdfExportService
     public function wageRegister(Client $client, int $month, int $year): PdfBuilder
     {
         $employees = Employee::query()
+            ->with('client')
             ->where('client_id', $client->id)
             ->where('status', 'active')
             ->orderBySkill()

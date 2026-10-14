@@ -65,7 +65,12 @@ class InvoiceCalculator
         // of Wages rows, so both documents always show the same figures.
         if ($this->register->usesCurrentRules($month, $year)) {
             $figures = $wages->map(
-                fn (Wage $wage) => $this->register->figures((float) $wage->gross_wages, $month, $year),
+                fn (Wage $wage) => $this->register->figures(
+                    (float) $wage->gross_wages,
+                    $month,
+                    $year,
+                    (bool) $client->bonus_enabled,
+                ),
             );
             $edliAndAdmin = round($figures->sum('edli_and_epf_admin'), 2);
             $epfAdmin = round($edliAndAdmin / 2, 2);

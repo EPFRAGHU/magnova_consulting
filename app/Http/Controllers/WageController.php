@@ -24,6 +24,7 @@ class WageController extends Controller
         $year = $request->integer('year') ?: WageMonth::year();
 
         $employees = Employee::query()
+            ->with('client')
             ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
             ->where('status', 'active')
             ->orderBySkill()

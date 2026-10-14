@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\Client;
 use App\Models\Employee;
 use App\Services\WageRegisterCalculator;
 use Mockery;
@@ -10,12 +11,13 @@ use Tests\TestCase;
 
 class WageRegisterCalculatorTest extends TestCase
 {
-    private function row(float $days, float $rate, int $month, int $year): array
+    private function row(float $days, float $rate, int $month, int $year, bool $bonusEnabled = true): array
     {
         $calculator = Mockery::mock(WageRegisterCalculator::class)->makePartial();
         $calculator->shouldReceive('workingDays')->andReturn($days);
 
         $employee = Employee::make(['rate_per_day' => $rate, 'skill_category' => 'skilled', 'name' => 'Test']);
+        $employee->setRelation('client', new Client(['bonus_enabled' => $bonusEnabled]));
 
         return $calculator->row($employee, null, $month, $year, 1);
     }
@@ -77,6 +79,24 @@ class WageRegisterCalculatorTest extends TestCase
 
         $this->assertCount(1, $calculator->ceilingSegments(10, 2026));
         $this->assertStringContainsString('ceiling Rs.25,000', $calculator->headings(10, 2026)['epf']);
+    }
+
+    public function test_unit_with_bonus_off_gets_no_bonus_and_totals_follow(): void
+    {
+        $on = $this->row(12, 1008, 9, 2026, true);
+        $off = $this->row(12, 1008, 9, 2026, false);
+
+        $this->assertEquals(1008, $on['bonus']);
+        $this->assertEquals(0, $off['bonus']);
+        $this->assertEquals($on['net_payable_salary'] - 1008, $off['net_payable_salary']);
+        $this->assertEquals($on['total_gross_salary'] - 1008, $off['total_gross_salary']);
+        $this->assertEquals($on['epf_employee'], $off['epf_employee']);
+        $this->assertEquals($on['esic_employer'], $off['esic_employer']);
+    }
+
+    public function test_bonus_off_also_applies_to_earlier_months_when_recalculated(): void
+    {
+        $this->assertEquals(0, $this->row(26, 1008, 8, 2026, false)['bonus']);
     }
 
     public function test_august_2026_keeps_the_earlier_logic(): void

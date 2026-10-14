@@ -14,13 +14,14 @@ class Client extends Model
     protected $fillable = [
         'tenant_id', 'name', 'unit_label', 'address', 'gstin', 'sac_code', 'gemc_no',
         'billing_name', 'billing_address',
-        'contact_person', 'contact_phone', 'contact_email', 'active',
+        'contact_person', 'contact_phone', 'contact_email', 'active', 'bonus_enabled',
     ];
 
     protected function casts(): array
     {
         return [
             'active' => 'boolean',
+            'bonus_enabled' => 'boolean',
         ];
     }
 

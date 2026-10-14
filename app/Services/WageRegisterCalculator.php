@@ -106,8 +106,13 @@ class WageRegisterCalculator
         ];
     }
 
-    public function bonusFor(float $monthlyWage, int $month, int $year): float
+    /** Bonus is a per-unit choice: when the unit has it switched off nobody in that unit gets any. */
+    public function bonusFor(float $monthlyWage, int $month, int $year, bool $bonusEnabled): float
     {
+        if (! $bonusEnabled) {
+            return 0.0;
+        }
+
         if ($this->usesCurrentRules($month, $year)) {
             return $monthlyWage > (float) config('magnova.esic_wage_ceiling')
                 ? 0.0
@@ -133,13 +138,13 @@ class WageRegisterCalculator
             'days_deployed' => $daysDeployed,
             'minimum_wage' => $minimumWage,
             'monthly_wage' => $monthlyWage,
-            ...$this->figures($monthlyWage, $month, $year),
+            ...$this->figures($monthlyWage, $month, $year, (bool) $employee->client?->bonus_enabled),
             'saved' => $wage !== null,
         ];
     }
 
     /** Every statutory and billing figure derived from one employee's Monthly Wage. */
-    public function figures(float $monthlyWage, int $month, int $year): array
+    public function figures(float $monthlyWage, int $month, int $year, bool $bonusEnabled): array
     {
         $current = $this->usesCurrentRules($month, $year);
         $precision = $current ? 0 : 2;
@@ -148,7 +153,7 @@ class WageRegisterCalculator
         $epfBase = $this->epfWageBase($monthlyWage, $month, $year);
         $aboveEsicCeiling = $current && $monthlyWage > $esicCeiling;
 
-        $bonus = $this->bonusFor($monthlyWage, $month, $year);
+        $bonus = $this->bonusFor($monthlyWage, $month, $year, $bonusEnabled);
         $epfEmployer = round($epfBase * config('magnova.epf_employee_pct') / 100, $precision);
         $edliAndEpfAdmin = round(
             $epfBase * (config('magnova.epf_admin_pct') + config('magnova.edli_cont_pct')) / 100,

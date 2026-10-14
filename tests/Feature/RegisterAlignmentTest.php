@@ -19,10 +19,15 @@ class RegisterAlignmentTest extends TestCase
     use RefreshDatabase;
 
     /** @return array{0: Client, 1: array<int, Employee>} */
-    private function setUpUnit(int $month, int $year): array
+    private function setUpUnit(int $month, int $year, bool $bonusEnabled = true): array
     {
         $tenant = Tenant::create(['name' => 'Magnova Test', 'slug' => 'magnova-test']);
-        $client = Client::create(['tenant_id' => $tenant->id, 'name' => 'Unit A', 'active' => true]);
+        $client = Client::create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Unit A',
+            'active' => true,
+            'bonus_enabled' => $bonusEnabled,
+        ]);
         $employees = [];
 
         foreach ([['Alpha', 1008, 26], ['Bravo', 1008, 12], ['Charlie', 918, 22]] as $i => [$name, $rate, $days]) {
@@ -94,6 +99,67 @@ class RegisterAlignmentTest extends TestCase
         $this->assertEquals($rows->sum('total_bill_amount'), $invoice->grand_total);
 
         $this->assertStringStartsWith('%PDF', app(PdfExportService::class)->invoice($invoice)->output());
+    }
+
+    public function test_unit_with_bonus_off_has_no_bonus_in_wages_or_invoice(): void
+    {
+        [$client, $employees] = $this->setUpUnit(9, 2026, false);
+
+        foreach ($employees as $employee) {
+            $wage = app(WageCalculator::class)->calculateForEmployee($employee, 9, 2026);
+            $this->assertEquals(0, $wage->bonus);
+            $this->assertEquals($wage->gross_wages - $wage->epf_employee - $wage->esic_employee, $wage->net_salary);
+        }
+
+        $invoice = app(InvoiceCalculator::class)->generateForClient($client, 9, 2026, 'INV-TEST-OFF');
+
+        $this->assertEquals(
+            $invoice->base_amount + $invoice->epf_employer + $invoice->epf_admin + $invoice->edli_cont + $invoice->esi_employer,
+            $invoice->taxable_value,
+        );
+        $this->assertStringNotContainsString('Bonus @', $this->pdfText($invoice));
+    }
+
+    public function test_recalculation_applies_the_setting_to_saved_months_but_leaves_sent_invoices(): void
+    {
+        [$client, $employees] = $this->setUpUnit(9, 2026, true);
+
+        foreach ($employees as $employee) {
+            app(WageCalculator::class)->calculateForEmployee($employee, 9, 2026);
+        }
+
+        $invoice = app(InvoiceCalculator::class)->generateForClient($client, 9, 2026, 'INV-TEST-DRAFT');
+        $withBonus = $invoice->grand_total;
+        $this->assertGreaterThan(0, Wage::sum('bonus'));
+
+        $client->update(['bonus_enabled' => false]);
+        $this->artisan('wages:apply-bonus-setting')->assertSuccessful();
+
+        $this->assertEquals(0, Wage::sum('bonus'));
+        $this->assertLessThan($withBonus, $invoice->fresh()->grand_total);
+
+        $client->update(['bonus_enabled' => true]);
+        $sent = $invoice->fresh();
+        $sent->update(['status' => 'sent']);
+        $sentTotal = $sent->grand_total;
+
+        $client->update(['bonus_enabled' => false]);
+        $this->artisan('wages:apply-bonus-setting')->assertSuccessful();
+
+        $this->assertEquals($sentTotal, $sent->fresh()->grand_total);
+    }
+
+    private function pdfText(\App\Models\Invoice $invoice): string
+    {
+        $html = view('pdf.invoice', [
+            'invoice' => $invoice->loadMissing('client', 'lineItems.employee', 'tenant'),
+            'dutySummary' => collect(),
+            'bonus' => 0,
+            'amountInWords' => '',
+            'logoDataUri' => null,
+        ])->render();
+
+        return $html;
     }
 
     public function test_august_2026_wages_keep_the_earlier_logic(): void
