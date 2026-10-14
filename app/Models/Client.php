@@ -15,6 +15,7 @@ class Client extends Model
         'tenant_id', 'name', 'unit_label', 'address', 'gstin', 'sac_code', 'gemc_no',
         'billing_name', 'billing_address',
         'contact_person', 'contact_phone', 'contact_email', 'active', 'bonus_enabled',
+        'service_charge_on_basic',
     ];
 
     protected function casts(): array
@@ -22,6 +23,7 @@ class Client extends Model
         return [
             'active' => 'boolean',
             'bonus_enabled' => 'boolean',
+            'service_charge_on_basic' => 'boolean',
         ];
     }
 

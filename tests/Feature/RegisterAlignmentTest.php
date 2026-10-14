@@ -19,7 +19,7 @@ class RegisterAlignmentTest extends TestCase
     use RefreshDatabase;
 
     /** @return array{0: Client, 1: array<int, Employee>} */
-    private function setUpUnit(int $month, int $year, bool $bonusEnabled = true): array
+    private function setUpUnit(int $month, int $year, bool $bonusEnabled = true, bool $serviceOnBasic = false): array
     {
         $tenant = Tenant::create(['name' => 'Magnova Test', 'slug' => 'magnova-test']);
         $client = Client::create([
@@ -27,6 +27,7 @@ class RegisterAlignmentTest extends TestCase
             'name' => 'Unit A',
             'active' => true,
             'bonus_enabled' => $bonusEnabled,
+            'service_charge_on_basic' => $serviceOnBasic,
         ]);
         $employees = [];
 
@@ -99,6 +100,43 @@ class RegisterAlignmentTest extends TestCase
         $this->assertEquals($rows->sum('total_bill_amount'), $invoice->grand_total);
 
         $this->assertStringStartsWith('%PDF', app(PdfExportService::class)->invoice($invoice)->output());
+    }
+
+    public function test_service_charge_on_basic_matches_the_register_for_september(): void
+    {
+        [$client, $employees] = $this->setUpUnit(9, 2026, true, true);
+        $register = app(WageRegisterCalculator::class);
+
+        foreach ($employees as $employee) {
+            app(WageCalculator::class)->calculateForEmployee($employee, 9, 2026);
+        }
+
+        $invoice = app(InvoiceCalculator::class)->generateForClient($client, 9, 2026, 'INV-TEST-BASIC');
+        $rows = collect($employees)->map(fn (Employee $e) => $register->row($e, null, 9, 2026, 1));
+
+        $this->assertEquals($rows->sum('agency_fee'), $invoice->service_charge);
+        $this->assertEquals($rows->sum(fn ($r) => round($r['monthly_wage'] * 3.85 / 100)), $invoice->service_charge);
+        $this->assertEquals($rows->sum('total_bill_amount'), $invoice->grand_total);
+        $this->assertEquals(
+            $invoice->taxable_value + $invoice->service_charge + $invoice->cgst + $invoice->sgst,
+            $invoice->grand_total,
+        );
+    }
+
+    public function test_service_charge_basis_also_applies_to_months_before_september_2026(): void
+    {
+        [$gross, $grossEmployees] = $this->setUpUnit(8, 2026, true, false);
+        foreach ($grossEmployees as $employee) {
+            app(WageCalculator::class)->calculateForEmployee($employee, 8, 2026);
+        }
+        $onGross = app(InvoiceCalculator::class)->generateForClient($gross, 8, 2026, 'INV-AUG-GROSS');
+
+        $gross->update(['service_charge_on_basic' => true]);
+        $onBasic = app(InvoiceCalculator::class)->generateForClient($gross->fresh(), 8, 2026, 'INV-AUG-GROSS');
+
+        $this->assertEquals(round($onGross->taxable_value * 3.85 / 100, 2), $onGross->service_charge);
+        $this->assertEquals(round($onBasic->base_amount * 3.85 / 100, 2), $onBasic->service_charge);
+        $this->assertLessThan($onGross->service_charge, $onBasic->service_charge);
     }
 
     public function test_unit_with_bonus_off_has_no_bonus_in_wages_or_invoice(): void

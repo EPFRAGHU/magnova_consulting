@@ -70,6 +70,7 @@ class ClientController extends Controller
         $request->merge([
             'active' => $request->boolean('active'),
             'bonus_enabled' => $request->boolean('bonus_enabled'),
+            'service_charge_on_basic' => $request->boolean('service_charge_on_basic'),
         ]);
 
         return $request->validate([
@@ -86,6 +87,7 @@ class ClientController extends Controller
             'contact_email' => ['nullable', 'email', 'max:255'],
             'active' => ['boolean'],
             'bonus_enabled' => ['boolean'],
+            'service_charge_on_basic' => ['boolean'],
         ]);
     }
 }

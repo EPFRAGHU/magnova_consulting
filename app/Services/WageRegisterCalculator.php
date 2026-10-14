@@ -73,11 +73,24 @@ class WageRegisterCalculator
             / $daysInMonth;
     }
 
-    /** Column headings that depend on the ceilings in force for the month. */
-    public function headings(int $month, int $year): array
+    /** Agency fee heading; null means the register mixes units that use different bases. */
+    private function agencyHeading(?bool $serviceChargeOnBasic): string
     {
+        return match ($serviceChargeOnBasic) {
+            true => 'Agency Fee @3.85% of Monthly Wage (F*0.0385)',
+            false => 'Agency Fee @3.85% of Total Gross Salary (K*0.0385)',
+            null => 'Agency Fee @3.85% of Monthly Wage (F) or Total Gross Salary (K), as set for the unit',
+        };
+    }
+
+    /** Column headings that depend on the ceilings in force for the month and the unit's service charge basis. */
+    public function headings(int $month, int $year, ?bool $serviceChargeOnBasic = false): array
+    {
+        $agency = $this->agencyHeading($serviceChargeOnBasic);
+
         if (! $this->usesCurrentRules($month, $year)) {
             return [
+                'agency' => $agency,
                 'epf' => 'EPF @12% of MIN(F, Rs. 15,000)',
                 'edli' => 'EDLI and EPF Admin @1% of MIN(F, Rs. 15,000)',
                 'esic' => 'ESIC @3.25% of MIN(F, Rs. 21,000)',
@@ -97,6 +110,7 @@ class WageRegisterCalculator
         $esicLimit = 'nil if Monthly Wage above Rs.'.number_format(config('magnova.esic_wage_ceiling')).'/-';
 
         return [
+            'agency' => $agency,
             'epf' => "EPF @12% of Monthly Wage, ceiling {$ceiling}",
             'edli' => "EDLI and EPF Admin Charges @1% of Monthly Wage, ceiling {$ceiling}",
             'esic' => "ESIC @3.25% of Monthly Wage ({$esicLimit})",
@@ -138,13 +152,19 @@ class WageRegisterCalculator
             'days_deployed' => $daysDeployed,
             'minimum_wage' => $minimumWage,
             'monthly_wage' => $monthlyWage,
-            ...$this->figures($monthlyWage, $month, $year, (bool) $employee->client?->bonus_enabled),
+            ...$this->figures(
+                $monthlyWage,
+                $month,
+                $year,
+                (bool) $employee->client?->bonus_enabled,
+                (bool) $employee->client?->service_charge_on_basic,
+            ),
             'saved' => $wage !== null,
         ];
     }
 
     /** Every statutory and billing figure derived from one employee's Monthly Wage. */
-    public function figures(float $monthlyWage, int $month, int $year, bool $bonusEnabled): array
+    public function figures(float $monthlyWage, int $month, int $year, bool $bonusEnabled, bool $serviceChargeOnBasic = false): array
     {
         $current = $this->usesCurrentRules($month, $year);
         $precision = $current ? 0 : 2;
@@ -167,7 +187,8 @@ class WageRegisterCalculator
             $totalGrossSalary * (config('magnova.cgst_pct') + config('magnova.sgst_pct')) / 100,
             $precision,
         );
-        $agencyFee = round($totalGrossSalary * config('magnova.service_charge_pct') / 100, $precision);
+        $serviceChargeBase = $serviceChargeOnBasic ? $monthlyWage : $totalGrossSalary;
+        $agencyFee = round($serviceChargeBase * config('magnova.service_charge_pct') / 100, $precision);
         $totalBillAmount = round($totalGrossSalary + $gst + $agencyFee, $precision);
         $epfEmployee = round($epfBase * config('magnova.epf_employee_pct') / 100, $precision);
         $esicEmployee = $current

@@ -25,6 +25,7 @@ type Client = {
     contact_email: string | null;
     active: boolean;
     bonus_enabled: boolean;
+    service_charge_on_basic: boolean;
 };
 
 export default function ClientForm({ client }: { client?: Client }) {
@@ -222,6 +223,31 @@ export default function ClientForm({ client }: { client?: Client }) {
                                     </Label>
                                 </div>
                                 <InputError message={errors.bonus_enabled} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        id="service_charge_on_basic"
+                                        name="service_charge_on_basic"
+                                        defaultChecked={
+                                            client?.service_charge_on_basic ??
+                                            false
+                                        }
+                                    />
+                                    <Label htmlFor="service_charge_on_basic">
+                                        Service charge on Basic Wages{' '}
+                                        <span className="text-muted-foreground font-normal">
+                                            (ticked: service charge is worked
+                                            out on Basic Wages. Unticked: on
+                                            Gross Wages, including EPF, ESIC
+                                            and bonus)
+                                        </span>
+                                    </Label>
+                                </div>
+                                <InputError
+                                    message={errors.service_charge_on_basic}
+                                />
                             </div>
 
                             <div className="flex gap-2">

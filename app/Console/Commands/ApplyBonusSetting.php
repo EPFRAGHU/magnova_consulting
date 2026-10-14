@@ -35,6 +35,7 @@ class ApplyBonusSetting extends Command
                     $wage->month,
                     $wage->year,
                     (bool) $wage->employee->client?->bonus_enabled,
+                    (bool) $wage->employee->client?->service_charge_on_basic,
                 );
 
                 if ((float) $wage->bonus !== (float) $figures['bonus']

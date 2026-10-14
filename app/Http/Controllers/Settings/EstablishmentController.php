@@ -27,6 +27,10 @@ class EstablishmentController extends Controller
                 'establishment_mobile',
                 'establishment_email',
                 'establishment_website',
+                'bank_name',
+                'bank_account_no',
+                'bank_ifsc',
+                'bank_branch',
             ]), [
                 'establishment_address1' => $tenant->establishment_address1 ?: $tenant->address,
                 'establishment_mobile' => $tenant->establishment_mobile ?: $tenant->contact_phone,
@@ -49,14 +53,30 @@ class EstablishmentController extends Controller
             'establishment_mobile' => ['nullable', 'string', 'max:30'],
             'establishment_email' => ['nullable', 'email', 'max:255'],
             'establishment_website' => ['nullable', 'url', 'max:255'],
+            'bank_name' => ['nullable', 'string', 'max:255'],
+            'bank_account_no' => ['nullable', 'string', 'regex:/^[0-9]{9,18}$/'],
+            'bank_ifsc' => ['nullable', 'string', 'regex:/^[A-Za-z]{4}0[A-Za-z0-9]{6}$/'],
+            'bank_branch' => ['nullable', 'string', 'max:255'],
+        ], [
+            'bank_account_no.regex' => 'The account number must be 9 to 18 digits.',
+            'bank_ifsc.regex' => 'The IFSC code must be 11 characters, like UBIN0572586.',
         ]);
+
+        if (! empty($data['bank_ifsc'])) {
+            $data['bank_ifsc'] = strtoupper($data['bank_ifsc']);
+        }
+
+        $cityAndPin = collect([
+            $data['establishment_city'] ?? null,
+            $data['establishment_pin'] ?? null,
+        ])->filter()->implode(' - ');
 
         $data['address'] = collect([
             $data['establishment_address1'] ?? null,
             $data['establishment_address2'] ?? null,
-            $data['establishment_city'] ?? null,
+            $cityAndPin,
             $data['establishment_district'] ?? null,
-            $data['establishment_pin'] ?? null,
+            config('magnova.state'),
         ])->filter()->implode(', ');
         $data['contact_phone'] = $data['establishment_mobile'] ?? null;
         $data['contact_email'] = $data['establishment_email'] ?? null;

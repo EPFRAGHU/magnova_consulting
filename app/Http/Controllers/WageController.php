@@ -53,7 +53,11 @@ class WageController extends Controller
             'client_id' => $clientId,
             'month' => $month,
             'year' => $year,
-            'headings' => $registerCalculator->headings($month, $year),
+            'headings' => $registerCalculator->headings(
+                $month,
+                $year,
+                $clientId ? (bool) Client::find($clientId)?->service_charge_on_basic : null,
+            ),
         ]);
     }
 

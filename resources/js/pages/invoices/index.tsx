@@ -1,10 +1,12 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import Heading from '@/components/heading';
+import InputError from '@/components/input-error';
 import { FilterBar, MONTHS } from '@/components/filter-bar';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { SelectNative } from '@/components/ui/select-native';
 import { dashboard } from '@/routes';
 import { index, show, store } from '@/routes/invoices';
@@ -26,11 +28,21 @@ export default function InvoicesIndex({
     invoices,
     clients,
     client_id: clientId,
+    invoice_prefix: invoicePrefix,
 }: {
     invoices: InvoiceRow[];
     clients: ClientOption[];
     client_id: number | null;
+    invoice_prefix: string;
 }) {
+    const { errors } = usePage<{ errors: Record<string, string> }>().props;
+    const generateError =
+        errors.invoice_number ??
+        errors.month ??
+        errors.client_id ??
+        errors.year ??
+        undefined;
+    const [genNumber, setGenNumber] = useState('');
     const now = new Date();
     const [genClient, setGenClient] = useState<string>(
         clients[0] ? String(clients[0].id) : '',
@@ -45,7 +57,12 @@ export default function InvoicesIndex({
         setProcessing(true);
         router.post(
             store().url,
-            { client_id: genClient, month: genMonth, year: genYear },
+            {
+                client_id: genClient,
+                month: genMonth,
+                year: genYear,
+                invoice_number: genNumber,
+            },
             { onFinish: () => setProcessing(false) },
         );
     };
@@ -103,12 +120,26 @@ export default function InvoicesIndex({
                                 </option>
                             ))}
                         </SelectNative>
+                        <div className="flex items-center gap-1">
+                            <span className="text-sm font-medium whitespace-nowrap">
+                                Invoice No. {invoicePrefix}
+                            </span>
+                            <Input
+                                value={genNumber}
+                                onChange={(e) => setGenNumber(e.target.value)}
+                                placeholder="___"
+                                maxLength={20}
+                                className="w-24"
+                                aria-label="Invoice number"
+                            />
+                        </div>
                         <Button
                             onClick={generate}
                             disabled={processing || !genClient}
                         >
-                            Generate Invoice
+                            {processing ? 'Generating...' : 'Generate Invoice'}
                         </Button>
+                        <InputError message={generateError} className="basis-full" />
                     </CardContent>
                 </Card>
 

@@ -19,9 +19,20 @@ type Establishment = {
     establishment_mobile: string | null;
     establishment_email: string | null;
     establishment_website: string | null;
+    bank_name: string | null;
+    bank_account_no: string | null;
+    bank_ifsc: string | null;
+    bank_branch: string | null;
 };
 
 type Props = { establishment: Establishment };
+
+const bankFields: Array<{ name: keyof Establishment; label: string }> = [
+    { name: 'bank_name', label: 'Name of the bank' },
+    { name: 'bank_account_no', label: 'Account number' },
+    { name: 'bank_ifsc', label: 'IFSC code' },
+    { name: 'bank_branch', label: 'Branch (with PIN)' },
+];
 
 const fields: Array<{ name: keyof Establishment; label: string; type?: string; required?: boolean }> = [
     { name: 'name', label: 'Establishment name', required: true },
@@ -65,6 +76,26 @@ export default function Establishment({ establishment }: Props) {
                                             type={field.type ?? 'text'}
                                             defaultValue={establishment[field.name] ?? ''}
                                             required={field.required}
+                                            autoComplete="off"
+                                        />
+                                        <InputError message={errors[field.name]} />
+                                    </div>
+                                ))}
+                            </div>
+                            <Heading
+                                variant="small"
+                                title="Bank details"
+                                description="Shown in the Bank Details box on every tax invoice"
+                            />
+                            <div className="grid gap-6 sm:grid-cols-2">
+                                {bankFields.map((field) => (
+                                    <div className="grid gap-2" key={field.name}>
+                                        <Label htmlFor={field.name}>{field.label}</Label>
+                                        <Input
+                                            id={field.name}
+                                            name={field.name}
+                                            type="text"
+                                            defaultValue={establishment[field.name] ?? ''}
                                             autoComplete="off"
                                         />
                                         <InputError message={errors[field.name]} />

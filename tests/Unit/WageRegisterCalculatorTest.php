@@ -11,13 +11,16 @@ use Tests\TestCase;
 
 class WageRegisterCalculatorTest extends TestCase
 {
-    private function row(float $days, float $rate, int $month, int $year, bool $bonusEnabled = true): array
+    private function row(float $days, float $rate, int $month, int $year, bool $bonusEnabled = true, bool $serviceOnBasic = false): array
     {
         $calculator = Mockery::mock(WageRegisterCalculator::class)->makePartial();
         $calculator->shouldReceive('workingDays')->andReturn($days);
 
         $employee = Employee::make(['rate_per_day' => $rate, 'skill_category' => 'skilled', 'name' => 'Test']);
-        $employee->setRelation('client', new Client(['bonus_enabled' => $bonusEnabled]));
+        $employee->setRelation('client', new Client([
+            'bonus_enabled' => $bonusEnabled,
+            'service_charge_on_basic' => $serviceOnBasic,
+        ]));
 
         return $calculator->row($employee, null, $month, $year, 1);
     }
@@ -92,6 +95,32 @@ class WageRegisterCalculatorTest extends TestCase
         $this->assertEquals($on['total_gross_salary'] - 1008, $off['total_gross_salary']);
         $this->assertEquals($on['epf_employee'], $off['epf_employee']);
         $this->assertEquals($on['esic_employer'], $off['esic_employer']);
+    }
+
+    public function test_service_charge_is_on_gross_by_default_and_on_basic_when_the_unit_says_so(): void
+    {
+        $gross = $this->row(12, 1008, 9, 2026, true, false);
+        $basic = $this->row(12, 1008, 9, 2026, true, true);
+
+        $this->assertEquals(580, $gross['agency_fee']);
+        $this->assertEquals(round(12096 * 3.85 / 100), $basic['agency_fee']);
+        $this->assertEquals(466, $basic['agency_fee']);
+        $this->assertEquals($gross['total_gross_salary'], $basic['total_gross_salary']);
+        $this->assertEquals($gross['gst'], $basic['gst']);
+        $this->assertEquals(
+            $basic['total_gross_salary'] + $basic['gst'] + $basic['agency_fee'],
+            $basic['total_bill_amount'],
+        );
+    }
+
+    public function test_agency_heading_follows_the_unit_basis(): void
+    {
+        $calculator = new WageRegisterCalculator;
+
+        $this->assertStringContainsString('Total Gross Salary (K*0.0385)', $calculator->headings(9, 2026, false)['agency']);
+        $this->assertStringContainsString('Monthly Wage (F*0.0385)', $calculator->headings(9, 2026, true)['agency']);
+        $this->assertStringContainsString('as set for the unit', $calculator->headings(9, 2026, null)['agency']);
+        $this->assertArrayHasKey('agency', $calculator->headings(8, 2026, true));
     }
 
     public function test_bonus_off_also_applies_to_earlier_months_when_recalculated(): void

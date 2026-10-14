@@ -37,12 +37,13 @@
         table.summary th { text-align: center; background: #eee; font-weight: bold; vertical-align: middle; }
         table.summary td.center, table.summary th.center { text-align: center; }
         table.summary td.amount { text-align: right; }
-        table.summary .col-sl { width: 7%; }
-        table.summary .col-rank { width: 31%; }
-        table.summary .col-rate { width: 18%; }
-        table.summary .col-persons { width: 14%; }
-        table.summary .col-duties { width: 14%; }
-        table.summary .col-amount { width: 16%; }
+        table.summary .col-sl { width: 6%; }
+        table.summary .col-rank { width: 26%; }
+        table.summary .col-sac { width: 12%; }
+        table.summary .col-rate { width: 16%; }
+        table.summary .col-persons { width: 13%; }
+        table.summary .col-duties { width: 12%; }
+        table.summary .col-amount { width: 15%; }
         table.summary .total td { font-weight: bold; }
         table.charges { table-layout: fixed; margin-top: 8px; }
         table.charges td { padding: 3px 4px; font-size: 9.5px; word-wrap: break-word; }
@@ -64,8 +65,9 @@
     $monthName = \Carbon\Carbon::create()->month($invoice->month)->format('F');
     $billingPeriodStart = \Carbon\Carbon::create($invoice->year, $invoice->month, 1);
     $billingPeriodEnd = $billingPeriodStart->copy()->endOfMonth();
-    $hsnSac = $client->sac_code ?: config('magnova.hsn_sac_code');
-    $supplierName = $tenant->name ?: 'M/s Magnova Consulting Pvt. Ltd.';
+    $hsnSac = config('magnova.hsn_sac_code');
+    $supplierCoreName = trim(preg_replace('~^\s*m/s\.?\s*~i', '', (string) $tenant->name)) ?: 'Magnova Consulting Pvt. Ltd.';
+    $supplierName = 'M/s '.$supplierCoreName;
     $receiverName = $client->billingName();
     $receiverAddress = $client->billingAddress();
     $supplierAddress = $tenant->address;
@@ -91,7 +93,7 @@
                     @if (!empty($logoDataUri))
                         <img class="company-logo" src="{{ $logoDataUri }}" alt="Magnova">
                     @endif
-                    <div class="name">{{ strtoupper($supplierName) }}</div>
+                    <div class="name">M/s {{ strtoupper($supplierCoreName) }}</div>
                     <div class="service">Security and Manpower Service Provider</div>
                     <div class="meta">CIN NO: {{ config('magnova.company_cin') ?: '—' }} &nbsp;&nbsp; GSTIN NO: {{ $tenant->gstin ?: '—' }}</div>
                     @if ($supplierAddress)
@@ -116,10 +118,6 @@
                                 <tr><td class="label">Name</td><td class="colon">:</td><td>{{ $receiverName ?: '—' }}</td></tr>
                                 <tr><td class="label">Address</td><td class="colon">:</td><td>{!! $receiverAddress ? nl2br(e($receiverAddress)) : '—' !!}</td></tr>
                                 <tr><td class="label">GSTIN</td><td class="colon">:</td><td>{{ $client->gstin ?: '—' }}</td></tr>
-                                <tr><td class="label">SAC Code</td><td class="colon">:</td><td>{{ $hsnSac }}</td></tr>
-                                @if ($client->contact_phone)
-                                    <tr><td class="label">Contact No.</td><td class="colon">:</td><td>{{ $client->contact_phone }}</td></tr>
-                                @endif
                             </table>
                         </td>
                         <td>
@@ -145,6 +143,7 @@
                         <tr>
                             <th class="col-sl">Sl No</th>
                             <th class="col-rank">Particulars (Rank)</th>
+                            <th class="col-sac">SAC Code</th>
                             <th class="col-rate">Rate Per Person Per Day</th>
                             <th class="col-persons">No. of Persons Engaged</th>
                             <th class="col-duties">No. of Duties</th>
@@ -156,6 +155,7 @@
                             <tr>
                                 <td class="center">{{ $index + 1 }}</td>
                                 <td>{{ $item['rank'] }}</td>
+                                <td class="center">{{ $hsnSac }}</td>
                                 <td class="amount">{{ number_format($item['rate'], 2) }}</td>
                                 <td class="center">{{ $item['persons'] }}</td>
                                 <td class="center">{{ number_format($item['duties'], 2) }}</td>
@@ -163,7 +163,7 @@
                             </tr>
                         @endforeach
                         <tr class="total">
-                            <td colspan="5">TOTAL WAGES</td>
+                            <td colspan="6">TOTAL WAGES</td>
                             <td class="amount">{{ number_format($invoice->base_amount, 2) }}</td>
                         </tr>
                     </tbody>
@@ -176,8 +176,9 @@
                     <tr><td class="label">Bonus @ {{ number_format(config('magnova.bonus_pct'), 2) }}% on capped monthly wages</td><td class="amount">{{ number_format($bonus, 2) }}</td></tr>
                     @endif
                     <tr class="strong"><td class="label">SUB-TOTAL (Taxable Value)</td><td class="amount">{{ number_format($taxableSubtotal, 2) }}</td></tr>
-                    <tr><td class="label">Service Charges @ {{ number_format(config('magnova.service_charge_pct'), 2) }}%</td><td class="amount">{{ number_format($invoice->service_charge, 2) }}</td></tr>
-                    <tr><td class="label">GST @ {{ number_format(config('magnova.cgst_pct') + config('magnova.sgst_pct'), 2) }}%</td><td class="amount">{{ number_format($invoice->cgst + $invoice->sgst, 2) }}</td></tr>
+                    <tr><td class="label">Service Charges @ {{ number_format(config('magnova.service_charge_pct'), 2) }}% on {{ $client->service_charge_on_basic ? 'Basic Wages' : 'Gross Wages' }}</td><td class="amount">{{ number_format($invoice->service_charge, 2) }}</td></tr>
+                    <tr><td class="label">CGST @ {{ number_format(config('magnova.cgst_pct'), 2) }}%</td><td class="amount">{{ number_format($invoice->cgst, 2) }}</td></tr>
+                    <tr><td class="label">SGST @ {{ number_format(config('magnova.sgst_pct'), 2) }}%</td><td class="amount">{{ number_format($invoice->sgst, 2) }}</td></tr>
                     <tr class="strong"><td class="label">GRAND TOTAL</td><td class="amount">{{ number_format($invoice->grand_total, 2) }}</td></tr>
                 </table>
             </td>
@@ -196,7 +197,9 @@
                             <div class="footer-title">Bank Details</div>
                             <div>Bank: {{ $tenant->bank_name ?: '—' }}</div>
                             <div>Account No.: {{ $tenant->bank_account_no ?: '—' }}</div>
-                            <div>Account Type: {{ config('magnova.bank_account_type') ?: '—' }}</div>
+                            @if (config('magnova.bank_account_type'))
+                            <div>Account Type: {{ config('magnova.bank_account_type') }}</div>
+                            @endif
                             <div>IFSC Code: {{ $tenant->bank_ifsc ?: '—' }}</div>
                             <div>Branch: {{ $tenant->bank_branch ?: '—' }}</div>
                         </td>

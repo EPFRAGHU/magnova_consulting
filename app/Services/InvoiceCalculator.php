@@ -58,7 +58,10 @@ class InvoiceCalculator
         );
         $cgst = round($taxableValue * config('magnova.cgst_pct') / 100, 2);
         $sgst = round($taxableValue * config('magnova.sgst_pct') / 100, 2);
-        $serviceCharge = round($taxableValue * config('magnova.service_charge_pct') / 100, 2);
+        $serviceCharge = round(
+            ($client->service_charge_on_basic ? $baseAmount : $taxableValue) * config('magnova.service_charge_pct') / 100,
+            2,
+        );
         $grandTotal = round($taxableValue + $serviceCharge + $cgst + $sgst, 2);
 
         // From the current register rules the invoice is the sum of the Register
@@ -70,6 +73,7 @@ class InvoiceCalculator
                     $month,
                     $year,
                     (bool) $client->bonus_enabled,
+                    (bool) $client->service_charge_on_basic,
                 ),
             );
             $edliAndAdmin = round($figures->sum('edli_and_epf_admin'), 2);

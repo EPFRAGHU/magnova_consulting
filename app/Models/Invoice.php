@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
@@ -37,6 +38,25 @@ class Invoice extends Model
             'sgst' => 'decimal:2',
             'grand_total' => 'decimal:2',
         ];
+    }
+
+    /** Indian financial year (April to March) of a date, e.g. "26-27" for 14 Oct 2026. */
+    public static function financialYearLabel(CarbonInterface $date): string
+    {
+        $startYear = $date->month >= 4 ? $date->year : $date->year - 1;
+
+        return substr((string) $startYear, 2).'-'.substr((string) ($startYear + 1), 2);
+    }
+
+    /** Fixed part of an invoice number: company initials and financial year, e.g. "MCPL/26-27/". */
+    public static function numberPrefix(string $tenantName, CarbonInterface $date): string
+    {
+        $initials = collect(preg_split('/\s+/', trim(preg_replace('~^\s*m/s\.?\s*~i', '', $tenantName))))
+            ->filter()
+            ->map(fn ($word) => strtoupper(substr($word, 0, 1)))
+            ->implode('');
+
+        return $initials.'/'.self::financialYearLabel($date).'/';
     }
 
     public function client()

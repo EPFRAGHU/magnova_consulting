@@ -45,6 +45,7 @@ type Invoice = {
         name: string;
         unit_label: string | null;
         gemc_no: string | null;
+        service_charge_on_basic: boolean;
     };
     line_items: LineItem[];
 };
@@ -171,7 +172,7 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
                                         value={money(invoice.esi_employer)}
                                     />
                                     <Row
-                                        label="Service Charge (3.85%)"
+                                        label={`Service Charge (3.85% on ${invoice.client.service_charge_on_basic ? 'Basic' : 'Gross'} Wages)`}
                                         value={money(invoice.service_charge)}
                                     />
                                     <Row

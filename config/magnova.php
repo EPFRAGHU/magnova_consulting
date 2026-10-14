@@ -26,7 +26,8 @@ return [
     'register_rules_from' => '2026-09-01',
 
     // HSN/SAC code for manpower supply services shown on the tax invoice.
-    'hsn_sac_code' => '998522',
+    'hsn_sac_code' => '998525',
+    'state' => 'Odisha',
     'company_cin' => env('MAGNOVA_COMPANY_CIN'),
     'bank_account_type' => env('MAGNOVA_BANK_ACCOUNT_TYPE'),
 

@@ -19,6 +19,7 @@ type ClientRow = {
     contact_phone: string | null;
     active: boolean;
     bonus_enabled: boolean;
+    service_charge_on_basic: boolean;
     employees_count: number;
 };
 
@@ -130,6 +131,11 @@ export default function ClientsIndex({
                                                     {client.bonus_enabled
                                                         ? 'Bonus on'
                                                         : 'Bonus off'}
+                                                </Badge>{' '}
+                                                <Badge variant="outline">
+                                                    {client.service_charge_on_basic
+                                                        ? 'Service on Basic'
+                                                        : 'Service on Gross'}
                                                 </Badge>
                                             </td>
                                             <td className="px-6 py-2 text-right whitespace-nowrap">

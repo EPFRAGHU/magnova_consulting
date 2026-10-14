@@ -31,6 +31,7 @@ class InvoiceController extends Controller
             'invoices' => $invoices,
             'clients' => Client::orderBy('name')->get(['id', 'name', 'unit_label']),
             'client_id' => $clientId,
+            'invoice_prefix' => Invoice::numberPrefix(Auth::user()->tenant->name, now()),
         ]);
     }
 
@@ -81,6 +82,9 @@ class InvoiceController extends Controller
             'client_id' => ['required', 'exists:clients,id'],
             'month' => ['required', 'integer', 'min:1', 'max:12'],
             'year' => ['required', 'integer', 'min:2000'],
+            'invoice_number' => ['nullable', 'string', 'max:20', 'regex:/^[A-Za-z0-9-]+$/'],
+        ], [
+            'invoice_number.regex' => 'The invoice number can contain only letters, digits and hyphens.',
         ]);
 
         $client = Client::findOrFail($data['client_id']);
@@ -94,18 +98,28 @@ class InvoiceController extends Controller
             return back()->withErrors(['month' => 'No wage records found for this client and month. Save wages first.']);
         }
 
-        $tenant = Auth::user()->tenant;
-        $sequence = Invoice::where('tenant_id', $tenant->id)->count() + 1;
-        // Verified against a real Magnova invoice number (MCPL/26-27/61): the
-        // prefix is the initials of each word in the tenant name, and the
-        // financial year uses 2-digit years on both sides.
-        $initials = collect(preg_split('/\s+/', $tenant->name))
-            ->map(fn ($word) => strtoupper(substr($word, 0, 1)))
-            ->implode('');
-        $financialYear = $data['month'] >= 4
-            ? substr((string) $data['year'], 2).'-'.substr((string) ($data['year'] + 1), 2)
-            : substr((string) ($data['year'] - 1), 2).'-'.substr((string) $data['year'], 2);
-        $invoiceNo = "{$initials}/{$financialYear}/{$sequence}";
+        $existingInvoice = Invoice::where('client_id', $client->id)
+            ->where('month', $data['month'])
+            ->where('year', $data['year'])
+            ->first();
+
+        // A new invoice needs a number typed by the user; regenerating an existing
+        // invoice keeps the number it already has.
+        $invoiceNo = $existingInvoice?->invoice_no;
+
+        if (! $existingInvoice) {
+            $number = trim((string) ($data['invoice_number'] ?? ''));
+
+            if ($number === '') {
+                return back()->withErrors(['invoice_number' => 'Enter the invoice number.']);
+            }
+
+            $invoiceNo = Invoice::numberPrefix(Auth::user()->tenant->name, now()).$number;
+
+            if (Invoice::withoutGlobalScopes()->where('invoice_no', $invoiceNo)->exists()) {
+                return back()->withErrors(['invoice_number' => "Invoice number {$invoiceNo} is already used."]);
+            }
+        }
 
         $invoice = $calculator->generateForClient($client, $data['month'], $data['year'], $invoiceNo);
 
