@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Wage;
 use App\Services\PdfExportService;
+use App\Support\WageMonth;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,8 +16,8 @@ class PayslipController extends Controller
     public function index(Request $request): Response
     {
         $clientId = $request->integer('client_id') ?: null;
-        $month = $request->integer('month') ?: (int) now()->format('n');
-        $year = $request->integer('year') ?: (int) now()->format('Y');
+        $month = $request->integer('month') ?: WageMonth::month();
+        $year = $request->integer('year') ?: WageMonth::year();
 
         $wages = Wage::query()
             ->with('employee')

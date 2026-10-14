@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\Client;
 use App\Models\Employee;
 use App\Services\PdfExportService;
+use App\Support\WageMonth;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
@@ -20,8 +21,8 @@ class AttendanceController extends Controller
     public function index(Request $request): Response
     {
         $clientId = $request->integer('client_id') ?: null;
-        $month = $request->integer('month') ?: (int) now()->format('n');
-        $year = $request->integer('year') ?: (int) now()->format('Y');
+        $month = $request->integer('month') ?: WageMonth::month();
+        $year = $request->integer('year') ?: WageMonth::year();
 
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
 

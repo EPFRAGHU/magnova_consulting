@@ -8,6 +8,7 @@ use App\Models\Wage;
 use App\Services\PdfExportService;
 use App\Services\WageCalculator;
 use App\Services\WageRegisterCalculator;
+use App\Support\WageMonth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,8 +20,8 @@ class WageController extends Controller
     public function index(Request $request, WageRegisterCalculator $registerCalculator): Response
     {
         $clientId = $request->integer('client_id') ?: null;
-        $month = $request->integer('month') ?: (int) now()->format('n');
-        $year = $request->integer('year') ?: (int) now()->format('Y');
+        $month = $request->integer('month') ?: WageMonth::month();
+        $year = $request->integer('year') ?: WageMonth::year();
 
         $employees = Employee::query()
             ->when($clientId, fn ($q) => $q->where('client_id', $clientId))

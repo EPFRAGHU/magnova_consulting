@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\Invoice;
 use App\Models\Attendance;
 use App\Models\Wage;
+use App\Support\WageMonth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -20,8 +21,8 @@ class DashboardController extends Controller
             'month' => ['nullable', 'integer', 'min:1', 'max:12'],
             'year' => ['nullable', 'integer', 'min:2000', 'max:2100'],
         ]);
-        $month = (int) ($data['month'] ?? now()->format('n'));
-        $year = (int) ($data['year'] ?? now()->format('Y'));
+        $month = (int) ($data['month'] ?? WageMonth::month());
+        $year = (int) ($data['year'] ?? WageMonth::year());
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
 
         $clients = Client::query()

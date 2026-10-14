@@ -35,8 +35,9 @@ export default function InvoicesIndex({
     const [genClient, setGenClient] = useState<string>(
         clients[0] ? String(clients[0].id) : '',
     );
-    const [genMonth, setGenMonth] = useState(String(now.getMonth() + 1));
-    const [genYear, setGenYear] = useState(String(now.getFullYear()));
+    const wageMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const [genMonth, setGenMonth] = useState(String(wageMonth.getMonth() + 1));
+    const [genYear, setGenYear] = useState(String(wageMonth.getFullYear()));
     const [processing, setProcessing] = useState(false);
 
     const generate = () => {

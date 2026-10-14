@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\EcrExportService;
+use App\Support\WageMonth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
@@ -15,8 +16,8 @@ class EcrController extends Controller
     public function index(Request $request): InertiaResponse
     {
         return Inertia::render('ecr/index', [
-            'month' => $request->integer('month') ?: (int) now()->format('n'),
-            'year' => $request->integer('year') ?: (int) now()->format('Y'),
+            'month' => $request->integer('month') ?: WageMonth::month(),
+            'year' => $request->integer('year') ?: WageMonth::year(),
         ]);
     }
 
