@@ -8,6 +8,7 @@ import { cn, toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
 import { edit as editEstablishment } from '@/routes/establishment';
 import { edit } from '@/routes/profile';
+import { edit as editSacCodes } from '@/routes/sac-codes';
 import { edit as editSecurity } from '@/routes/security';
 import type { NavItem } from '@/types';
 
@@ -20,6 +21,11 @@ const sidebarNavItems: NavItem[] = [
     {
         title: 'Establishment',
         href: editEstablishment(),
+        icon: null,
+    },
+    {
+        title: 'SAC codes',
+        href: editSacCodes(),
         icon: null,
     },
     {

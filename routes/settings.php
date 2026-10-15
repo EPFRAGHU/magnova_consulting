@@ -3,6 +3,7 @@
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\Settings\EstablishmentController;
+use App\Http\Controllers\Settings\SacCodeController;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,8 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('settings/establishment', [EstablishmentController::class, 'edit'])->name('establishment.edit');
     Route::patch('settings/establishment', [EstablishmentController::class, 'update'])->name('establishment.update');
+    Route::get('settings/sac-codes', [SacCodeController::class, 'edit'])->name('sac-codes.edit');
+    Route::patch('settings/sac-codes', [SacCodeController::class, 'update'])->name('sac-codes.update');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Attendance;
 use App\Models\Client;
+use App\Models\DesignationSacCode;
 use App\Models\Employee;
 use App\Models\Invoice;
 use App\Models\Wage;
@@ -55,29 +56,7 @@ class PdfExportService
     {
         $invoice->loadMissing('client', 'lineItems.employee', 'tenant');
 
-        $dutySummary = $invoice->lineItems
-            ->sortBy(fn ($item) => $item->employee->skillSortKey())
-            ->groupBy(function ($item) {
-                $designation = trim((string) ($item->employee->designation ?? ''));
-
-                if ($designation === '') {
-                    $designation = $item->employee->skillLabel().' Security Guard';
-                }
-
-                if (strtolower($designation) === 'security guard' && $item->employee->gender) {
-                    $designation .= ' '.ucfirst((string) $item->employee->gender);
-                }
-
-                return $designation;
-            })
-            ->map(fn ($items, $designation) => [
-                'rank' => $designation,
-                'rate' => (float) ($items->first()->rate_per_day ?? 0),
-                'persons' => $items->count(),
-                'duties' => (float) $items->sum('working_days'),
-                'amount' => (float) $items->sum('wage_amount'),
-            ])
-            ->values();
+        $dutySummary = $this->dutySummary($invoice);
         $bonus = (float) $invoice->lineItems->sum(
             fn ($item) => $this->wageRegisterCalculator->bonusFor(
                 (float) $item->wage_amount,
@@ -94,6 +73,48 @@ class PdfExportService
             'amountInWords' => $this->words->amountToWords((float) $invoice->grand_total),
             'logoDataUri' => $this->logoDataUri(),
         ])->setPaper('a4');
+    }
+
+    /**
+     * One row per designation for the "Summary of Duties" table, each with the
+     * SAC code set for that designation in Settings (or the company default).
+     */
+    public function dutySummary(Invoice $invoice): Collection
+    {
+        $invoice->loadMissing('lineItems.employee');
+
+        $sacByDesignation = DesignationSacCode::withoutGlobalScopes()
+            ->where('tenant_id', $invoice->tenant_id)
+            ->pluck('sac_code', 'designation')
+            ->mapWithKeys(fn ($sac, $designation) => [mb_strtolower($designation) => $sac]);
+        $defaultSac = config('magnova.hsn_sac_code');
+
+        $baseDesignation = function ($item): string {
+            $designation = trim((string) ($item->employee->designation ?? ''));
+
+            return $designation !== '' ? $designation : $item->employee->skillLabel().' Security Guard';
+        };
+
+        return $invoice->lineItems
+            ->sortBy(fn ($item) => $item->employee->skillSortKey())
+            ->groupBy(function ($item) use ($baseDesignation) {
+                $designation = $baseDesignation($item);
+
+                if (strtolower($designation) === 'security guard' && $item->employee->gender) {
+                    $designation .= ' '.ucfirst((string) $item->employee->gender);
+                }
+
+                return $designation;
+            })
+            ->map(fn ($items, $designation) => [
+                'rank' => $designation,
+                'sac' => $sacByDesignation->get(mb_strtolower($baseDesignation($items->first())), $defaultSac),
+                'rate' => (float) ($items->first()->rate_per_day ?? 0),
+                'persons' => $items->count(),
+                'duties' => (float) $items->sum('working_days'),
+                'amount' => (float) $items->sum('wage_amount'),
+            ])
+            ->values();
     }
 
     private function logoDataUri(): ?string

@@ -155,7 +155,7 @@
                             <tr>
                                 <td class="center">{{ $index + 1 }}</td>
                                 <td>{{ $item['rank'] }}</td>
-                                <td class="center">{{ $hsnSac }}</td>
+                                <td class="center">{{ $item['sac'] ?? $hsnSac }}</td>
                                 <td class="amount">{{ number_format($item['rate'], 2) }}</td>
                                 <td class="center">{{ $item['persons'] }}</td>
                                 <td class="center">{{ number_format($item['duties'], 2) }}</td>
