@@ -91,7 +91,7 @@
                 <tr>
                     <td>{{ $row['serial_number'] }}</td>
                     <td class="col-name">{{ $row['name'] }}</td>
-                    <td class="col-deployment">{{ $row['nature_of_deployment'] }}</td>
+                    <td class="col-deployment">{{ $row['nature_of_deployment'] }}<br><span style="font-size:6px">SAC {{ $row['sac_code'] }}{{ $row['sac_description'] ? ' - '.$row['sac_description'] : '' }}</span></td>
                     <td>{{ number_format($row['days_deployed'], 2) }}</td>
                     <td class="amt">{{ number_format($row['minimum_wage'], 2) }}</td>
                     <td class="amt">{{ number_format($row['monthly_wage'], 2) }}</td>

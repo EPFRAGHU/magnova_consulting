@@ -20,7 +20,8 @@
     <tr>
         <td class="label">Designation</td>
         <td class="c">:</td>
-        <td class="value">{{ $employee->designation ?? '-' }} ({{ $employee->skillLabel() }})</td>
+        @php $sac = $employee->designation ? app(\App\Services\DesignationCatalog::class)->lookup($employee->tenant_id, $employee->designation) : null; @endphp
+        <td class="value">{{ $employee->designation ?? '-' }} ({{ $employee->skillLabel() }})@if ($sac)<br><span style="font-size:8px">SAC {{ $sac['sac_code'] }}{{ $sac['sac_description'] ? ' - '.$sac['sac_description'] : '' }}</span>@endif</td>
         <td class="label">Bank Account No.</td>
         <td class="c">:</td>
         <td class="value">{{ $employee->bank_account_no ?? '-' }}</td>

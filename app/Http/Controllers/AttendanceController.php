@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\Client;
 use App\Models\Employee;
+use App\Services\DesignationCatalog;
 use App\Services\PdfExportService;
 use App\Support\WageMonth;
 use Illuminate\Database\QueryException;
@@ -18,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class AttendanceController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, DesignationCatalog $catalog): Response
     {
         $clientId = $request->integer('client_id') ?: null;
         $month = $request->integer('month') ?: WageMonth::month();
@@ -30,7 +31,8 @@ class AttendanceController extends Controller
             ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
             ->where('status', 'active')
             ->orderBySkill()
-            ->get(['id', 'name', 'employee_code', 'designation']);
+            ->get(['id', 'tenant_id', 'name', 'employee_code', 'designation'])
+            ->each(fn (Employee $employee) => $employee->setAttribute('sac', $catalog->lookup($employee->tenant_id, $employee->designation)));
 
         $attendance = Attendance::query()
             ->whereIn('employee_id', $employees->pluck('id'))

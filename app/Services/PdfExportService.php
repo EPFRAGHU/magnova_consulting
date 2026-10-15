@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Attendance;
 use App\Models\Client;
-use App\Models\DesignationSacCode;
 use App\Models\Employee;
 use App\Models\Invoice;
 use App\Models\Wage;
@@ -18,6 +17,7 @@ class PdfExportService
     public function __construct(
         private readonly NumberToWordsService $words,
         private readonly WageRegisterCalculator $wageRegisterCalculator,
+        private readonly DesignationCatalog $designationCatalog,
     ) {}
 
     public function payslip(Wage $wage): PdfBuilder
@@ -83,12 +83,6 @@ class PdfExportService
     {
         $invoice->loadMissing('lineItems.employee');
 
-        $sacByDesignation = DesignationSacCode::withoutGlobalScopes()
-            ->where('tenant_id', $invoice->tenant_id)
-            ->pluck('sac_code', 'designation')
-            ->mapWithKeys(fn ($sac, $designation) => [mb_strtolower($designation) => $sac]);
-        $defaultSac = config('magnova.hsn_sac_code');
-
         $baseDesignation = function ($item): string {
             $designation = trim((string) ($item->employee->designation ?? ''));
 
@@ -108,13 +102,20 @@ class PdfExportService
             })
             ->map(fn ($items, $designation) => [
                 'rank' => $designation,
-                'sac' => $sacByDesignation->get(mb_strtolower($baseDesignation($items->first())), $defaultSac),
+                ...$this->sacRow($invoice->tenant_id, $baseDesignation($items->first())),
                 'rate' => (float) ($items->first()->rate_per_day ?? 0),
                 'persons' => $items->count(),
                 'duties' => (float) $items->sum('working_days'),
                 'amount' => (float) $items->sum('wage_amount'),
             ])
             ->values();
+    }
+
+    private function sacRow(?int $tenantId, string $designation): array
+    {
+        $sac = $this->designationCatalog->lookup($tenantId, $designation);
+
+        return ['sac' => $sac['sac_code'], 'sac_description' => $sac['sac_description']];
     }
 
     private function logoDataUri(): ?string
@@ -133,7 +134,8 @@ class PdfExportService
         $employees = Employee::where('client_id', $client->id)
             ->where('status', 'active')
             ->orderBySkill()
-            ->get(['id', 'employee_code', 'name', 'gender', 'designation']);
+            ->get(['id', 'tenant_id', 'employee_code', 'name', 'gender', 'designation'])
+            ->each(fn (Employee $employee) => $employee->setAttribute('sac', $this->designationCatalog->lookup($employee->tenant_id, $employee->designation)));
 
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
 

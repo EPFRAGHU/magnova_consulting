@@ -141,14 +141,17 @@ class WageRegisterCalculator
         $daysDeployed = $this->workingDays($employee, $month, $year);
         $minimumWage = (float) ($wage?->rate_per_day ?? $employee->rate_per_day);
         $monthlyWage = round($daysDeployed * $minimumWage, 2);
+        $deployment = $employee->designation ?: $employee->skillLabel().' Security Guard';
+        $sac = app(DesignationCatalog::class)->lookup($employee->tenant_id, $deployment);
 
         return [
             'serial_number' => $serialNumber,
             'employee_id' => $employee->id,
             'name' => $employee->name,
             'employee_code' => $employee->employee_code,
-            'nature_of_deployment' => $employee->designation
-                ?: $employee->skillLabel().' Security Guard',
+            'nature_of_deployment' => $deployment,
+            'sac_code' => $sac['sac_code'],
+            'sac_description' => $sac['sac_description'],
             'days_deployed' => $daysDeployed,
             'minimum_wage' => $minimumWage,
             'monthly_wage' => $monthlyWage,

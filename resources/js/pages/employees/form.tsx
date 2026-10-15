@@ -1,4 +1,5 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
 import EmployeeController from '@/actions/App/Http/Controllers/EmployeeController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -30,13 +31,25 @@ type Employee = {
     bank_ifsc: string | null;
 };
 
+type DesignationOption = {
+    designation: string;
+    sac_code: string;
+    sac_description: string | null;
+};
+
 export default function EmployeeForm({
     employee,
     clients,
+    designations,
 }: {
     employee?: Employee;
     clients: ClientOption[];
+    designations: DesignationOption[];
 }) {
+    const [designation, setDesignation] = useState(employee?.designation ?? '');
+    const selected = designations.find(
+        (option) => option.designation.toLowerCase() === designation.toLowerCase(),
+    );
     const isEdit = !!employee;
     const submitOptions = isEdit
         ? EmployeeController.update.form(employee!.id)
@@ -122,14 +135,48 @@ export default function EmployeeForm({
                                     <Label htmlFor="designation">
                                         Designation
                                     </Label>
-                                    <Input
+                                    <SelectNative
                                         id="designation"
                                         name="designation"
-                                        defaultValue={
-                                            employee?.designation ?? ''
+                                        value={designation}
+                                        onChange={(e) =>
+                                            setDesignation(e.target.value)
                                         }
-                                        placeholder="Attendant"
-                                    />
+                                    >
+                                        <option value="">Select designation</option>
+                                        {employee?.designation &&
+                                            !selected && (
+                                                <option value={employee.designation}>
+                                                    {employee.designation}
+                                                </option>
+                                            )}
+                                        {designations.map((option) => (
+                                            <option
+                                                key={option.designation}
+                                                value={option.designation}
+                                            >
+                                                {option.designation}
+                                            </option>
+                                        ))}
+                                    </SelectNative>
+                                    {selected && (
+                                        <p className="text-muted-foreground text-xs">
+                                            SAC {selected.sac_code}
+                                            {selected.sac_description
+                                                ? ` · ${selected.sac_description}`
+                                                : ''}
+                                        </p>
+                                    )}
+                                    <p className="text-muted-foreground text-xs">
+                                        Not in the list?{' '}
+                                        <Link
+                                            href="/settings/sac-codes"
+                                            className="underline"
+                                        >
+                                            Add it under Settings, SAC codes
+                                        </Link>
+                                        .
+                                    </p>
                                     <InputError message={errors.designation} />
                                 </div>
                                 <div className="grid gap-2">

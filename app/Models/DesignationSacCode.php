@@ -9,5 +9,5 @@ class DesignationSacCode extends Model
 {
     use BelongsToTenant;
 
-    protected $fillable = ['tenant_id', 'designation', 'sac_code'];
+    protected $fillable = ['tenant_id', 'designation', 'sac_code', 'sac_description'];
 }
