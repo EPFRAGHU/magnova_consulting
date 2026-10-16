@@ -1,4 +1,4 @@
-import AppLayoutTemplate from '@/layouts/app/app-header-layout';
+import AppLayoutTemplate from '@/layouts/app/app-workspace-layout';
 import type { BreadcrumbItem } from '@/types';
 
 export default function AppLayout({

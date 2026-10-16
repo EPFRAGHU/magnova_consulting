@@ -59,12 +59,12 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
         <>
             <Head title={`Invoice ${invoice.invoice_no}`} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                     <Heading
                         title={`Invoice ${invoice.invoice_no}`}
                         description={`${invoice.client.name}${invoice.client.unit_label ? ' - ' + invoice.client.unit_label : ''} · ${MONTHS[invoice.month - 1]} ${invoice.year}`}
                     />
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <StatusBadge status={invoice.status} />
                         <Button asChild variant="outline">
                             <Link href={edit(invoice.id)}>
