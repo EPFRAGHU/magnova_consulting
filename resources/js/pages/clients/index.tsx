@@ -6,9 +6,23 @@ import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { dashboard } from '@/routes';
-import { create, destroy, edit, index } from '@/routes/clients';
+import {
+    create,
+    destroy,
+    edit,
+    index,
+    regenerateInvoices,
+} from '@/routes/clients';
 
 // Solid status chips, the same style as the blue "Active" badge.
 const CHIP = {
@@ -34,14 +48,35 @@ type ClientRow = {
     employees_count: number;
 };
 
+type RegenerateAsk = { client_id: number; name: string; count: number };
+
 export default function ClientsIndex({
     clients,
     search,
+    regenerate,
 }: {
     clients: ClientRow[];
     search: string;
+    regenerate: RegenerateAsk | null;
 }) {
     const [query, setQuery] = useState(search ?? '');
+    const [asking, setAsking] = useState(regenerate !== null);
+    const [working, setWorking] = useState(false);
+
+    const regenerateNow = () => {
+        if (!regenerate) return;
+        setWorking(true);
+        router.post(
+            regenerateInvoices(regenerate.client_id).url,
+            {},
+            {
+                onFinish: () => {
+                    setWorking(false);
+                    setAsking(false);
+                },
+            },
+        );
+    };
 
     const runSearch = (value: string) => {
         setQuery(value);
@@ -55,6 +90,42 @@ export default function ClientsIndex({
     return (
         <>
             <Head title="Clients" />
+            <Dialog open={asking && regenerate !== null} onOpenChange={setAsking}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Update draft invoices?</DialogTitle>
+                        <DialogDescription>
+                            You changed a billing setting for{' '}
+                            <strong>{regenerate?.name}</strong>. It has{' '}
+                            {regenerate?.count}{' '}
+                            {regenerate?.count === 1
+                                ? 'draft invoice'
+                                : 'draft invoices'}{' '}
+                            that still use the old setting. Regenerate{' '}
+                            {regenerate?.count === 1 ? 'it' : 'them'} now so the
+                            amounts match? Invoice numbers stay the same. Sent
+                            and paid invoices are not changed.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setAsking(false)}
+                            disabled={working}
+                        >
+                            No, leave them
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={regenerateNow}
+                            disabled={working}
+                        >
+                            {working ? 'Regenerating...' : 'Yes, regenerate'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex items-center justify-between">
                     <Heading

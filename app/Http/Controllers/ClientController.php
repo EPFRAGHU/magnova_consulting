@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Services\InvoiceRefresher;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,6 +24,7 @@ class ClientController extends Controller
         return Inertia::render('clients/index', [
             'clients' => $clients,
             'search' => $search,
+            'regenerate' => session('regenerate'),
         ]);
     }
 
@@ -47,11 +49,30 @@ class ClientController extends Controller
         ]);
     }
 
-    public function update(Request $request, Client $client): RedirectResponse
+    public function update(Request $request, Client $client, InvoiceRefresher $refresher): RedirectResponse
     {
         $client->update($this->validated($request));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Client updated.']);
+
+        $redirect = to_route('clients.index');
+        $settingsChanged = $client->wasChanged(['bonus_enabled', 'service_charge_on_basic', 'gst_exempt']);
+        $drafts = $settingsChanged ? $refresher->draftInvoiceCount($client) : 0;
+
+        // Ask before recalculating: the page shows a Yes/No question for this unit's draft invoices.
+        return $drafts > 0
+            ? $redirect->with('regenerate', ['client_id' => $client->id, 'name' => $client->name, 'count' => $drafts])
+            : $redirect;
+    }
+
+    public function regenerateInvoices(Client $client, InvoiceRefresher $refresher): RedirectResponse
+    {
+        $count = $refresher->refreshDrafts($client);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => $count === 1 ? '1 draft invoice regenerated.' : "{$count} draft invoices regenerated.",
+        ]);
 
         return to_route('clients.index');
     }
