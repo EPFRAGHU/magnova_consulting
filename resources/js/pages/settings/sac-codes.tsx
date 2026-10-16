@@ -1,6 +1,6 @@
 import { Form, Head } from '@inertiajs/react';
 import { X } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import SacCodeController from '@/actions/App/Http/Controllers/Settings/SacCodeController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -29,6 +29,24 @@ export default function SacCodes({
 }: Props) {
     const [rows, setRows] = useState<Row[]>(initialRows);
     const [newName, setNewName] = useState('');
+    const [search, setSearch] = useState('');
+    const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+    const matches = useMemo(() => {
+        const term = search.trim().toLowerCase();
+        if (term.length < 2) return [];
+        return Object.entries(catalog)
+            .filter(
+                ([code, description]) =>
+                    code.startsWith(term) || description.toLowerCase().includes(term),
+            )
+            .slice(0, 8);
+    }, [search, catalog]);
+
+    const useCode = (code: string, description: string) => {
+        if (activeIndex === null || !rows[activeIndex]) return;
+        update(activeIndex, { sac_code: code, sac_description: description });
+    };
 
     const update = (index: number, patch: Partial<Row>) =>
         setRows((current) =>
@@ -110,6 +128,7 @@ export default function SacCodes({
                                                 name={`rows[${index}][sac_code]`}
                                                 value={row.sac_code}
                                                 onChange={(e) => changeCode(index, e.target.value)}
+                                                onFocus={() => setActiveIndex(index)}
                                                 placeholder={defaultSac}
                                                 maxLength={6}
                                                 inputMode="numeric"
@@ -178,6 +197,44 @@ export default function SacCodes({
                                         Add
                                     </Button>
                                 </div>
+                            </div>
+
+                            <div className="space-y-1.5 rounded-md border p-3">
+                                <label htmlFor="sac-search" className="text-sm font-medium">
+                                    Find a SAC code
+                                </label>
+                                <Input
+                                    id="sac-search"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Type a word or code, e.g. cleaning, guard, 9985"
+                                    autoComplete="off"
+                                    className="h-8 text-sm"
+                                />
+                                {search.trim().length >= 2 && matches.length === 0 && (
+                                    <p className="text-muted-foreground text-xs">No match.</p>
+                                )}
+                                {matches.length > 0 && (
+                                    <ul className="divide-y rounded-md border text-sm">
+                                        {matches.map(([code, description]) => (
+                                            <li key={code}>
+                                                <button
+                                                    type="button"
+                                                    className="hover:bg-muted flex w-full items-baseline gap-2 px-2 py-1 text-left"
+                                                    onMouseDown={(e) => e.preventDefault()}
+                                                    onClick={() => useCode(code, description)}
+                                                >
+                                                    <span className="font-mono text-xs">{code}</span>
+                                                    <span className="truncate">{description}</span>
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                                <p className="text-muted-foreground text-xs">
+                                    Click a row's SAC code box first, then click a result to fill it in.
+                                    The full official list has {Object.keys(catalog).length} codes.
+                                </p>
                             </div>
 
                             <div className="flex items-center gap-3">

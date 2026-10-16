@@ -87,6 +87,24 @@ class SacCodeTest extends TestCase
         $this->assertSame(config('magnova.hsn_sac_code'), $rows['Gardener']['sac']);
     }
 
+    public function test_the_built_in_list_is_the_official_scheme(): void
+    {
+        $catalog = config('sac_catalog');
+
+        $this->assertGreaterThan(500, count($catalog));
+        $this->assertSame('Guard services', $catalog['998525']);
+        $this->assertSame('Armoured car services', $catalog['998524']);
+        $this->assertSame('Security systems services', $catalog['998523']);
+        $this->assertSame('Fingerprinting services', $catalog['998528']);
+        $this->assertSame('Insulation services', $catalog['995465']);
+
+        foreach ($catalog as $code => $description) {
+            $this->assertMatchesRegularExpression('/^\d{6}$/', (string) $code);
+            $this->assertNotSame('', $description);
+            $this->assertLessThanOrEqual(255, strlen($description), "description of {$code} fits the column");
+        }
+    }
+
     public function test_the_catalog_gives_the_same_answer_everywhere(): void
     {
         $user = User::factory()->create();
@@ -94,7 +112,7 @@ class SacCodeTest extends TestCase
         $catalog = app(DesignationCatalog::class);
 
         $this->assertSame('998533', $catalog->lookup($user->tenant_id, 'sweeper')['sac_code']);
-        $this->assertSame('General cleaning services (housekeeping)', $catalog->lookup($user->tenant_id, ' SWEEPER ')['sac_description']);
+        $this->assertSame('General cleaning services', $catalog->lookup($user->tenant_id, ' SWEEPER ')['sac_description']);
         $this->assertSame('998525', $catalog->lookup($user->tenant_id, 'Unknown role')['sac_code']);
         $this->assertFalse($catalog->lookup($user->tenant_id, 'Unknown role')['in_list']);
         $this->assertSame('998525', $catalog->lookup($user->tenant_id, null)['sac_code']);
@@ -132,7 +150,7 @@ class SacCodeTest extends TestCase
             ->where('rows.0.in_use', false)
             ->where('rows.1.designation', 'Sweeper')
             ->where('rows.1.sac_code', '998533')
-            ->where('rows.1.sac_description', 'General cleaning services (housekeeping)')
+            ->where('rows.1.sac_description', 'General cleaning services')
             ->where('rows.1.in_use', true));
     }
 
@@ -217,7 +235,7 @@ class SacCodeTest extends TestCase
             ->has('designations', 1)
             ->where('designations.0.designation', 'Sweeper')
             ->where('designations.0.sac_code', '998533')
-            ->where('designations.0.sac_description', 'General cleaning services (housekeeping)'));
+            ->where('designations.0.sac_description', 'General cleaning services'));
 
         $this->actingAs($user)->get(route('employees.index'))->assertInertia(fn ($page) => $page
             ->where('employees.0.designation', 'Sweeper')
