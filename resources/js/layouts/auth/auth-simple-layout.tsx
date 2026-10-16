@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import AppLogoIcon from '@/components/app-logo-icon';
+import { MaintenanceBanner } from '@/components/maintenance-banner';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 
@@ -9,7 +10,9 @@ export default function AuthSimpleLayout({
     description,
 }: AuthLayoutProps) {
     return (
-        <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+        <>
+            <MaintenanceBanner />
+            <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
             <div className="w-full max-w-sm">
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col items-center gap-4">
@@ -33,6 +36,7 @@ export default function AuthSimpleLayout({
                     {children}
                 </div>
             </div>
-        </div>
+            </div>
+        </>
     );
 }

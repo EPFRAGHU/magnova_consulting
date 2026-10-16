@@ -1,5 +1,4 @@
 import { createInertiaApp } from '@inertiajs/react';
-import { MaintenanceBanner } from '@/components/maintenance-banner';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -27,7 +26,6 @@ void createInertiaApp({
     withApp(app) {
         return (
             <TooltipProvider delayDuration={0}>
-                <MaintenanceBanner />
                 {app}
                 <Toaster />
             </TooltipProvider>
