@@ -52,7 +52,7 @@ export function WorkspaceSidebar({ onNavigate }: { onNavigate?: () => void }) {
             <Link
                 href={dashboard()}
                 onClick={onNavigate}
-                aria-label="Magnova Security dashboard"
+                aria-label="Magnova dashboard"
                 className="flex h-[62px] items-center gap-2.5 border-b border-white/15 px-2.5 pb-[18px] text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
                 <span className="grid size-10 shrink-0 place-items-center rounded-[11px] bg-white p-1">
@@ -60,9 +60,6 @@ export function WorkspaceSidebar({ onNavigate }: { onNavigate?: () => void }) {
                 </span>
                 <span className="text-[17px] leading-[1.1] font-extrabold tracking-wide">
                     MAGNOVA
-                    <small className="mt-[3px] block text-[11px] tracking-[2px] text-[#ff6565]">
-                        SECURITY
-                    </small>
                 </span>
             </Link>
 

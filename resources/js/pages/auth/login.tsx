@@ -51,11 +51,7 @@ function Brand({ dark }: { dark?: boolean }) {
             <span className="grid size-[42px] place-items-center rounded-xl bg-white p-1 ring-1 ring-[#e4eaf3]">
                 <AppLogoIcon className="size-9" />
             </span>
-            <span className="leading-tight">
-                MAGNOVA
-                <br />
-                SECURITY
-            </span>
+            <span className="text-[17px] leading-tight">MAGNOVA</span>
         </Link>
     );
 }
@@ -135,7 +131,7 @@ export default function Login({
                         </ul>
                     </div>
                     <div className="relative z-10 text-xs text-[#9eafc8]">
-                        A connected workspace for Magnova Security operations.
+                        A connected workspace for Magnova operations.
                     </div>
                 </section>
 

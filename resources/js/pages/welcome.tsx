@@ -72,11 +72,7 @@ function Brand({ onDark = false }: { onDark?: boolean }) {
             <span className="grid size-[42px] place-items-center rounded-xl border border-[#e4eaf3] bg-white p-1">
                 <AppLogoIcon className="size-9" />
             </span>
-            <span className="text-[13px] leading-tight">
-                MAGNOVA
-                <br />
-                SECURITY
-            </span>
+            <span className="text-[17px] leading-tight">MAGNOVA</span>
         </Link>
     );
 }
@@ -402,8 +398,8 @@ export default function Welcome() {
                                     </h2>
                                     <p className="text-[#c4d1e5]">
                                         {signedIn
-                                            ? 'Continue to your Magnova Security workspace.'
-                                            : 'Sign in to continue to your Magnova Security workspace.'}
+                                            ? 'Continue to your Magnova workspace.'
+                                            : 'Sign in to continue to your Magnova workspace.'}
                                     </p>
                                 </div>
                                 <Link
@@ -427,7 +423,7 @@ export default function Welcome() {
                     <div className="mx-auto flex w-[min(1160px,calc(100%-30px))] flex-wrap justify-between gap-[18px] sm:w-[min(1160px,calc(100%-44px))]">
                         <span>
                             <strong className="text-[#102b52]">
-                                MAGNOVA SECURITY
+                                MAGNOVA
                             </strong>{' '}
                             · Operations management
                         </span>
