@@ -21,6 +21,7 @@ class ClientSettingsTest extends TestCase
         $client = Client::where('name', 'Unit A')->first();
         $this->assertFalse($client->bonus_enabled);
         $this->assertFalse($client->service_charge_on_basic);
+        $this->assertFalse($client->gst_exempt, 'GST is charged unless the unit is ticked');
     }
 
     public function test_unit_settings_can_be_ticked_and_unticked(): void
@@ -33,11 +34,13 @@ class ClientSettingsTest extends TestCase
             'active' => 1,
             'bonus_enabled' => 1,
             'service_charge_on_basic' => 1,
+            'gst_exempt' => 1,
         ])->assertSessionHasNoErrors();
 
         $client->refresh();
         $this->assertTrue($client->bonus_enabled);
         $this->assertTrue($client->service_charge_on_basic);
+        $this->assertTrue($client->gst_exempt);
 
         $this->actingAs($user)->put(route('clients.update', $client), [
             'name' => 'Unit B',
@@ -47,5 +50,6 @@ class ClientSettingsTest extends TestCase
         $client->refresh();
         $this->assertFalse($client->bonus_enabled);
         $this->assertFalse($client->service_charge_on_basic);
+        $this->assertFalse($client->gst_exempt);
     }
 }

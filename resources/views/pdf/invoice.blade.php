@@ -177,8 +177,9 @@
                     @endif
                     <tr class="strong"><td class="label">SUB-TOTAL (Taxable Value)</td><td class="amount">{{ number_format($taxableSubtotal, 2) }}</td></tr>
                     <tr><td class="label">Service Charges @ {{ number_format(config('magnova.service_charge_pct'), 2) }}% on {{ $client->service_charge_on_basic ? 'Basic Wages' : 'Gross Wages' }}</td><td class="amount">{{ number_format($invoice->service_charge, 2) }}</td></tr>
-                    <tr><td class="label">CGST @ {{ number_format(config('magnova.cgst_pct'), 2) }}%</td><td class="amount">{{ number_format($invoice->cgst, 2) }}</td></tr>
-                    <tr><td class="label">SGST @ {{ number_format(config('magnova.sgst_pct'), 2) }}%</td><td class="amount">{{ number_format($invoice->sgst, 2) }}</td></tr>
+                    @php $gstCharged = ((float) $invoice->cgst + (float) $invoice->sgst) > 0; @endphp
+                    <tr><td class="label">CGST @ {{ number_format($gstCharged ? config('magnova.cgst_pct') : 0, 2) }}%</td><td class="amount">{{ number_format($invoice->cgst, 2) }}</td></tr>
+                    <tr><td class="label">SGST @ {{ number_format($gstCharged ? config('magnova.sgst_pct') : 0, 2) }}%</td><td class="amount">{{ number_format($invoice->sgst, 2) }}</td></tr>
                     <tr class="strong"><td class="label">GRAND TOTAL</td><td class="amount">{{ number_format($invoice->grand_total, 2) }}</td></tr>
                 </table>
             </td>

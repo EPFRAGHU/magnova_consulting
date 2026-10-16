@@ -26,6 +26,7 @@ type Client = {
     active: boolean;
     bonus_enabled: boolean;
     service_charge_on_basic: boolean;
+    gst_exempt: boolean;
 };
 
 export default function ClientForm({ client }: { client?: Client }) {
@@ -248,6 +249,29 @@ export default function ClientForm({ client }: { client?: Client }) {
                                 <InputError
                                     message={errors.service_charge_on_basic}
                                 />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        id="gst_exempt"
+                                        name="gst_exempt"
+                                        defaultChecked={
+                                            client?.gst_exempt ?? false
+                                        }
+                                    />
+                                    <Label htmlFor="gst_exempt">
+                                        No GST{' '}
+                                        <span className="text-muted-foreground font-normal">
+                                            (ticked: CGST and SGST are 0 in
+                                            this unit's invoices and register.
+                                            For educational institutions,
+                                            government departments and other
+                                            exempt clients)
+                                        </span>
+                                    </Label>
+                                </div>
+                                <InputError message={errors.gst_exempt} />
                             </div>
 
                             <div className="flex gap-2">

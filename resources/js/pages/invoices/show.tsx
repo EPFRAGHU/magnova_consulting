@@ -181,11 +181,11 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
                                         bold
                                     />
                                     <Row
-                                        label="CGST (9%)"
+                                        label={`CGST (${Number(invoice.cgst) + Number(invoice.sgst) > 0 ? 9 : 0}%)`}
                                         value={money(invoice.cgst)}
                                     />
                                     <Row
-                                        label="SGST (9%)"
+                                        label={`SGST (${Number(invoice.cgst) + Number(invoice.sgst) > 0 ? 9 : 0}%)`}
                                         value={money(invoice.sgst)}
                                     />
                                     <Row

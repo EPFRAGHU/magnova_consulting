@@ -13,7 +13,7 @@ class InvoiceLayoutTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function render(string $tenantName = 'Magnova Consulting Pvt. Ltd.', bool $serviceOnBasic = false): string
+    private function render(string $tenantName = 'Magnova Consulting Pvt. Ltd.', bool $serviceOnBasic = false, bool $gstExempt = false): string
     {
         $tenant = Tenant::create([
             'name' => $tenantName,
@@ -30,6 +30,7 @@ class InvoiceLayoutTest extends TestCase
             'sac_code' => '998519',
             'contact_phone' => '9999999999',
             'service_charge_on_basic' => $serviceOnBasic,
+            'gst_exempt' => $gstExempt,
         ]);
         $invoice = Invoice::create([
             'tenant_id' => $tenant->id,
@@ -48,9 +49,9 @@ class InvoiceLayoutTest extends TestCase
             'esi_employer' => 0,
             'taxable_value' => 79427,
             'service_charge' => 3058,
-            'cgst' => 7148.5,
-            'sgst' => 7148.5,
-            'grand_total' => 96782,
+            'cgst' => $gstExempt ? 0 : 7148.5,
+            'sgst' => $gstExempt ? 0 : 7148.5,
+            'grand_total' => $gstExempt ? 82485 : 96782,
             'status' => 'draft',
         ]);
 
@@ -107,6 +108,36 @@ class InvoiceLayoutTest extends TestCase
         $this->assertStringContainsString('SGST @ 9.00%', $html);
         $this->assertStringContainsString('7,148.50', $html);
         $this->assertStringNotContainsString('GST @ 18.00%', $html);
+    }
+
+    public function test_a_unit_without_gst_shows_zero_percent_cgst_and_sgst(): void
+    {
+        $html = $this->render('Magnova Consulting Pvt. Ltd.', false, true);
+
+        $this->assertStringContainsString('CGST @ 0.00%', $html);
+        $this->assertStringContainsString('SGST @ 0.00%', $html);
+        $this->assertStringNotContainsString('CGST @ 9.00%', $html);
+        $this->assertStringContainsString('CGST: 0.00', $html);
+        $this->assertStringContainsString('SGST: 0.00', $html);
+    }
+
+    public function test_an_invoice_generated_before_the_box_was_ticked_keeps_honest_labels(): void
+    {
+        $html = $this->render('Magnova Consulting Pvt. Ltd.', false, false);
+        $invoice = Invoice::first();
+        $invoice->client->update(['gst_exempt' => true]);
+
+        $stale = view('pdf.invoice', [
+            'invoice' => $invoice->fresh()->load('client', 'lineItems.employee', 'tenant'),
+            'dutySummary' => collect([['rank' => 'Security Guard Male', 'sac' => '998525', 'rate' => 781, 'persons' => 4, 'duties' => 90, 'amount' => 70290]]),
+            'bonus' => 0,
+            'amountInWords' => '',
+            'logoDataUri' => null,
+        ])->render();
+
+        $this->assertStringContainsString('CGST @ 9.00%', $html);
+        $this->assertStringContainsString('CGST @ 9.00%', $stale, 'stored GST amounts keep their rate label until regenerated');
+        $this->assertStringContainsString('7,148.50', $stale);
     }
 
     public function test_service_charge_line_states_its_basis(): void

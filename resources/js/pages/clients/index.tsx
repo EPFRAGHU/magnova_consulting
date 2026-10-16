@@ -20,6 +20,7 @@ type ClientRow = {
     active: boolean;
     bonus_enabled: boolean;
     service_charge_on_basic: boolean;
+    gst_exempt: boolean;
     employees_count: number;
 };
 
@@ -136,6 +137,11 @@ export default function ClientsIndex({
                                                     {client.service_charge_on_basic
                                                         ? 'Service on Basic'
                                                         : 'Service on Gross'}
+                                                </Badge>{' '}
+                                                <Badge variant="outline">
+                                                    {client.gst_exempt
+                                                        ? 'No GST'
+                                                        : 'GST on'}
                                                 </Badge>
                                             </td>
                                             <td className="px-6 py-2 text-right whitespace-nowrap">

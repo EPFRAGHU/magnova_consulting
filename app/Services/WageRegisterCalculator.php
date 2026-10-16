@@ -83,14 +83,26 @@ class WageRegisterCalculator
         };
     }
 
-    /** Column headings that depend on the ceilings in force for the month and the unit's service charge basis. */
-    public function headings(int $month, int $year, ?bool $serviceChargeOnBasic = false): array
+    /** GST heading; null means the register mixes units that charge GST with units that do not. */
+    private function gstHeading(?bool $gstExempt): string
+    {
+        return match ($gstExempt) {
+            true => 'GST (not charged to this unit)',
+            false => 'GST @ 18 % (K*0.18)',
+            null => 'GST @ 18 % (K*0.18), nil for units without GST',
+        };
+    }
+
+    /** Column headings that depend on the ceilings in force for the month and the unit's service charge and GST settings. */
+    public function headings(int $month, int $year, ?bool $serviceChargeOnBasic = false, ?bool $gstExempt = false): array
     {
         $agency = $this->agencyHeading($serviceChargeOnBasic);
+        $gst = $this->gstHeading($gstExempt);
 
         if (! $this->usesCurrentRules($month, $year)) {
             return [
                 'agency' => $agency,
+                'gst' => $gst,
                 'epf' => 'EPF @12% of MIN(F, Rs. 15,000)',
                 'edli' => 'EDLI and EPF Admin @1% of MIN(F, Rs. 15,000)',
                 'esic' => 'ESIC @3.25% of MIN(F, Rs. 21,000)',
@@ -111,6 +123,7 @@ class WageRegisterCalculator
 
         return [
             'agency' => $agency,
+            'gst' => $gst,
             'epf' => "EPF @12% of Monthly Wage, ceiling {$ceiling}",
             'edli' => "EDLI and EPF Admin Charges @1% of Monthly Wage, ceiling {$ceiling}",
             'esic' => "ESIC @3.25% of Monthly Wage ({$esicLimit})",
@@ -158,13 +171,14 @@ class WageRegisterCalculator
                 $year,
                 (bool) $employee->client?->bonus_enabled,
                 (bool) $employee->client?->service_charge_on_basic,
+                (bool) $employee->client?->gst_exempt,
             ),
             'saved' => $wage !== null,
         ];
     }
 
     /** Every statutory and billing figure derived from one employee's Monthly Wage. */
-    public function figures(float $monthlyWage, int $month, int $year, bool $bonusEnabled, bool $serviceChargeOnBasic = false): array
+    public function figures(float $monthlyWage, int $month, int $year, bool $bonusEnabled, bool $serviceChargeOnBasic = false, bool $gstExempt = false): array
     {
         $current = $this->usesCurrentRules($month, $year);
         $precision = $current ? 0 : 2;
@@ -183,7 +197,7 @@ class WageRegisterCalculator
             ? ($aboveEsicCeiling ? 0.0 : round($monthlyWage * config('magnova.esi_employer_pct') / 100, 0))
             : round(min($monthlyWage, $esicCeiling) * config('magnova.esi_employer_pct') / 100, 2);
         $totalGrossSalary = round($monthlyWage + $epfEmployer + $edliAndEpfAdmin + $esicEmployer + $bonus, $precision);
-        $gst = round(
+        $gst = $gstExempt ? 0.0 : round(
             $totalGrossSalary * (config('magnova.cgst_pct') + config('magnova.sgst_pct')) / 100,
             $precision,
         );

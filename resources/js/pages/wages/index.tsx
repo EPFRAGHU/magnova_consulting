@@ -37,6 +37,7 @@ type Row = {
 
 type Headings = {
     agency: string;
+    gst: string;
     epf: string;
     edli: string;
     esic: string;
@@ -173,7 +174,7 @@ export default function WagesIndex({
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">{headings.esic}</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">{headings.bonus}</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">Total Gross salary of the Security Guards (F+G+H+I+J)</th>
-                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">GST @ 18 % (K*0.18)</th>
+                                        <th className="px-1 py-1 align-top font-medium break-words leading-tight">{headings.gst}</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">{headings.agency}</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">Total Bill amount in Rs. Including GST (K+L+M)</th>
                                         <th className="px-1 py-1 align-top font-medium break-words leading-tight">{headings.epf_individual}</th>

@@ -183,7 +183,7 @@ class PdfExportService
         return Pdf::loadView('pdf.wage-register', [
             'client' => $client,
             'rows' => $rows,
-            'headings' => $this->wageRegisterCalculator->headings($month, $year, (bool) $client->service_charge_on_basic),
+            'headings' => $this->wageRegisterCalculator->headings($month, $year, (bool) $client->service_charge_on_basic, (bool) $client->gst_exempt),
             'month' => $month,
             'year' => $year,
         ])->setPaper('a3', 'landscape');

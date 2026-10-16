@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class WageRegisterCalculatorTest extends TestCase
 {
-    private function row(float $days, float $rate, int $month, int $year, bool $bonusEnabled = true, bool $serviceOnBasic = false): array
+    private function row(float $days, float $rate, int $month, int $year, bool $bonusEnabled = true, bool $serviceOnBasic = false, bool $gstExempt = false): array
     {
         $calculator = Mockery::mock(WageRegisterCalculator::class)->makePartial();
         $calculator->shouldReceive('workingDays')->andReturn($days);
@@ -20,6 +20,7 @@ class WageRegisterCalculatorTest extends TestCase
         $employee->setRelation('client', new Client([
             'bonus_enabled' => $bonusEnabled,
             'service_charge_on_basic' => $serviceOnBasic,
+            'gst_exempt' => $gstExempt,
         ]));
 
         return $calculator->row($employee, null, $month, $year, 1);
@@ -111,6 +112,30 @@ class WageRegisterCalculatorTest extends TestCase
             $basic['total_gross_salary'] + $basic['gst'] + $basic['agency_fee'],
             $basic['total_bill_amount'],
         );
+    }
+
+    public function test_a_unit_without_gst_has_zero_gst_and_the_bill_is_gross_plus_agency_fee(): void
+    {
+        $charged = $this->row(12, 1008, 9, 2026);
+        $exempt = $this->row(12, 1008, 9, 2026, true, false, true);
+
+        $this->assertEquals(2713, $charged['gst']);
+        $this->assertEquals(0, $exempt['gst']);
+        $this->assertEquals($charged['total_gross_salary'], $exempt['total_gross_salary']);
+        $this->assertEquals($charged['agency_fee'], $exempt['agency_fee']);
+        $this->assertEquals($exempt['total_gross_salary'] + $exempt['agency_fee'], $exempt['total_bill_amount']);
+        $this->assertEquals($charged['total_bill_amount'] - 2713, $exempt['total_bill_amount']);
+        $this->assertEquals($charged['net_payable_salary'], $exempt['net_payable_salary']);
+    }
+
+    public function test_gst_heading_follows_the_unit(): void
+    {
+        $calculator = new WageRegisterCalculator;
+
+        $this->assertSame('GST @ 18 % (K*0.18)', $calculator->headings(9, 2026, false, false)['gst']);
+        $this->assertSame('GST (not charged to this unit)', $calculator->headings(9, 2026, false, true)['gst']);
+        $this->assertStringContainsString('nil for units without GST', $calculator->headings(9, 2026, null, null)['gst']);
+        $this->assertArrayHasKey('gst', $calculator->headings(8, 2026, false, true));
     }
 
     public function test_agency_heading_follows_the_unit_basis(): void

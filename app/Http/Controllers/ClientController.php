@@ -71,6 +71,7 @@ class ClientController extends Controller
             'active' => $request->boolean('active'),
             'bonus_enabled' => $request->boolean('bonus_enabled'),
             'service_charge_on_basic' => $request->boolean('service_charge_on_basic'),
+            'gst_exempt' => $request->boolean('gst_exempt'),
         ]);
 
         return $request->validate([
@@ -88,6 +89,7 @@ class ClientController extends Controller
             'active' => ['boolean'],
             'bonus_enabled' => ['boolean'],
             'service_charge_on_basic' => ['boolean'],
+            'gst_exempt' => ['boolean'],
         ]);
     }
 }

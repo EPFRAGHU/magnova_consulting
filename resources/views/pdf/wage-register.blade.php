@@ -64,7 +64,7 @@
                 <th class="col-esic">{{ $headings['esic'] }}</th>
                 <th class="col-bonus">{{ $headings['bonus'] }}</th>
                 <th class="col-gross">Total Gross salary of the Security Guards (F+G+H+I+J)</th>
-                <th class="col-gst">GST @ 18 % (K*0.18)</th>
+                <th class="col-gst">{{ $headings['gst'] }}</th>
                 <th class="col-agency">{{ $headings['agency'] }}</th>
                 <th class="col-bill">Total Bill amount in Rs. Including GST (K+L+M)</th>
                 <th class="col-epf-individual">{{ $headings['epf_individual'] }}</th>

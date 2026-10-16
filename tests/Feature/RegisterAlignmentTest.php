@@ -19,7 +19,7 @@ class RegisterAlignmentTest extends TestCase
     use RefreshDatabase;
 
     /** @return array{0: Client, 1: array<int, Employee>} */
-    private function setUpUnit(int $month, int $year, bool $bonusEnabled = true, bool $serviceOnBasic = false): array
+    private function setUpUnit(int $month, int $year, bool $bonusEnabled = true, bool $serviceOnBasic = false, bool $gstExempt = false): array
     {
         $tenant = Tenant::create(['name' => 'Magnova Test', 'slug' => 'magnova-test']);
         $client = Client::create([
@@ -28,6 +28,7 @@ class RegisterAlignmentTest extends TestCase
             'active' => true,
             'bonus_enabled' => $bonusEnabled,
             'service_charge_on_basic' => $serviceOnBasic,
+            'gst_exempt' => $gstExempt,
         ]);
         $employees = [];
 
@@ -121,6 +122,43 @@ class RegisterAlignmentTest extends TestCase
             $invoice->taxable_value + $invoice->service_charge + $invoice->cgst + $invoice->sgst,
             $invoice->grand_total,
         );
+    }
+
+    public function test_a_unit_without_gst_gets_an_invoice_with_zero_cgst_and_sgst(): void
+    {
+        [$client, $employees] = $this->setUpUnit(9, 2026, true, false, true);
+        $register = app(WageRegisterCalculator::class);
+
+        foreach ($employees as $employee) {
+            app(WageCalculator::class)->calculateForEmployee($employee, 9, 2026);
+        }
+
+        $invoice = app(InvoiceCalculator::class)->generateForClient($client, 9, 2026, 'INV-TEST-NOGST');
+        $rows = collect($employees)->map(fn (Employee $e) => $register->row($e, null, 9, 2026, 1));
+
+        $this->assertEquals(0, $invoice->cgst);
+        $this->assertEquals(0, $invoice->sgst);
+        $this->assertEquals($invoice->taxable_value + $invoice->service_charge, $invoice->grand_total);
+        $this->assertEquals($rows->sum('total_bill_amount'), $invoice->grand_total);
+        $this->assertEquals(0, $rows->sum('gst'));
+        $this->assertStringStartsWith('%PDF', app(PdfExportService::class)->invoice($invoice)->output());
+    }
+
+    public function test_the_gst_setting_also_applies_to_months_before_september_2026(): void
+    {
+        [$client, $employees] = $this->setUpUnit(8, 2026, true, false, false);
+        foreach ($employees as $employee) {
+            app(WageCalculator::class)->calculateForEmployee($employee, 8, 2026);
+        }
+        $withGst = app(InvoiceCalculator::class)->generateForClient($client, 8, 2026, 'INV-AUG-GST');
+        $this->assertGreaterThan(0, (float) $withGst->cgst);
+
+        $client->update(['gst_exempt' => true]);
+        $noGst = app(InvoiceCalculator::class)->generateForClient($client->fresh(), 8, 2026, 'INV-AUG-GST');
+
+        $this->assertEquals(0, $noGst->cgst);
+        $this->assertEquals(0, $noGst->sgst);
+        $this->assertEquals($noGst->taxable_value + $noGst->service_charge, $noGst->grand_total);
     }
 
     public function test_service_charge_basis_also_applies_to_months_before_september_2026(): void

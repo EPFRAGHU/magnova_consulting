@@ -56,8 +56,8 @@ class InvoiceCalculator
             $baseAmount + $epfEmployer + $epfAdmin + $edliCont + $esiEmployer + $bonus,
             2,
         );
-        $cgst = round($taxableValue * config('magnova.cgst_pct') / 100, 2);
-        $sgst = round($taxableValue * config('magnova.sgst_pct') / 100, 2);
+        $cgst = $client->gst_exempt ? 0.0 : round($taxableValue * config('magnova.cgst_pct') / 100, 2);
+        $sgst = $client->gst_exempt ? 0.0 : round($taxableValue * config('magnova.sgst_pct') / 100, 2);
         $serviceCharge = round(
             ($client->service_charge_on_basic ? $baseAmount : $taxableValue) * config('magnova.service_charge_pct') / 100,
             2,
@@ -74,6 +74,7 @@ class InvoiceCalculator
                     $year,
                     (bool) $client->bonus_enabled,
                     (bool) $client->service_charge_on_basic,
+                    (bool) $client->gst_exempt,
                 ),
             );
             $edliAndAdmin = round($figures->sum('edli_and_epf_admin'), 2);
