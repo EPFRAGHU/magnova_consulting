@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { edit } from '@/routes/maintenance';
 
 export default function Maintenance({
     active,
@@ -67,3 +68,12 @@ export default function Maintenance({
         </>
     );
 }
+
+Maintenance.layout = {
+    breadcrumbs: [
+        {
+            title: 'Maintenance banner',
+            href: edit(),
+        },
+    ],
+};

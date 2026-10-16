@@ -171,7 +171,7 @@ export default function AttendanceIndex({
                     year={year}
                 />
 
-                <div className="text-muted-foreground flex gap-3 text-xs">
+                <div className="text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 text-xs">
                     {CYCLE.map((s) => (
                         <span key={s} className="flex items-center gap-1">
                             <span

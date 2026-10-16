@@ -2,7 +2,8 @@ import { usePage } from '@inertiajs/react';
 import { TriangleAlert } from 'lucide-react';
 
 // Warns on every page while the app is being updated. It never blocks clicks or navigation.
-export function MaintenanceBanner() {
+// `inline` is for layouts whose header is already sticky: the banner then sits inside it.
+export function MaintenanceBanner({ inline = false }: { inline?: boolean }) {
     const { maintenance } = usePage().props;
 
     if (!maintenance) return null;
@@ -26,7 +27,7 @@ export function MaintenanceBanner() {
     return (
         <div
             role="alert"
-            className="maintenance-banner sticky top-0 z-[60] w-full overflow-hidden bg-amber-400 py-1.5 text-amber-950"
+            className={`maintenance-banner w-full overflow-hidden bg-amber-400 py-1.5 text-amber-950 ${inline ? '' : 'sticky top-0 z-[60]'}`}
         >
             <div className="maintenance-track">
                 {group(false)}

@@ -9,6 +9,7 @@ use App\Models\Attendance;
 use App\Models\Wage;
 use App\Support\WageMonth;
 use Illuminate\Http\Request;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -80,17 +81,124 @@ class DashboardController extends Controller
                 ];
             });
 
+        $activeEmployees = Employee::where('status', 'active')->count();
+        $today = now('Asia/Kolkata');
+
         return Inertia::render('dashboard', [
             'stats' => [
                 'active_clients' => Client::where('active', true)->count(),
-                'employees' => Employee::where('status', 'active')->count(),
+                'employees' => $activeEmployees,
                 'invoices_due' => Invoice::where('month', $month)->where('year', $year)->where('status', '!=', 'paid')->count(),
                 'total_billed_this_month' => (float) Invoice::where('month', $month)->where('year', $year)->sum('grand_total'),
             ],
+            'outstanding' => $this->outstandingInvoices($today),
+            'today' => $this->attendanceToday($today, $activeEmployees),
+            'contributions' => $this->contributions($month, $year, $activeEmployees),
+            'recent' => $this->recentRecords(),
             'clients' => $clients,
             'month' => $month,
             'year' => $year,
         ]);
+    }
+
+    /** Invoices that were sent to the client and are not paid yet (drafts are not billed yet). */
+    private function outstandingInvoices(CarbonInterface $today): array
+    {
+        $sent = Invoice::where('status', 'sent');
+
+        return [
+            'count' => (clone $sent)->count(),
+            'amount' => round((float) (clone $sent)->sum('grand_total'), 2),
+            'overdue' => (clone $sent)->whereDate('due_date', '<', $today->toDateString())->count(),
+            'drafts' => Invoice::where('status', 'draft')->count(),
+        ];
+    }
+
+    /**
+     * Today's attendance counted exactly as marked in the attendance register.
+     * Weekly off and holidays are not absences, and unmarked guards are shown separately.
+     */
+    private function attendanceToday(CarbonInterface $today, int $activeEmployees): array
+    {
+        $counts = Attendance::query()
+            ->whereDate('date', $today->toDateString())
+            ->whereHas('employee', fn ($q) => $q->where('status', 'active'))
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $present = (int) ($counts['present'] ?? 0);
+        $marked = (int) $counts->sum();
+
+        return [
+            'date' => $today->toDateString(),
+            'expected' => $activeEmployees,
+            'present' => $present,
+            'absent' => (int) ($counts['absent'] ?? 0),
+            'leave' => (int) ($counts['leave'] ?? 0),
+            'off' => (int) (($counts['sunday'] ?? 0) + ($counts['off'] ?? 0) + ($counts['holiday'] ?? 0)),
+            'not_marked' => max(0, $activeEmployees - $marked),
+            'percent' => $activeEmployees > 0 ? (int) round($present / $activeEmployees * 100) : 0,
+        ];
+    }
+
+    /** Saved wage and invoice totals for the selected period. Nothing here says a return was filed. */
+    private function contributions(int $month, int $year, int $activeEmployees): array
+    {
+        $wages = Wage::query()->where('month', $month)->where('year', $year);
+        $invoices = Invoice::query()->where('month', $month)->where('year', $year);
+
+        return [
+            'wages_saved' => (clone $wages)->whereHas('employee', fn ($q) => $q->where('status', 'active'))->count(),
+            'active_employees' => $activeEmployees,
+            'epf_employee' => round((float) (clone $wages)->sum('epf_employee'), 2),
+            'esic_employee' => round((float) (clone $wages)->sum('esic_employee'), 2),
+            'net_payable' => round((float) (clone $wages)->sum('net_salary'), 2),
+            'gst' => round((float) (clone $invoices)->sum('cgst') + (float) (clone $invoices)->sum('sgst'), 2),
+        ];
+    }
+
+    /** Latest real records (invoices, employees, saved wages), newest first. */
+    private function recentRecords(): array
+    {
+        $invoices = Invoice::with('client')->latest()->limit(4)->get()->map(fn (Invoice $i) => [
+            'type' => 'invoice',
+            'title' => "Invoice {$i->invoice_no} ".($i->status === 'paid' ? 'paid' : ($i->status === 'sent' ? 'awaiting payment' : 'drafted')),
+            'detail' => $i->client?->name ?? '',
+            'amount' => (float) $i->grand_total,
+            'at' => $i->created_at?->toIso8601String(),
+            'url' => route('invoices.show', $i, false),
+        ]);
+
+        $employees = Employee::with('client')->latest()->limit(4)->get()->map(fn (Employee $e) => [
+            'type' => 'employee',
+            'title' => "Employee {$e->name} added",
+            'detail' => trim(($e->client?->name ?? 'No unit').($e->designation ? ' · '.$e->designation : '')),
+            'at' => $e->created_at?->toIso8601String(),
+            'url' => route('employees.edit', $e, false),
+        ]);
+
+        $wages = Wage::query()
+            ->selectRaw('month, year, count(*) as total, max(updated_at) as last_saved, sum(net_salary) as net')
+            ->groupBy('month', 'year')
+            ->orderByDesc('last_saved')
+            ->limit(3)
+            ->get()
+            ->map(fn ($w) => [
+                'type' => 'wages',
+                'title' => Carbon::create((int) $w->year, (int) $w->month, 1)->format('F Y').' wages saved',
+                'detail' => "{$w->total} employees · Net payable",
+                'amount' => (float) $w->net,
+                'at' => Carbon::parse($w->last_saved)->toIso8601String(),
+                'url' => route('wages.index', ['month' => (int) $w->month, 'year' => (int) $w->year], false),
+            ]);
+
+        return $invoices->concat($employees)->concat($wages)
+            ->filter(fn ($r) => $r['at'])
+            ->sortByDesc('at')
+            ->take(6)
+            ->values()
+            ->all();
     }
 
     private function progressStatus(int $done, int $total): string
