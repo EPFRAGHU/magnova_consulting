@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\MaintenanceController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\Settings\EstablishmentController;
@@ -16,6 +17,8 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('settings/establishment', [EstablishmentController::class, 'update'])->name('establishment.update');
     Route::get('settings/sac-codes', [SacCodeController::class, 'edit'])->name('sac-codes.edit');
     Route::patch('settings/sac-codes', [SacCodeController::class, 'update'])->name('sac-codes.update');
+    Route::get('settings/maintenance', [MaintenanceController::class, 'edit'])->name('maintenance.edit');
+    Route::patch('settings/maintenance', [MaintenanceController::class, 'update'])->name('maintenance.update');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

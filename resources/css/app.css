@@ -141,3 +141,29 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Scrolling maintenance banner: two copies of the text slide left for a seamless loop. */
+@keyframes maintenance-scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.maintenance-track {
+    display: flex;
+    width: max-content;
+    animation: maintenance-scroll 28s linear infinite;
+}
+
+.maintenance-banner:hover .maintenance-track {
+    animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .maintenance-track {
+        animation: none;
+    }
+}

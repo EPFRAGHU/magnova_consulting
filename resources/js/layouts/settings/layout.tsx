@@ -7,6 +7,7 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
 import { edit as editEstablishment } from '@/routes/establishment';
+import { edit as editMaintenance } from '@/routes/maintenance';
 import { edit } from '@/routes/profile';
 import { edit as editSacCodes } from '@/routes/sac-codes';
 import { edit as editSecurity } from '@/routes/security';
@@ -26,6 +27,11 @@ const sidebarNavItems: NavItem[] = [
     {
         title: 'SAC codes',
         href: editSacCodes(),
+        icon: null,
+    },
+    {
+        title: 'Maintenance',
+        href: editMaintenance(),
         icon: null,
     },
     {
