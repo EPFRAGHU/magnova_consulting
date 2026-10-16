@@ -10,6 +10,16 @@ import { Input } from '@/components/ui/input';
 import { dashboard } from '@/routes';
 import { create, destroy, edit, index } from '@/routes/clients';
 
+// Solid status chips, the same style as the blue "Active" badge.
+const CHIP = {
+    green: 'border-transparent bg-emerald-600 text-white dark:bg-emerald-500',
+    slate: 'border-transparent bg-slate-500 text-white dark:bg-slate-400 dark:text-slate-950',
+    violet: 'border-transparent bg-violet-600 text-white dark:bg-violet-500',
+    amber: 'border-transparent bg-amber-500 text-white dark:bg-amber-400 dark:text-amber-950',
+    cyan: 'border-transparent bg-cyan-600 text-white dark:bg-cyan-500',
+    rose: 'border-transparent bg-rose-600 text-white dark:bg-rose-500',
+} as const;
+
 type ClientRow = {
     id: number;
     name: string;
@@ -128,17 +138,35 @@ export default function ClientsIndex({
                                                         ? 'Active'
                                                         : 'Inactive'}
                                                 </Badge>{' '}
-                                                <Badge variant="outline">
+                                                <Badge
+                                                    className={
+                                                        client.bonus_enabled
+                                                            ? CHIP.green
+                                                            : CHIP.slate
+                                                    }
+                                                >
                                                     {client.bonus_enabled
                                                         ? 'Bonus on'
                                                         : 'Bonus off'}
                                                 </Badge>{' '}
-                                                <Badge variant="outline">
+                                                <Badge
+                                                    className={
+                                                        client.service_charge_on_basic
+                                                            ? CHIP.violet
+                                                            : CHIP.amber
+                                                    }
+                                                >
                                                     {client.service_charge_on_basic
                                                         ? 'Service on Basic'
                                                         : 'Service on Gross'}
                                                 </Badge>{' '}
-                                                <Badge variant="outline">
+                                                <Badge
+                                                    className={
+                                                        client.gst_exempt
+                                                            ? CHIP.rose
+                                                            : CHIP.cyan
+                                                    }
+                                                >
                                                     {client.gst_exempt
                                                         ? 'No GST'
                                                         : 'GST on'}
