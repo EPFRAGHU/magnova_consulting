@@ -10,6 +10,15 @@ class PublicPagesTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_the_app_name_is_always_magnova_whatever_the_server_environment_says(): void
+    {
+        $this->assertSame('MAGNOVA', config('app.name'));
+
+        $this->get('/')->assertInertia(fn ($page) => $page->where('name', 'MAGNOVA'));
+        $this->assertStringContainsString('<title>MAGNOVA</title>', $this->get('/')->getContent());
+        $this->assertStringNotContainsString('Laravel', $this->get(route('login'))->getContent());
+    }
+
     public function test_the_home_page_is_public(): void
     {
         $this->get('/')->assertOk()->assertInertia(fn ($page) => $page->component('welcome')->where('auth.user', null));

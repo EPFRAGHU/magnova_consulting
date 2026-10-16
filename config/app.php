@@ -13,7 +13,9 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Magnova'),
+    // Fixed on purpose: the production server's APP_NAME is not trusted to be right,
+    // and this name appears in page titles and emails.
+    'name' => 'MAGNOVA',
 
     /*
     |--------------------------------------------------------------------------

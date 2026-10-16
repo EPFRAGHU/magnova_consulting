@@ -95,7 +95,7 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title="Security operations management">
+            <Head title="">
                 <meta
                     name="description"
                     content="Manage security teams, client sites, attendance, payroll and billing from one connected workspace."
