@@ -92,7 +92,7 @@
                         @endif
                     </td>
                     <td class="col-gender">{{ $employee->gender === 'male' ? 'M' : ($employee->gender === 'female' ? 'F' : '-') }}</td>
-                    <td class="col-designation">{{ $employee->designation ?: '-' }}@if ($employee->designation)<br><span style="font-size:6px">SAC {{ $employee->sac['sac_code'] }}{{ $employee->sac['sac_description'] ? ' - '.$employee->sac['sac_description'] : '' }}</span>@endif</td>
+                    <td class="col-designation">{{ $employee->designation ?: '-' }}</td>
                     @for ($d = 1; $d <= $daysInMonth; $d++)
                         @php
                             $status = $marks->get($d);

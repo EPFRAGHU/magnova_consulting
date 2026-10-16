@@ -13,7 +13,7 @@ use Inertia\Response;
 
 class EmployeeController extends Controller
 {
-    public function index(Request $request, DesignationCatalog $catalog): Response
+    public function index(Request $request): Response
     {
         $clientId = $request->integer('client_id') ?: null;
 
@@ -21,8 +21,7 @@ class EmployeeController extends Controller
             ->with('client')
             ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
             ->orderBySkill()
-            ->get()
-            ->each(fn (Employee $employee) => $employee->setAttribute('sac', $catalog->lookup($employee->tenant_id, $employee->designation)));
+            ->get();
 
         return Inertia::render('employees/index', [
             'employees' => $employees,

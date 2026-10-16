@@ -134,8 +134,7 @@ class PdfExportService
         $employees = Employee::where('client_id', $client->id)
             ->where('status', 'active')
             ->orderBySkill()
-            ->get(['id', 'tenant_id', 'employee_code', 'name', 'gender', 'designation'])
-            ->each(fn (Employee $employee) => $employee->setAttribute('sac', $this->designationCatalog->lookup($employee->tenant_id, $employee->designation)));
+            ->get(['id', 'employee_code', 'name', 'gender', 'designation']);
 
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
 

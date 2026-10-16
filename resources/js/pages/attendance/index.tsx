@@ -15,7 +15,6 @@ type Employee = {
     name: string;
     employee_code: string | null;
     designation: string | null;
-    sac: { sac_code: string; sac_description: string | null };
 };
 
 type AttendanceMap = Record<number, Record<number, string>>;
@@ -264,17 +263,6 @@ export default function AttendanceIndex({
                                             </td>
                                             <td className="px-1 py-2 align-top text-xs leading-tight break-words sm:px-2">
                                                 {employee.designation ?? '-'}
-                                                {employee.designation && (
-                                                    <span
-                                                        className="text-muted-foreground block text-[10px]"
-                                                        title={employee.sac.sac_description ?? undefined}
-                                                    >
-                                                        SAC {employee.sac.sac_code}
-                                                        {employee.sac.sac_description
-                                                            ? ` · ${employee.sac.sac_description}`
-                                                            : ''}
-                                                    </span>
-                                                )}
                                             </td>
                                             {days.map((date) => {
                                                 const status =

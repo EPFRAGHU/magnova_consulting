@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+import { X } from 'lucide-react';
 import { useState } from 'react';
 import SacCodeController from '@/actions/App/Http/Controllers/Settings/SacCodeController';
 import Heading from '@/components/heading';
@@ -12,11 +13,10 @@ type Row = {
     sac_code: string;
     sac_description: string;
     in_use: boolean;
-    isNew?: boolean;
 };
 
 type Props = {
-    rows: Omit<Row, 'isNew'>[];
+    rows: Row[];
     default_sac: string;
     default_description: string | null;
     catalog: Record<string, string>;
@@ -25,7 +25,6 @@ type Props = {
 export default function SacCodes({
     rows: initialRows,
     default_sac: defaultSac,
-    default_description: defaultDescription,
     catalog,
 }: Props) {
     const [rows, setRows] = useState<Row[]>(initialRows);
@@ -39,148 +38,128 @@ export default function SacCodes({
     const changeCode = (index: number, code: string) => {
         const digits = code.replace(/\D/g, '').slice(0, 6);
         const row = rows[index];
-        const previousSuggestion = catalog[row.sac_code] ?? '';
-        const suggestion = catalog[digits];
-        const descriptionUntouched =
+        const untouched =
             row.sac_description === '' ||
-            row.sac_description === previousSuggestion;
+            row.sac_description === (catalog[row.sac_code] ?? '');
 
         update(index, {
             sac_code: digits,
-            ...(suggestion && descriptionUntouched
-                ? { sac_description: suggestion }
-                : {}),
-            ...(digits === '' && descriptionUntouched
-                ? { sac_description: '' }
-                : {}),
+            ...(untouched ? { sac_description: catalog[digits] ?? '' } : {}),
         });
     };
 
     const addRow = () => {
         const name = newName.trim();
-        if (!name) return;
-        if (rows.some((r) => r.designation.toLowerCase() === name.toLowerCase())) {
-            setNewName('');
+        setNewName('');
+        if (!name || rows.some((r) => r.designation.toLowerCase() === name.toLowerCase())) {
             return;
         }
         setRows((current) => [
             ...current,
-            { designation: name, sac_code: '', sac_description: '', in_use: false, isNew: true },
+            { designation: name, sac_code: '', sac_description: '', in_use: false },
         ]);
-        setNewName('');
     };
 
     return (
         <>
-            <Head title="Designations and SAC codes" />
-            <h1 className="sr-only">Designations and SAC codes</h1>
-            <div className="space-y-6">
+            <Head title="SAC codes" />
+            <h1 className="sr-only">SAC codes</h1>
+            <div className="space-y-4">
                 <Heading
                     variant="small"
                     title="Designations and SAC codes"
-                    description={`One list for the whole system. Employees choose their designation from it, and the same SAC code and description then appear on the Employees, Attendance, Wages, Register of Wages, Payslips and Invoices. A designation with no code uses the default ${defaultSac}${defaultDescription ? ` (${defaultDescription})` : ''}. Confirm the codes with your accountant.`}
+                    description={`Add a designation and its SAC code. Employees pick from this list, and the code prints on the Tax Invoice. Blank code uses ${defaultSac}.`}
                 />
 
                 <Form
                     {...SacCodeController.update.form()}
                     options={{ preserveScroll: true }}
-                    className="space-y-6"
+                    className="space-y-4"
                 >
                     {({ processing, errors }) => (
                         <>
                             <InputError message={errors.rows} />
-                            {rows.length === 0 && (
-                                <p className="text-muted-foreground text-sm">
-                                    No designations yet. Add the first one
-                                    below.
-                                </p>
-                            )}
-                            <div className="space-y-5">
+
+                            <div className="overflow-hidden rounded-md border">
+                                <div className="bg-muted/50 text-muted-foreground grid grid-cols-[minmax(0,1.3fr)_5.5rem_minmax(0,2fr)_2rem] items-center gap-2 px-3 py-1.5 text-xs font-medium">
+                                    <span>Designation</span>
+                                    <span>SAC code</span>
+                                    <span>Description</span>
+                                    <span />
+                                </div>
+                                {rows.length === 0 && (
+                                    <p className="text-muted-foreground px-3 py-4 text-sm">
+                                        No designations yet. Add one below.
+                                    </p>
+                                )}
                                 {rows.map((row, index) => (
                                     <div
-                                        className="grid gap-2 rounded-md border p-3 sm:grid-cols-[1fr_8rem]"
                                         key={`${row.designation}-${index}`}
+                                        className="grid grid-cols-[minmax(0,1.3fr)_5.5rem_minmax(0,2fr)_2rem] items-start gap-2 border-t px-3 py-1.5"
                                     >
-                                        <div className="flex items-center justify-between sm:col-span-2">
-                                            <span className="text-sm font-semibold">
-                                                {row.designation}
-                                                {row.in_use && (
-                                                    <span className="text-muted-foreground ml-2 text-xs font-normal">
-                                                        in use by employees
-                                                    </span>
-                                                )}
-                                            </span>
-                                            {!row.in_use && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        setRows((current) =>
-                                                            current.filter(
-                                                                (_, i) => i !== index,
-                                                            ),
-                                                        )
-                                                    }
-                                                >
-                                                    Remove
-                                                </Button>
-                                            )}
+                                        <div className="truncate pt-1.5 text-sm font-medium" title={row.designation}>
+                                            {row.designation}
                                             <input
                                                 type="hidden"
                                                 name={`rows[${index}][designation]`}
                                                 value={row.designation}
                                             />
                                         </div>
-                                        <div className="grid gap-1">
-                                            <Input
-                                                name={`rows[${index}][sac_description]`}
-                                                value={row.sac_description}
-                                                onChange={(e) =>
-                                                    update(index, {
-                                                        sac_description: e.target.value,
-                                                    })
-                                                }
-                                                placeholder="Description (fills in by itself for known codes)"
-                                                maxLength={255}
-                                                autoComplete="off"
-                                                aria-label={`Description for ${row.designation}`}
-                                            />
-                                            <InputError
-                                                message={errors[`rows.${index}.sac_description`]}
-                                            />
-                                        </div>
-                                        <div className="grid gap-1">
+                                        <div>
                                             <Input
                                                 name={`rows[${index}][sac_code]`}
                                                 value={row.sac_code}
-                                                onChange={(e) =>
-                                                    changeCode(index, e.target.value)
-                                                }
+                                                onChange={(e) => changeCode(index, e.target.value)}
                                                 placeholder={defaultSac}
                                                 maxLength={6}
                                                 inputMode="numeric"
                                                 autoComplete="off"
                                                 aria-label={`SAC code for ${row.designation}`}
+                                                className="h-8 px-2 text-sm"
                                             />
-                                            <InputError
-                                                message={errors[`rows.${index}.sac_code`]}
-                                            />
+                                            <InputError message={errors[`rows.${index}.sac_code`]} />
                                         </div>
+                                        <div>
+                                            <Input
+                                                name={`rows[${index}][sac_description]`}
+                                                value={row.sac_description}
+                                                onChange={(e) =>
+                                                    update(index, { sac_description: e.target.value })
+                                                }
+                                                placeholder="Fills in for known codes"
+                                                maxLength={255}
+                                                autoComplete="off"
+                                                aria-label={`Description for ${row.designation}`}
+                                                className="h-8 px-2 text-sm"
+                                            />
+                                            <InputError message={errors[`rows.${index}.sac_description`]} />
+                                        </div>
+                                        {row.in_use ? (
+                                            <span
+                                                className="text-muted-foreground pt-1.5 text-center text-xs"
+                                                title="Used by employees, so it cannot be removed"
+                                            >
+                                                •
+                                            </span>
+                                        ) : (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="size-8"
+                                                aria-label={`Remove ${row.designation}`}
+                                                onClick={() =>
+                                                    setRows((current) => current.filter((_, i) => i !== index))
+                                                }
+                                            >
+                                                <X className="size-4" />
+                                            </Button>
+                                        )}
                                     </div>
                                 ))}
-                            </div>
 
-                            <div className="flex items-end gap-2">
-                                <div className="grid flex-1 gap-1">
-                                    <label
-                                        htmlFor="new-designation"
-                                        className="text-sm font-medium"
-                                    >
-                                        Add a designation
-                                    </label>
+                                <div className="bg-muted/30 flex items-center gap-2 border-t px-3 py-2">
                                     <Input
-                                        id="new-designation"
                                         value={newName}
                                         onChange={(e) => setNewName(e.target.value)}
                                         onKeyDown={(e) => {
@@ -189,18 +168,23 @@ export default function SacCodes({
                                                 addRow();
                                             }
                                         }}
-                                        placeholder="e.g. Sweeper"
+                                        placeholder="New designation, e.g. Sweeper"
                                         maxLength={255}
                                         autoComplete="off"
+                                        aria-label="New designation"
+                                        className="h-8 text-sm"
                                     />
+                                    <Button type="button" variant="outline" size="sm" onClick={addRow}>
+                                        Add
+                                    </Button>
                                 </div>
-                                <Button type="button" variant="outline" onClick={addRow}>
-                                    Add
-                                </Button>
                             </div>
 
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-3">
                                 <Button disabled={processing}>Save</Button>
+                                <span className="text-muted-foreground text-xs">
+                                    • = in use by employees
+                                </span>
                             </div>
                         </>
                     )}
@@ -211,5 +195,5 @@ export default function SacCodes({
 }
 
 SacCodes.layout = {
-    breadcrumbs: [{ title: 'Designations and SAC codes', href: edit() }],
+    breadcrumbs: [{ title: 'SAC codes', href: edit() }],
 };

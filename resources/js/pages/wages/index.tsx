@@ -17,8 +17,6 @@ type Row = {
     name: string;
     employee_code: string | null;
     nature_of_deployment: string;
-    sac_code: string;
-    sac_description: string | null;
     days_deployed: number;
     minimum_wage: number;
     monthly_wage: number;
@@ -191,7 +189,7 @@ export default function WagesIndex({
                                             <tr key={row.employee_id} className="border-b last:border-0">
                                                 <td className="break-words px-1 py-1 align-top">{row.serial_number}</td>
                                                 <td className="break-words px-1 py-1 align-top">{row.name}{row.employee_code && ` (${row.employee_code})`}</td>
-                                                <td className="break-words px-1 py-1 align-top">{row.nature_of_deployment}<span className="text-muted-foreground block text-[7px]">SAC {row.sac_code}{row.sac_description ? ` · ${row.sac_description}` : ''}</span></td>
+                                                <td className="break-words px-1 py-1 align-top">{row.nature_of_deployment}</td>
                                                 <td className="break-words px-1 py-1 text-center align-top">{formatRounded(row.days_deployed)}</td>
                                                 <td className="break-words px-1 py-1 text-center align-top">{formatRounded(row.minimum_wage)}</td>
                                                 <td className="break-words px-1 py-1 text-center align-top">{formatRounded(values.monthlyWage)}</td>

@@ -100,7 +100,7 @@ class SacCodeTest extends TestCase
         $this->assertSame('998525', $catalog->lookup($user->tenant_id, null)['sac_code']);
     }
 
-    public function test_the_register_of_wages_row_carries_the_same_sac_as_the_invoice(): void
+    public function test_the_register_of_wages_does_not_carry_sac_codes(): void
     {
         $user = User::factory()->create();
         $client = $this->unit($user);
@@ -110,8 +110,8 @@ class SacCodeTest extends TestCase
         $row = app(WageRegisterCalculator::class)->row($sweeper, null, 9, 2026, 1);
 
         $this->assertSame('Sweeper', $row['nature_of_deployment']);
-        $this->assertSame('998533', $row['sac_code']);
-        $this->assertSame('General cleaning services (housekeeping)', $row['sac_description']);
+        $this->assertArrayNotHasKey('sac_code', $row);
+        $this->assertArrayNotHasKey('sac_description', $row);
     }
 
     public function test_settings_page_lists_the_master_list_with_descriptions_and_usage(): void
@@ -206,26 +206,27 @@ class SacCodeTest extends TestCase
         $this->assertSame('600.00', $employee->fresh()->rate_per_day);
     }
 
-    public function test_employee_and_attendance_screens_receive_the_same_sac(): void
+    public function test_the_employee_form_shows_sac_but_other_screens_do_not(): void
     {
         $user = User::factory()->create();
         $client = $this->unit($user);
         $this->employee($user, $client, 'Sweeper', 'Sweeper');
         $this->listed($user, 'Sweeper', '998533');
 
-        $this->actingAs($user)->get(route('employees.index'))->assertInertia(fn ($page) => $page
-            ->where('employees.0.sac.sac_code', '998533')
-            ->where('employees.0.sac.sac_description', 'General cleaning services (housekeeping)'));
-
-        $this->actingAs($user)->get(route('attendance.index', ['client_id' => $client->id, 'month' => 9, 'year' => 2026]))
-            ->assertInertia(fn ($page) => $page
-                ->where('employees.0.sac.sac_code', '998533')
-                ->where('employees.0.sac.sac_description', 'General cleaning services (housekeeping)'));
-
         $this->actingAs($user)->get(route('employees.create'))->assertInertia(fn ($page) => $page
             ->has('designations', 1)
             ->where('designations.0.designation', 'Sweeper')
-            ->where('designations.0.sac_code', '998533'));
+            ->where('designations.0.sac_code', '998533')
+            ->where('designations.0.sac_description', 'General cleaning services (housekeeping)'));
+
+        $this->actingAs($user)->get(route('employees.index'))->assertInertia(fn ($page) => $page
+            ->where('employees.0.designation', 'Sweeper')
+            ->missing('employees.0.sac'));
+
+        $this->actingAs($user)->get(route('attendance.index', ['client_id' => $client->id, 'month' => 9, 'year' => 2026]))
+            ->assertInertia(fn ($page) => $page
+                ->where('employees.0.designation', 'Sweeper')
+                ->missing('employees.0.sac'));
     }
 
     public function test_the_migration_adds_every_designation_already_on_an_employee_to_the_list(): void
@@ -245,7 +246,7 @@ class SacCodeTest extends TestCase
         $this->assertNull(DB::table('designation_sac_codes')->where('designation', 'Sweeper')->value('sac_code'));
     }
 
-    public function test_attendance_sheet_pdf_and_payslip_render_with_sac(): void
+    public function test_attendance_sheet_and_register_pdfs_still_render(): void
     {
         $user = User::factory()->create();
         $client = $this->unit($user);

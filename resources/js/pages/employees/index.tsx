@@ -17,7 +17,6 @@ type EmployeeRow = {
     name: string;
     gender: 'male' | 'female' | null;
     designation: string | null;
-    sac: { sac_code: string; sac_description: string | null };
     skill_category: string;
     rate_per_day: string;
     status: string;
@@ -116,14 +115,6 @@ export default function EmployeesIndex({
                                             </td>
                                             <td className="px-6 py-2">
                                                 {employee.designation ?? '-'}
-                                                {employee.designation && (
-                                                    <div className="text-muted-foreground text-xs">
-                                                        SAC {employee.sac.sac_code}
-                                                        {employee.sac.sac_description
-                                                            ? ` · ${employee.sac.sac_description}`
-                                                            : ''}
-                                                    </div>
-                                                )}
                                             </td>
                                             <td className="px-6 py-2 capitalize">
                                                 {employee.skill_category.replace('_', '-')}
