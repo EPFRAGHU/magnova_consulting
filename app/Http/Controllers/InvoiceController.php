@@ -31,6 +31,7 @@ class InvoiceController extends Controller
             'invoices' => $invoices,
             'clients' => Client::orderBy('name')->get(['id', 'name', 'unit_label']),
             'client_id' => $clientId,
+            'existing' => Invoice::get(['client_id', 'month', 'year', 'invoice_no']),
             'invoice_prefix' => Invoice::numberPrefix(Auth::user()->tenant->name, now()),
         ]);
     }
@@ -78,6 +79,13 @@ class InvoiceController extends Controller
 
     public function store(Request $request, InvoiceCalculator $calculator): RedirectResponse
     {
+        // Accept the full number too (MCPL/26-27/177): only the part after the prefix is typed.
+        $prefix = Invoice::numberPrefix(Auth::user()->tenant->name, now());
+        $typed = trim((string) $request->input('invoice_number'));
+        if ($typed !== '' && str_starts_with(strtoupper($typed), strtoupper($prefix))) {
+            $request->merge(['invoice_number' => substr($typed, strlen($prefix))]);
+        }
+
         $data = $request->validate([
             'client_id' => ['required', 'exists:clients,id'],
             'month' => ['required', 'integer', 'min:1', 'max:12'],
@@ -114,16 +122,27 @@ class InvoiceController extends Controller
                 return back()->withErrors(['invoice_number' => 'Enter the invoice number.']);
             }
 
-            $invoiceNo = Invoice::numberPrefix(Auth::user()->tenant->name, now()).$number;
+            $invoiceNo = $prefix.$number;
 
-            if (Invoice::withoutGlobalScopes()->where('invoice_no', $invoiceNo)->exists()) {
-                return back()->withErrors(['invoice_number' => "Invoice number {$invoiceNo} is already used."]);
+            $used = Invoice::withoutGlobalScopes()->with('client')->where('invoice_no', $invoiceNo)->first();
+
+            if ($used) {
+                $where = $used->tenant_id === $client->tenant_id && $used->client
+                    ? " for {$used->client->name} ({$used->month}/{$used->year}); pick that unit and month to regenerate it"
+                    : '';
+
+                return back()->withErrors(['invoice_number' => "Invoice number {$invoiceNo} is already used{$where}."]);
             }
         }
 
         $invoice = $calculator->generateForClient($client, $data['month'], $data['year'], $invoiceNo);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => "Invoice {$invoice->invoice_no} generated."]);
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => $existingInvoice
+                ? "Invoice {$invoice->invoice_no} regenerated with the same number."
+                : "Invoice {$invoice->invoice_no} generated.",
+        ]);
 
         return to_route('invoices.show', $invoice);
     }

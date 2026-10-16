@@ -141,6 +141,44 @@ class InvoiceGenerationTest extends TestCase
         $this->assertSame('MCPL/26-27/7', Invoice::first()->invoice_no);
     }
 
+    public function test_typing_the_same_or_the_full_number_again_regenerates_the_invoice(): void
+    {
+        Carbon::setTestNow('2026-10-14');
+        [$tenant, $user, $client] = $this->setUpUser();
+        $this->saveSeptemberWages($tenant, $client);
+        $this->generate($user, $client, '7');
+
+        $this->generate($user, $client, '7')->assertSessionHasNoErrors();
+        $this->generate($user, $client, 'MCPL/26-27/7')->assertSessionHasNoErrors();
+
+        $this->assertSame(1, Invoice::count());
+        $this->assertSame('MCPL/26-27/7', Invoice::first()->invoice_no);
+    }
+
+    public function test_the_full_number_is_accepted_for_a_new_invoice(): void
+    {
+        Carbon::setTestNow('2026-10-14');
+        [$tenant, $user, $client] = $this->setUpUser();
+        $this->saveSeptemberWages($tenant, $client);
+
+        $this->generate($user, $client, 'MCPL/26-27/61')->assertSessionHasNoErrors();
+
+        $this->assertSame('MCPL/26-27/61', Invoice::first()->invoice_no);
+    }
+
+    public function test_the_invoices_page_lists_existing_invoices_for_the_regenerate_button(): void
+    {
+        Carbon::setTestNow('2026-10-14');
+        [$tenant, $user, $client] = $this->setUpUser();
+        $this->saveSeptemberWages($tenant, $client);
+        $this->generate($user, $client, '7');
+
+        $this->actingAs($user)->get(route('invoices.index'))
+            ->assertInertia(fn ($page) => $page
+                ->where('existing.0.client_id', $client->id)
+                ->where('existing.0.invoice_no', 'MCPL/26-27/7'));
+    }
+
     public function test_invoice_number_accepts_only_letters_digits_and_hyphens(): void
     {
         [$tenant, $user, $client] = $this->setUpUser();

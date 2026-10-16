@@ -29,11 +29,13 @@ export default function InvoicesIndex({
     clients,
     client_id: clientId,
     invoice_prefix: invoicePrefix,
+    existing,
 }: {
     invoices: InvoiceRow[];
     clients: ClientOption[];
     client_id: number | null;
     invoice_prefix: string;
+    existing: { client_id: number; month: number; year: number; invoice_no: string }[];
 }) {
     const { errors } = usePage<{ errors: Record<string, string> }>().props;
     const generateError =
@@ -51,6 +53,12 @@ export default function InvoicesIndex({
     const [genMonth, setGenMonth] = useState(String(wageMonth.getMonth() + 1));
     const [genYear, setGenYear] = useState(String(wageMonth.getFullYear()));
     const [processing, setProcessing] = useState(false);
+    const current = existing.find(
+        (e) =>
+            String(e.client_id) === genClient &&
+            String(e.month) === genMonth &&
+            String(e.year) === genYear,
+    );
 
     const generate = () => {
         if (!genClient) return;
@@ -120,24 +128,37 @@ export default function InvoicesIndex({
                                 </option>
                             ))}
                         </SelectNative>
-                        <div className="flex items-center gap-1">
+                        {current ? (
                             <span className="text-sm font-medium whitespace-nowrap">
-                                Invoice No. {invoicePrefix}
+                                Invoice No. {current.invoice_no}{' '}
+                                <span className="text-muted-foreground font-normal">
+                                    (already exists, number is kept)
+                                </span>
                             </span>
-                            <Input
-                                value={genNumber}
-                                onChange={(e) => setGenNumber(e.target.value)}
-                                placeholder="___"
-                                maxLength={20}
-                                className="w-24"
-                                aria-label="Invoice number"
-                            />
-                        </div>
+                        ) : (
+                            <div className="flex items-center gap-1">
+                                <span className="text-sm font-medium whitespace-nowrap">
+                                    Invoice No. {invoicePrefix}
+                                </span>
+                                <Input
+                                    value={genNumber}
+                                    onChange={(e) => setGenNumber(e.target.value)}
+                                    placeholder="___"
+                                    maxLength={20}
+                                    className="w-24"
+                                    aria-label="Invoice number"
+                                />
+                            </div>
+                        )}
                         <Button
                             onClick={generate}
                             disabled={processing || !genClient}
                         >
-                            {processing ? 'Generating...' : 'Generate Invoice'}
+                            {processing
+                                ? 'Generating...'
+                                : current
+                                  ? 'Regenerate Invoice'
+                                  : 'Generate Invoice'}
                         </Button>
                         <InputError message={generateError} className="basis-full" />
                     </CardContent>
