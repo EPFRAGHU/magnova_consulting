@@ -26,9 +26,12 @@ class EsicUnitSettingTest extends TestCase
         $this->tenant = Tenant::create(['name' => 'Magnova Test', 'slug' => 'magnova-test']);
     }
 
-    private function unit(string $name, bool $onCeiling): Client
+    /** @param bool|string $mode true = on the ceiling, false = statutory, or one of 'statutory', 'ceiling', 'cutoff' */
+    private function unit(string $name, bool|string $mode): Client
     {
-        return Client::create(['tenant_id' => $this->tenant->id, 'name' => $name, 'active' => true, 'esic_on_ceiling' => $onCeiling]);
+        $mode = is_bool($mode) ? ($mode ? 'ceiling' : 'statutory') : $mode;
+
+        return Client::create(['tenant_id' => $this->tenant->id, 'name' => $name, 'active' => true, 'esic_unit_mode' => $mode]);
     }
 
     private function guard(Client $client, float $rate = 918, array $attributes = []): Employee
@@ -110,27 +113,93 @@ class EsicUnitSettingTest extends TestCase
     {
         $register = app(WageRegisterCalculator::class);
 
-        $this->assertStringContainsString('capped at Rs.21,000', $register->headings(9, 2026, false, false, $this->tenant->id, true)['esic']);
-        $this->assertStringContainsString('NOT statutory', $register->headings(9, 2026, false, false, $this->tenant->id, true)['esic_individual']);
-        $this->assertStringNotContainsString('capped', $register->headings(9, 2026, false, false, $this->tenant->id, false)['esic']);
+        $this->assertStringContainsString('capped at Rs.21,000', $register->headings(9, 2026, false, false, $this->tenant->id, 'ceiling')['esic']);
+        $this->assertStringContainsString('NOT statutory', $register->headings(9, 2026, false, false, $this->tenant->id, 'ceiling')['esic_individual']);
+        $this->assertStringNotContainsString('capped', $register->headings(9, 2026, false, false, $this->tenant->id, 'statutory')['esic']);
     }
 
     public function test_the_unit_form_saves_the_setting(): void
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user)->post(route('clients.store'), ['name' => 'NACIN', 'active' => 1, 'esic_on_ceiling' => 1])
+        $this->actingAs($user)->post(route('clients.store'), ['name' => 'NACIN', 'active' => 1, 'esic_unit_mode' => 'ceiling'])
             ->assertSessionHasNoErrors();
         $client = Client::where('name', 'NACIN')->first();
-        $this->assertTrue($client->esic_on_ceiling);
+        $this->assertSame('ceiling', $client->esic_unit_mode);
 
-        $this->actingAs($user)->put(route('clients.update', $client), ['name' => 'NACIN', 'active' => 1])
+        $this->actingAs($user)->put(route('clients.update', $client), ['name' => 'NACIN', 'active' => 1, 'esic_unit_mode' => 'cutoff'])
             ->assertSessionHasNoErrors();
-        $this->assertFalse($client->fresh()->esic_on_ceiling, 'an unticked box turns it off');
+        $this->assertSame('cutoff', $client->fresh()->esic_unit_mode);
+
+        $this->actingAs($user)->put(route('clients.update', $client), ['name' => 'NACIN', 'active' => 1, 'esic_unit_mode' => 'nonsense'])
+            ->assertSessionHasErrors('esic_unit_mode');
     }
 
     public function test_units_are_statutory_by_default(): void
     {
-        $this->assertFalse(Client::create(['tenant_id' => $this->tenant->id, 'name' => 'Plain', 'active' => true])->fresh()->esic_on_ceiling);
+        $this->assertSame('statutory', Client::create(['tenant_id' => $this->tenant->id, 'name' => 'Plain', 'active' => true])->fresh()->esic_unit_mode);
     }
-}
+
+    public function test_a_unit_set_to_no_esic_above_the_ceiling_pays_nothing_above_it_even_for_a_continuing_employee(): void
+    {
+        $employee = $this->guard($this->unit('Cutoff unit', 'cutoff'));
+        \App\Models\Wage::create([
+            'tenant_id' => $this->tenant->id, 'employee_id' => $employee->id, 'month' => 8, 'year' => 2026, 'working_days' => 22,
+            'rate_per_day' => 918, 'gross_wages' => 20000, 'bonus' => 0, 'epf_employee' => 0, 'esic_employee' => 150, 'net_salary' => 19850,
+        ]);
+
+        $result = app(EsicCalculator::class)->calculate(27540, 9, 2026, $employee);
+
+        $this->assertFalse($result->covered);
+        $this->assertSame('cutoff', $result->mode);
+        $this->assertSame('above_ceiling_unit_cutoff', $result->reason);
+        $this->assertEquals(0, $result->employeeAmount + $result->employerAmount);
+
+        $statutory = app(EsicCalculator::class)->calculate(27540, 9, 2026, $this->guard($this->unit('Plain unit', 'statutory')));
+        $this->assertFalse($statutory->covered, 'new employee in a statutory unit: also nothing');
+    }
+
+    public function test_the_same_continuing_employee_in_a_statutory_unit_still_pays_on_actual_wages(): void
+    {
+        $employee = $this->guard($this->unit('Plain unit', 'statutory'));
+        \App\Models\Wage::create([
+            'tenant_id' => $this->tenant->id, 'employee_id' => $employee->id, 'month' => 8, 'year' => 2026, 'working_days' => 22,
+            'rate_per_day' => 918, 'gross_wages' => 20000, 'bonus' => 0, 'epf_employee' => 0, 'esic_employee' => 150, 'net_salary' => 19850,
+        ]);
+
+        $result = app(EsicCalculator::class)->calculate(27540, 9, 2026, $employee);
+
+        $this->assertTrue($result->covered);
+        $this->assertEquals(27540, $result->contributionWages);
+    }
+
+    public function test_within_the_ceiling_a_cutoff_unit_pays_the_normal_amounts(): void
+    {
+        $result = app(EsicCalculator::class)->calculate(21000, 9, 2026, $this->guard($this->unit('Cutoff unit', 'cutoff')));
+
+        $this->assertTrue($result->covered);
+        $this->assertEquals(158, $result->employeeAmount);
+        $this->assertEquals(683, $result->employerAmount);
+    }
+
+    public function test_the_register_heading_for_a_cutoff_unit_says_so(): void
+    {
+        $heading = app(WageRegisterCalculator::class)->headings(9, 2026, false, false, $this->tenant->id, 'cutoff')['esic'];
+
+        $this->assertStringContainsString('nil if', $heading);
+        $this->assertStringContainsString('NOT statutory', $heading);
+    }
+    public function test_the_wages_page_headings_follow_the_selected_units_esic_mode(): void
+    {
+        $user = User::factory()->create(['tenant_id' => $this->tenant->id]);
+        $ceiling = $this->unit('Ceiling unit', 'ceiling');
+        $cutoff = $this->unit('Cutoff unit', 'cutoff');
+        $plain = $this->unit('Plain unit', 'statutory');
+
+        $heading = fn (Client $unit) => $this->actingAs($user)->get(route('wages.index', ['client_id' => $unit->id, 'month' => 9, 'year' => 2026]))
+            ->viewData('page')['props']['headings']['esic'];
+
+        $this->assertStringContainsString('capped at Rs.21,000', $heading($ceiling));
+        $this->assertStringContainsString('nil if wages above Rs.21,000', $heading($cutoff));
+        $this->assertStringContainsString('covered employees only', $heading($plain));
+    }}

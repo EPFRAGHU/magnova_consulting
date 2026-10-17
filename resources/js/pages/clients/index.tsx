@@ -45,7 +45,7 @@ type ClientRow = {
     bonus_enabled: boolean;
     service_charge_on_basic: boolean;
     gst_exempt: boolean;
-    esic_on_ceiling: boolean;
+    esic_unit_mode: string;
     employees_count: number;
 };
 
@@ -243,11 +243,19 @@ export default function ClientsIndex({
                                                         ? 'No GST'
                                                         : 'GST on'}
                                                 </Badge>
-                                                {client.esic_on_ceiling && (
+                                                {client.esic_unit_mode !== 'statutory' && (
                                                     <>
                                                         {' '}
-                                                        <Badge className={CHIP.violet}>
-                                                            ESIC on ceiling
+                                                        <Badge
+                                                            className={
+                                                                client.esic_unit_mode === 'ceiling'
+                                                                    ? CHIP.violet
+                                                                    : CHIP.slate
+                                                            }
+                                                        >
+                                                            {client.esic_unit_mode === 'ceiling'
+                                                                ? 'ESIC on ceiling'
+                                                                : 'No ESIC above ceiling'}
                                                         </Badge>
                                                     </>
                                                 )}

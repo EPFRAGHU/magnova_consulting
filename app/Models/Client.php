@@ -11,11 +11,13 @@ class Client extends Model
 {
     use BelongsToTenant, HasFactory, SoftDeletes;
 
+    public const ESIC_UNIT_MODES = ['statutory', 'ceiling', 'cutoff'];
+
     protected $fillable = [
         'tenant_id', 'name', 'unit_label', 'address', 'gstin', 'sac_code', 'gemc_no',
         'billing_name', 'billing_address',
         'contact_person', 'contact_phone', 'contact_email', 'active', 'bonus_enabled',
-        'service_charge_on_basic', 'gst_exempt', 'esic_on_ceiling',
+        'service_charge_on_basic', 'gst_exempt', 'esic_unit_mode',
     ];
 
     protected function casts(): array
@@ -25,7 +27,6 @@ class Client extends Model
             'bonus_enabled' => 'boolean',
             'service_charge_on_basic' => 'boolean',
             'gst_exempt' => 'boolean',
-            'esic_on_ceiling' => 'boolean',
         ];
     }
 

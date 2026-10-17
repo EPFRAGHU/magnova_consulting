@@ -63,7 +63,7 @@ export default function Esic({ current, history, modes, wage_month, attention }:
                         </li>
                         <li>Rounding: {current.rounding}, to a whole rupee</li>
                         <li>{current.include_bonus ? 'Bonus counts as ESIC wages' : 'Bonus does not count as ESIC wages'}</li>
-                        <li className={current.calculation_mode === 'capped' ? 'font-medium text-amber-600' : ''}>
+                        <li className={current.calculation_mode !== 'statutory' ? 'font-medium text-amber-600' : ''}>
                             Mode: {modes.find((m) => m.value === current.calculation_mode)?.label}
                         </li>
                     </ul>
@@ -152,7 +152,11 @@ export default function Esic({ current, history, modes, wage_month, attention }:
                                 <SelectNative id="calculation_mode" name="calculation_mode" value={mode} onChange={(e) => setMode(e.target.value)}>
                                     {modes.map((m) => (
                                         <option key={m.value} value={m.value}>
-                                            {m.value === 'capped' ? 'Capped at the ceiling (NOT statutory)' : 'Statutory (recommended)'}
+                                            {m.value === 'capped'
+                                                ? 'Capped at the ceiling (NOT statutory)'
+                                                : m.value === 'cutoff'
+                                                  ? 'No ESIC above the ceiling (NOT statutory)'
+                                                  : 'Statutory (recommended)'}
                                         </option>
                                     ))}
                                 </SelectNative>
@@ -160,11 +164,11 @@ export default function Esic({ current, history, modes, wage_month, attention }:
                                 <InputError message={errors.calculation_mode} />
                             </div>
 
-                            {mode === 'capped' && (
+                            {mode !== 'statutory' && (
                                 <div className="grid gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-950/40">
                                     <p>
-                                        Capped mode is not the ESI Act rule. It limits contribution wages to the ceiling and never ends coverage. Use it only if the
-                                        business has decided on it.
+                                        This mode is not the ESI Act rule. Use it only if the business has decided on it. To apply it to one unit only, use the ESIC
+                                        setting on that unit in Clients instead.
                                     </p>
                                     <div className="flex items-center gap-2">
                                         <Checkbox id="confirm_capped" name="confirm_capped" />
@@ -211,7 +215,7 @@ export default function Esic({ current, history, modes, wage_month, attention }:
                                             <td className="px-3 py-2">{rupees(row.coverage_ceiling)}</td>
                                             <td className="px-3 py-2">{row.employee_rate}%</td>
                                             <td className="px-3 py-2">{row.employer_rate}%</td>
-                                            <td className="px-3 py-2">{row.calculation_mode === 'capped' ? 'Capped (not statutory)' : 'Statutory'}</td>
+                                            <td className="px-3 py-2">{row.calculation_mode === 'capped' ? 'Capped (not statutory)' : row.calculation_mode === 'cutoff' ? 'No ESIC above ceiling (not statutory)' : 'Statutory'}</td>
                                             <td className="px-3 py-2">{row.note ?? ''}</td>
                                         </tr>
                                     ))}

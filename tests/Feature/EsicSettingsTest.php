@@ -101,6 +101,15 @@ class EsicSettingsTest extends TestCase
         $this->assertSame('capped', EsicSetting::first()->calculation_mode);
     }
 
+    public function test_the_no_esic_above_ceiling_mode_also_needs_confirmation(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('esic.store'), $this->rules(['calculation_mode' => 'cutoff']))->assertSessionHasErrors('confirm_capped');
+        $this->actingAs($user)->post(route('esic.store'), $this->rules(['calculation_mode' => 'cutoff', 'confirm_capped' => 1]))->assertSessionHasNoErrors();
+        $this->assertSame('cutoff', EsicSetting::first()->calculation_mode);
+    }
+
     public function test_invalid_rules_are_refused(): void
     {
         $user = User::factory()->create();
