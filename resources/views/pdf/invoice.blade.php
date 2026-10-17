@@ -55,7 +55,7 @@
         .footer-col { width: 33.33%; padding: 0 8px; font-size: 9.25px; word-wrap: break-word; }
         .footer-col:not(:first-child) { border-left: 1.4px solid #000; }
         .footer-title { font-weight: bold; font-size: 10px; margin-bottom: 4px; }
-        .sign-line { margin-top: 32px; border-top: 1px solid #000; padding-top: 4px; }
+        .sign-line { margin-top: 72px; border-top: 1px solid #000; padding-top: 4px; }
     </style>
 </head>
 <body>
