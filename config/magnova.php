@@ -19,8 +19,29 @@ return [
     'epf_wage_ceiling_changes' => [
         ['from' => '2026-09-17', 'ceiling' => 25000],
     ],
-    // ESIC and bonus are nil when Monthly Wage exceeds this amount.
+    // Legacy cap used for months before register_rules_from (ESIC and bonus were computed on
+    // MIN(wage, 21,000) then). It is no longer the ESIC rule from register_rules_from onwards.
     'esic_wage_ceiling' => 21000,
+    // Bonus is paid only when Monthly Wage is at or below this amount (separate from ESIC).
+    'bonus_eligibility_ceiling' => 21000,
+
+    // Defaults for the ESIC rules when an establishment has saved no settings of its own.
+    // Real values live in the esic_settings table (Settings > ESIC) and are effective-dated.
+    'esic' => [
+        'establishment_covered' => true,
+        // 'statutory' follows the ESI Act; 'capped' is a non-statutory business mode.
+        'calculation_mode' => 'statutory',
+        'coverage_ceiling' => 21000,
+        'employee_rate' => 0.75,
+        'employer_rate' => 3.25,
+        // Employees with an average daily wage up to this amount pay no employee share (null = off).
+        'daily_wage_exemption' => 176,
+        'include_bonus' => false,
+        // nearest | up | down, to a whole rupee.
+        'rounding' => 'nearest',
+        // Contribution periods start in these months (Apr-Sep and Oct-Mar).
+        'contribution_period_start_months' => [4, 10],
+    ],
     // From this month the register rounds to whole rupees and drops ESIC and
     // bonus entirely above the ceiling; earlier months keep the older logic.
     'register_rules_from' => '2026-09-01',

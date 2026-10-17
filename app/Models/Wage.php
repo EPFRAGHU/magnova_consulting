@@ -12,7 +12,7 @@ class Wage extends Model
 
     protected $fillable = [
         'tenant_id', 'employee_id', 'month', 'year', 'working_days', 'rate_per_day',
-        'gross_wages', 'bonus', 'epf_employee', 'esic_employee', 'net_salary',
+        'gross_wages', 'bonus', 'epf_employee', 'esic_employee', 'esic_snapshot', 'net_salary',
     ];
 
     protected function casts(): array
@@ -24,6 +24,7 @@ class Wage extends Model
             'bonus' => 'decimal:2',
             'epf_employee' => 'decimal:2',
             'esic_employee' => 'decimal:2',
+            'esic_snapshot' => 'array',
             'net_salary' => 'decimal:2',
         ];
     }

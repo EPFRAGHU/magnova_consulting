@@ -16,7 +16,7 @@ class WageCalculator
 
         $ratePerDay = (float) $employee->rate_per_day;
         $grossWages = round($workingDays * $ratePerDay, 2);
-        $figures = $this->register->figures($grossWages, $month, $year, (bool) $employee->client?->bonus_enabled, (bool) $employee->client?->service_charge_on_basic, (bool) $employee->client?->gst_exempt);
+        $figures = $this->register->figures($grossWages, $month, $year, (bool) $employee->client?->bonus_enabled, (bool) $employee->client?->service_charge_on_basic, (bool) $employee->client?->gst_exempt, $employee);
         $bonus = $figures['bonus'];
         $epfEmployee = $figures['epf_employee'];
         $esicEmployee = $figures['esic_employee'];
@@ -36,6 +36,8 @@ class WageCalculator
                 'bonus' => $bonus,
                 'epf_employee' => $epfEmployee,
                 'esic_employee' => $esicEmployee,
+                // The rules and decision behind this ESIC figure; later changes to the settings never alter it.
+                'esic_snapshot' => $figures['esic_result']?->snapshot(),
                 'net_salary' => $netSalary,
             ]
         );

@@ -75,6 +75,8 @@ class InvoiceCalculator
                     (bool) $client->bonus_enabled,
                     (bool) $client->service_charge_on_basic,
                     (bool) $client->gst_exempt,
+                    $wage->employee,
+                    $wage,
                 ),
             );
             $edliAndAdmin = round($figures->sum('edli_and_epf_admin'), 2);

@@ -13,7 +13,7 @@ class Employee extends Model
 
     protected $fillable = [
         'tenant_id', 'client_id', 'employee_code', 'name', 'gender', 'uan', 'epf_member_id',
-        'esic_no', 'skill_category', 'designation', 'rate_per_day', 'date_of_joining',
+        'esic_no', 'esic_applicable', 'esic_covered_from', 'skill_category', 'designation', 'rate_per_day', 'date_of_joining',
         'status', 'bank_name', 'bank_account_no', 'bank_ifsc',
     ];
 
@@ -22,6 +22,8 @@ class Employee extends Model
         return [
             'rate_per_day' => 'decimal:2',
             'date_of_joining' => 'date:Y-m-d',
+            'esic_applicable' => 'boolean',
+            'esic_covered_from' => 'date:Y-m-d',
         ];
     }
 

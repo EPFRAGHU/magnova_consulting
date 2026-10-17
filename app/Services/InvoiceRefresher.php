@@ -50,6 +50,8 @@ class InvoiceRefresher
                         (bool) $client->bonus_enabled,
                         (bool) $client->service_charge_on_basic,
                         (bool) $client->gst_exempt,
+                        $wage->employee,
+                        $wage,
                     );
 
                     $wage->update(['bonus' => $figures['bonus'], 'net_salary' => $figures['net_payable_salary']]);

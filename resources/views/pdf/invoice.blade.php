@@ -171,7 +171,7 @@
                 <table class="charges">
                     <tr><td class="label">EPFO @ {{ number_format(config('magnova.epf_employee_pct'), 2) }}% on capped monthly wages</td><td class="amount">{{ number_format($epfo, 2) }}</td></tr>
                     <tr><td class="label">EDLI and EPF Admin Charges @ {{ number_format(config('magnova.epf_admin_pct') + config('magnova.edli_cont_pct'), 2) }}% on capped monthly wages</td><td class="amount">{{ number_format($edliAndAdmin, 2) }}</td></tr>
-                    <tr><td class="label">ESIC @ {{ number_format(config('magnova.esi_employer_pct'), 2) }}% on monthly wages</td><td class="amount">{{ number_format($esic, 2) }}</td></tr>
+                    <tr><td class="label">ESIC @ {{ number_format(app(\App\Services\EsicCalculator::class)->settingsFor($invoice->tenant_id, $invoice->month, $invoice->year)->employer_rate, 2) }}% on ESIC wages</td><td class="amount">{{ number_format($esic, 2) }}</td></tr>
                     @if ($client->bonus_enabled)
                     <tr><td class="label">Bonus @ {{ number_format(config('magnova.bonus_pct'), 2) }}% on capped monthly wages</td><td class="amount">{{ number_format($bonus, 2) }}</td></tr>
                     @endif
