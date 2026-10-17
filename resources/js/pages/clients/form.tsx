@@ -27,6 +27,7 @@ type Client = {
     bonus_enabled: boolean;
     service_charge_on_basic: boolean;
     gst_exempt: boolean;
+    esic_on_ceiling: boolean;
 };
 
 export default function ClientForm({ client }: { client?: Client }) {
@@ -272,6 +273,31 @@ export default function ClientForm({ client }: { client?: Client }) {
                                     </Label>
                                 </div>
                                 <InputError message={errors.gst_exempt} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        id="esic_on_ceiling"
+                                        name="esic_on_ceiling"
+                                        defaultChecked={
+                                            client?.esic_on_ceiling ?? false
+                                        }
+                                    />
+                                    <Label htmlFor="esic_on_ceiling">
+                                        ESIC on the wage ceiling{' '}
+                                        <span className="text-muted-foreground font-normal">
+                                            (ticked: every employee of this
+                                            unit gets ESIC on the ceiling,
+                                            Rs. 21,000, even when wages are
+                                            above it. This is an arrangement
+                                            with this client, not the ESI
+                                            Act rule. Other units are not
+                                            affected.)
+                                        </span>
+                                    </Label>
+                                </div>
+                                <InputError message={errors.esic_on_ceiling} />
                             </div>
 
                             <div className="flex gap-2">

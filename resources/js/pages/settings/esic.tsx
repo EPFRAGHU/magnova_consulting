@@ -39,7 +39,6 @@ const rupees = (value: number) =>
 
 export default function Esic({ current, history, modes, wage_month, attention }: Props) {
     const [mode, setMode] = useState(current.calculation_mode);
-    const today = new Date().toISOString().slice(0, 10);
 
     return (
         <>
@@ -101,8 +100,8 @@ export default function Esic({ current, history, modes, wage_month, attention }:
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="effective_from">Applies from</Label>
-                                    <Input id="effective_from" name="effective_from" type="date" min={today} required />
-                                    <p className="text-muted-foreground text-xs">Applies from the wage month starting on or after this date (the 1st of that month).</p>
+                                    <Input id="effective_from" name="effective_from" type="date" required />
+                                    <p className="text-muted-foreground text-xs">Applies from the wage month containing this date (the 1st of that month). You may choose a past month, for example 1 September 2026; wages already saved keep their figures until you save them again.</p>
                                     <InputError message={errors.effective_from} />
                                 </div>
                                 <div className="grid gap-2">

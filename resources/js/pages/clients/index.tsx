@@ -45,6 +45,7 @@ type ClientRow = {
     bonus_enabled: boolean;
     service_charge_on_basic: boolean;
     gst_exempt: boolean;
+    esic_on_ceiling: boolean;
     employees_count: number;
 };
 
@@ -242,6 +243,14 @@ export default function ClientsIndex({
                                                         ? 'No GST'
                                                         : 'GST on'}
                                                 </Badge>
+                                                {client.esic_on_ceiling && (
+                                                    <>
+                                                        {' '}
+                                                        <Badge className={CHIP.violet}>
+                                                            ESIC on ceiling
+                                                        </Badge>
+                                                    </>
+                                                )}
                                             </td>
                                             <td className="px-6 py-2 text-right whitespace-nowrap">
                                                 <Button

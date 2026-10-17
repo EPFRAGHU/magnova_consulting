@@ -53,7 +53,9 @@ class ClientController extends Controller
     {
         $client->update($this->validated($request));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Client updated.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => $client->wasChanged('esic_on_ceiling')
+            ? 'Client updated. The ESIC setting applies to wages saved from now on; save the wages again for any month you want recalculated.'
+            : 'Client updated.']);
 
         $redirect = to_route('clients.index');
         $settingsChanged = $client->wasChanged(['bonus_enabled', 'service_charge_on_basic', 'gst_exempt']);
@@ -93,6 +95,7 @@ class ClientController extends Controller
             'bonus_enabled' => $request->boolean('bonus_enabled'),
             'service_charge_on_basic' => $request->boolean('service_charge_on_basic'),
             'gst_exempt' => $request->boolean('gst_exempt'),
+            'esic_on_ceiling' => $request->boolean('esic_on_ceiling'),
         ]);
 
         return $request->validate([
@@ -111,6 +114,7 @@ class ClientController extends Controller
             'bonus_enabled' => ['boolean'],
             'service_charge_on_basic' => ['boolean'],
             'gst_exempt' => ['boolean'],
+            'esic_on_ceiling' => ['boolean'],
         ]);
     }
 }

@@ -60,12 +60,14 @@ class EsicCalculator
         $settings = $this->settingsFor($employee?->tenant_id, $month, $year);
         $base = $wages + ($settings->include_bonus ? $bonus : 0.0);
         $ceiling = (float) $settings->coverage_ceiling;
-        $mode = $settings->calculation_mode === 'capped' ? 'capped' : 'statutory';
+        // A unit can be set to ESIC on the ceiling (non-statutory) while every other unit stays statutory.
+        $unitOnCeiling = (bool) $employee?->client?->esic_on_ceiling;
+        $mode = ($unitOnCeiling || $settings->calculation_mode === 'capped') ? 'capped' : 'statutory';
 
         [$covered, $reason] = match (true) {
             ! $settings->establishment_covered => [false, 'establishment_not_covered'],
             $employee?->esic_applicable === false => [false, 'employee_not_applicable'],
-            $mode === 'capped' => [true, 'capped_mode'],
+            $mode === 'capped' => [true, $unitOnCeiling ? 'capped_unit_setting' : 'capped_mode'],
             $base <= $ceiling => [true, 'within_ceiling'],
             $employee && $this->hasCoverageEvidence($employee, $month, $year) => [true, 'continuing_contribution_period'],
             default => [false, 'above_ceiling_not_covered'],
@@ -94,6 +96,7 @@ class EsicCalculator
                 'daily_wage_exemption' => $settings->daily_wage_exemption,
                 'include_bonus' => (bool) $settings->include_bonus,
                 'rounding' => $settings->rounding,
+                'mode_source' => $unitOnCeiling ? 'unit' : 'establishment',
             ],
             employeeShareExempt: $exempt,
         );
