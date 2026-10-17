@@ -37,6 +37,8 @@ class ApplyBonusSetting extends Command
                     (bool) $wage->employee->client?->bonus_enabled,
                     (bool) $wage->employee->client?->service_charge_on_basic,
                     (bool) $wage->employee->client?->gst_exempt,
+                    $wage->employee,
+                    $wage,
                 );
 
                 if ((float) $wage->bonus !== (float) $figures['bonus']

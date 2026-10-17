@@ -86,7 +86,14 @@ class EmployeeController extends Controller
 
     private function validated(Request $request, ?Employee $employee = null): array
     {
+        // The form always sends this marker; an unticked box sends nothing, so without the marker the value is left alone.
+        if ($request->has('esic_applicable_form')) {
+            $request->merge(['esic_applicable' => $request->boolean('esic_applicable')]);
+        }
+
         $data = $request->validate([
+            'esic_applicable' => ['sometimes', 'boolean'],
+            'esic_covered_from' => ['nullable', 'date'],
             'client_id' => ['required', 'exists:clients,id'],
             'employee_code' => ['nullable', 'string', 'max:50'],
             'name' => ['required', 'string', 'max:255'],

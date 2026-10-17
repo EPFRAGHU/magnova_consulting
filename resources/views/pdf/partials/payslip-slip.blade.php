@@ -72,7 +72,7 @@
         <td>Bonus</td>
         <td class="amt">{{ number_format($wage->bonus, 2) }}</td>
         <td class="amt">{{ number_format($ytd['bonus'], 2) }}</td>
-        <td>ESIC ({{ config('magnova.esic_employee_pct') }}%)</td>
+        <td>ESIC ({{ $wage->esic_snapshot['employee_rate'] ?? config('magnova.esic_employee_pct') }}%)</td>
         <td class="amt">{{ number_format($wage->esic_employee, 2) }}</td>
         <td class="amt">{{ number_format($ytd['esic_employee'], 2) }}</td>
     </tr>

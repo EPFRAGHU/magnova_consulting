@@ -4,6 +4,7 @@ import EmployeeController from '@/actions/App/Http/Controllers/EmployeeControlle
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SelectNative } from '@/components/ui/select-native';
@@ -21,6 +22,8 @@ type Employee = {
     uan: string | null;
     epf_member_id: string | null;
     esic_no: string | null;
+    esic_applicable: boolean;
+    esic_covered_from: string | null;
     skill_category: string;
     designation: string | null;
     rate_per_day: string;
@@ -300,6 +303,42 @@ export default function EmployeeForm({
                                         defaultValue={employee?.esic_no ?? ''}
                                     />
                                     <InputError message={errors.esic_no} />
+                                </div>
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-3">
+                                <div className="grid gap-2">
+                                    <input type="hidden" name="esic_applicable_form" value="1" />
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            id="esic_applicable"
+                                            name="esic_applicable"
+                                            defaultChecked={employee?.esic_applicable ?? true}
+                                        />
+                                        <Label htmlFor="esic_applicable">
+                                            ESIC applicable
+                                        </Label>
+                                    </div>
+                                    <p className="text-muted-foreground text-xs">
+                                        Untick for an employee who is not to be covered under ESIC.
+                                    </p>
+                                    <InputError message={errors.esic_applicable} />
+                                </div>
+                                <div className="grid gap-2 sm:col-span-2">
+                                    <Label htmlFor="esic_covered_from">
+                                        Covered under ESIC since (optional)
+                                    </Label>
+                                    <Input
+                                        id="esic_covered_from"
+                                        name="esic_covered_from"
+                                        type="date"
+                                        className="sm:max-w-xs"
+                                        defaultValue={employee?.esic_covered_from ?? ''}
+                                    />
+                                    <p className="text-muted-foreground text-xs">
+                                        Fill this if the employee was already covered during the current contribution period (April to September, or October to March) and that is not visible from saved wages. Coverage then continues to the end of that period even if wages cross the ceiling.
+                                    </p>
+                                    <InputError message={errors.esic_covered_from} />
                                 </div>
                             </div>
 

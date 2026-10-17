@@ -9,6 +9,11 @@ use Illuminate\Support\Carbon;
 
 class WageRegisterCalculator
 {
+    private function esic(): EsicCalculator
+    {
+        return app(EsicCalculator::class);
+    }
+
     public function workingDays(Employee $employee, int $month, int $year): float
     {
         return (float) Attendance::query()
@@ -94,7 +99,7 @@ class WageRegisterCalculator
     }
 
     /** Column headings that depend on the ceilings in force for the month and the unit's service charge and GST settings. */
-    public function headings(int $month, int $year, ?bool $serviceChargeOnBasic = false, ?bool $gstExempt = false): array
+    public function headings(int $month, int $year, ?bool $serviceChargeOnBasic = false, ?bool $gstExempt = false, ?int $tenantId = null): array
     {
         $agency = $this->agencyHeading($serviceChargeOnBasic);
         $gst = $this->gstHeading($gstExempt);
@@ -119,17 +124,21 @@ class WageRegisterCalculator
             : collect($segments)
                 ->map(fn (array $s) => 'Rs.'.number_format($s['ceiling']).' ('.$s['from'].'-'.$s['to'].' '.$monthName.')')
                 ->implode(' / ');
-        $esicLimit = 'nil if Monthly Wage above Rs.'.number_format(config('magnova.esic_wage_ceiling')).'/-';
+        $bonusLimit = 'nil if Monthly Wage above Rs.'.number_format(config('magnova.bonus_eligibility_ceiling')).'/-';
+        $esic = $this->esic()->settingsFor($tenantId, $month, $year);
+        $esicNote = $esic->calculation_mode === 'capped'
+            ? 'wages capped at Rs.'.number_format($esic->coverage_ceiling).' - NOT statutory mode'
+            : 'covered employees only, on actual wages; see Settings > ESIC';
 
         return [
             'agency' => $agency,
             'gst' => $gst,
             'epf' => "EPF @12% of Monthly Wage, ceiling {$ceiling}",
             'edli' => "EDLI and EPF Admin Charges @1% of Monthly Wage, ceiling {$ceiling}",
-            'esic' => "ESIC @3.25% of Monthly Wage ({$esicLimit})",
-            'bonus' => "Bonus @8.33% of Monthly Wage ({$esicLimit})",
+            'esic' => 'ESIC @'.rtrim(rtrim(number_format($esic->employer_rate, 2), '0'), '.')."% of ESIC wages ({$esicNote})",
+            'bonus' => "Bonus @8.33% of Monthly Wage ({$bonusLimit})",
             'epf_individual' => "EPF individual Contribution @12% of Monthly Wage, ceiling {$ceiling}",
-            'esic_individual' => "ESIC individual Contribution @0.75% of Monthly Wage ({$esicLimit})",
+            'esic_individual' => 'ESIC individual Contribution @'.rtrim(rtrim(number_format($esic->employee_rate, 2), '0'), '.')."% of ESIC wages ({$esicNote})",
         ];
     }
 
@@ -141,7 +150,7 @@ class WageRegisterCalculator
         }
 
         if ($this->usesCurrentRules($month, $year)) {
-            return $monthlyWage > (float) config('magnova.esic_wage_ceiling')
+            return $monthlyWage > (float) config('magnova.bonus_eligibility_ceiling')
                 ? 0.0
                 : round($monthlyWage * config('magnova.bonus_pct') / 100, 0);
         }
@@ -172,29 +181,35 @@ class WageRegisterCalculator
                 (bool) $employee->client?->bonus_enabled,
                 (bool) $employee->client?->service_charge_on_basic,
                 (bool) $employee->client?->gst_exempt,
+                $employee,
+                $wage,
             ),
             'saved' => $wage !== null,
         ];
     }
 
     /** Every statutory and billing figure derived from one employee's Monthly Wage. */
-    public function figures(float $monthlyWage, int $month, int $year, bool $bonusEnabled, bool $serviceChargeOnBasic = false, bool $gstExempt = false): array
+    /**
+     * $employee and $saved let the ESIC rules see the employee's coverage history and a finalised wage's snapshot;
+     * without them the figures are those of a new employee.
+     */
+    public function figures(float $monthlyWage, int $month, int $year, bool $bonusEnabled, bool $serviceChargeOnBasic = false, bool $gstExempt = false, ?Employee $employee = null, ?Wage $saved = null): array
     {
         $current = $this->usesCurrentRules($month, $year);
         $precision = $current ? 0 : 2;
         $esicCeiling = (float) config('magnova.esic_wage_ceiling');
 
         $epfBase = $this->epfWageBase($monthlyWage, $month, $year);
-        $aboveEsicCeiling = $current && $monthlyWage > $esicCeiling;
 
         $bonus = $this->bonusFor($monthlyWage, $month, $year, $bonusEnabled);
+        $esic = $current ? $this->esic()->calculate($monthlyWage, $month, $year, $employee, $bonus, $saved) : null;
         $epfEmployer = round($epfBase * config('magnova.epf_employee_pct') / 100, $precision);
         $edliAndEpfAdmin = round(
             $epfBase * (config('magnova.epf_admin_pct') + config('magnova.edli_cont_pct')) / 100,
             $precision,
         );
-        $esicEmployer = $current
-            ? ($aboveEsicCeiling ? 0.0 : round($monthlyWage * config('magnova.esi_employer_pct') / 100, 0))
+        $esicEmployer = $esic
+            ? $esic->employerAmount
             : round(min($monthlyWage, $esicCeiling) * config('magnova.esi_employer_pct') / 100, 2);
         $totalGrossSalary = round($monthlyWage + $epfEmployer + $edliAndEpfAdmin + $esicEmployer + $bonus, $precision);
         $gst = $gstExempt ? 0.0 : round(
@@ -205,8 +220,8 @@ class WageRegisterCalculator
         $agencyFee = round($serviceChargeBase * config('magnova.service_charge_pct') / 100, $precision);
         $totalBillAmount = round($totalGrossSalary + $gst + $agencyFee, $precision);
         $epfEmployee = round($epfBase * config('magnova.epf_employee_pct') / 100, $precision);
-        $esicEmployee = $current
-            ? ($aboveEsicCeiling ? 0.0 : round($monthlyWage * config('magnova.esic_employee_pct') / 100, 0))
+        $esicEmployee = $esic
+            ? $esic->employeeAmount
             : round(min($monthlyWage, $esicCeiling) * config('magnova.esic_employee_pct') / 100, 2);
         $otherDeduction = 0.0;
         $netPayableSalary = round(
@@ -225,6 +240,8 @@ class WageRegisterCalculator
             'total_bill_amount' => $totalBillAmount,
             'epf_employee' => $epfEmployee,
             'esic_employee' => $esicEmployee,
+            // Rules and decision behind the ESIC figures (null for months before the current rules).
+            'esic_result' => $esic,
             'other_deduction' => $otherDeduction,
             'net_payable_salary' => $netPayableSalary,
         ];
