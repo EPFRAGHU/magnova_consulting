@@ -10,7 +10,7 @@ class EsicSetting extends Model
 {
     use BelongsToTenant;
 
-    public const MODES = ['statutory', 'capped'];
+    public const MODES = ['statutory', 'capped', 'cutoff'];
 
     public const ROUNDING = ['nearest', 'up', 'down'];
 
@@ -52,6 +52,7 @@ class EsicSetting extends Model
     public static function modeLabel(string $mode): string
     {
         return match ($mode) {
+            'cutoff' => 'No ESIC above the ceiling (NOT statutory: nil whenever wages are above the ceiling, even for an employee covered earlier in the period)',
             'capped' => 'Capped at the ceiling (NOT statutory: contribution wages are limited to the ceiling and nobody leaves coverage)',
             default => 'Statutory (ESI Act: the ceiling decides who becomes covered, coverage continues to the end of the contribution period, contributions are on actual wages)',
         };

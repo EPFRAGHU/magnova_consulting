@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Services\InvoiceRefresher;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -53,7 +54,9 @@ class ClientController extends Controller
     {
         $client->update($this->validated($request));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Client updated.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => $client->wasChanged('esic_unit_mode')
+            ? 'Client updated. The ESIC setting applies to wages saved from now on; save the wages again for any month you want recalculated.'
+            : 'Client updated.']);
 
         $redirect = to_route('clients.index');
         $settingsChanged = $client->wasChanged(['bonus_enabled', 'service_charge_on_basic', 'gst_exempt']);
@@ -93,6 +96,7 @@ class ClientController extends Controller
             'bonus_enabled' => $request->boolean('bonus_enabled'),
             'service_charge_on_basic' => $request->boolean('service_charge_on_basic'),
             'gst_exempt' => $request->boolean('gst_exempt'),
+            'esic_unit_mode' => $request->input('esic_unit_mode', 'statutory') ?: 'statutory',
         ]);
 
         return $request->validate([
@@ -111,6 +115,7 @@ class ClientController extends Controller
             'bonus_enabled' => ['boolean'],
             'service_charge_on_basic' => ['boolean'],
             'gst_exempt' => ['boolean'],
+            'esic_unit_mode' => ['required', Rule::in(Client::ESIC_UNIT_MODES)],
         ]);
     }
 }

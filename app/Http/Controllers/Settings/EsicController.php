@@ -69,8 +69,8 @@ class EsicController extends Controller
             'effective_from.required' => 'Choose the date from which these rules apply.',
         ]);
 
-        if ($data['calculation_mode'] === 'capped' && ! $data['confirm_capped']) {
-            return back()->withErrors(['confirm_capped' => 'Tick the box to confirm you want the non-statutory capped mode.'])->withInput();
+        if ($data['calculation_mode'] !== 'statutory' && ! $data['confirm_capped']) {
+            return back()->withErrors(['confirm_capped' => 'Tick the box to confirm you want a non-statutory mode.'])->withInput();
         }
 
         // Rules apply from the first day of the month of the chosen date.

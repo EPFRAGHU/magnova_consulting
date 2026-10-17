@@ -59,6 +59,7 @@ class WageController extends Controller
                 $clientId ? (bool) Client::find($clientId)?->service_charge_on_basic : null,
                 $clientId ? (bool) Client::find($clientId)?->gst_exempt : null,
                 $request->user()->tenant_id,
+                $clientId ? Client::find($clientId)?->esic_unit_mode : null,
             ),
         ]);
     }

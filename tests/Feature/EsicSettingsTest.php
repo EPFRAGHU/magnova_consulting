@@ -60,6 +60,34 @@ class EsicSettingsTest extends TestCase
         $this->assertSame(25000.0, EsicSetting::first()->coverage_ceiling);
     }
 
+    public function test_capped_mode_chosen_for_a_past_month_gives_esic_on_the_ceiling_when_wages_are_saved_again(): void
+    {
+        $user = User::factory()->create();
+        $client = Client::create(['tenant_id' => $user->tenant_id, 'name' => 'Unit A', 'active' => true]);
+        $employee = Employee::create([
+            'tenant_id' => $user->tenant_id, 'client_id' => $client->id, 'employee_code' => 'C-1', 'name' => 'Capped Guard',
+            'skill_category' => 'skilled', 'rate_per_day' => 918, 'status' => 'active',
+        ]);
+        foreach (range(1, 30) as $day) {
+            \App\Models\Attendance::create(['tenant_id' => $user->tenant_id, 'employee_id' => $employee->id, 'date' => sprintf('2026-09-%02d', $day), 'status' => 'present']);
+        }
+
+        $before = app(\App\Services\WageCalculator::class)->calculateForEmployee($employee->fresh('client'), 9, 2026);
+        $this->assertEquals(0, $before->esic_employee, 'above the ceiling, statutory: nothing');
+
+        $this->actingAs($user)->post(route('esic.store'), $this->rules([
+            'effective_from' => '2026-09-01', 'coverage_ceiling' => 21000, 'calculation_mode' => 'capped', 'confirm_capped' => 1,
+        ]))->assertSessionHasNoErrors();
+
+        $after = app(\App\Services\WageCalculator::class)->calculateForEmployee($employee->fresh('client'), 9, 2026);
+
+        $this->assertEquals(27540, $after->gross_wages);
+        $this->assertEquals(158, $after->esic_employee, '0.75% of the Rs 21,000 ceiling');
+        $this->assertEquals(21000, $after->esic_snapshot['contribution_wages']);
+        $this->assertEquals(683, $after->esic_snapshot['employer_amount']);
+        $this->assertSame('capped', $after->esic_snapshot['mode']);
+    }
+
     public function test_the_capped_mode_needs_an_explicit_confirmation(): void
     {
         $user = User::factory()->create();
@@ -71,6 +99,15 @@ class EsicSettingsTest extends TestCase
         $this->actingAs($user)->post(route('esic.store'), $this->rules(['calculation_mode' => 'capped', 'confirm_capped' => 1]))
             ->assertSessionHasNoErrors();
         $this->assertSame('capped', EsicSetting::first()->calculation_mode);
+    }
+
+    public function test_the_no_esic_above_ceiling_mode_also_needs_confirmation(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('esic.store'), $this->rules(['calculation_mode' => 'cutoff']))->assertSessionHasErrors('confirm_capped');
+        $this->actingAs($user)->post(route('esic.store'), $this->rules(['calculation_mode' => 'cutoff', 'confirm_capped' => 1]))->assertSessionHasNoErrors();
+        $this->assertSame('cutoff', EsicSetting::first()->calculation_mode);
     }
 
     public function test_invalid_rules_are_refused(): void

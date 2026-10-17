@@ -99,7 +99,7 @@ class WageRegisterCalculator
     }
 
     /** Column headings that depend on the ceilings in force for the month and the unit's service charge and GST settings. */
-    public function headings(int $month, int $year, ?bool $serviceChargeOnBasic = false, ?bool $gstExempt = false, ?int $tenantId = null): array
+    public function headings(int $month, int $year, ?bool $serviceChargeOnBasic = false, ?bool $gstExempt = false, ?int $tenantId = null, ?string $esicUnitMode = null): array
     {
         $agency = $this->agencyHeading($serviceChargeOnBasic);
         $gst = $this->gstHeading($gstExempt);
@@ -126,9 +126,14 @@ class WageRegisterCalculator
                 ->implode(' / ');
         $bonusLimit = 'nil if Monthly Wage above Rs.'.number_format(config('magnova.bonus_eligibility_ceiling')).'/-';
         $esic = $this->esic()->settingsFor($tenantId, $month, $year);
-        $esicNote = $esic->calculation_mode === 'capped'
-            ? 'wages capped at Rs.'.number_format($esic->coverage_ceiling).' - NOT statutory mode'
-            : 'covered employees only, on actual wages; see Settings > ESIC';
+        $esicMode = in_array($esicUnitMode, ['ceiling', 'cutoff'], true)
+            ? ($esicUnitMode === 'ceiling' ? 'capped' : 'cutoff')
+            : $esic->calculation_mode;
+        $esicNote = match ($esicMode) {
+            'capped' => 'wages capped at Rs.'.number_format($esic->coverage_ceiling).' - NOT statutory, unit setting',
+            'cutoff' => 'nil if wages above Rs.'.number_format($esic->coverage_ceiling).' - NOT statutory, unit setting',
+            default => 'covered employees only, on actual wages; see Settings > ESIC',
+        };
 
         return [
             'agency' => $agency,

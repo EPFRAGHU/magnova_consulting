@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SelectNative } from '@/components/ui/select-native';
 import { Textarea } from '@/components/ui/textarea';
 import { dashboard } from '@/routes';
 import { index } from '@/routes/clients';
@@ -27,6 +28,7 @@ type Client = {
     bonus_enabled: boolean;
     service_charge_on_basic: boolean;
     gst_exempt: boolean;
+    esic_unit_mode: string;
 };
 
 export default function ClientForm({ client }: { client?: Client }) {
@@ -274,6 +276,41 @@ export default function ClientForm({ client }: { client?: Client }) {
                                 <InputError message={errors.gst_exempt} />
                             </div>
 
+                            <div className="grid gap-2">
+                                <Label htmlFor="esic_unit_mode">
+                                    ESIC for this unit
+                                </Label>
+                                <SelectNative
+                                    id="esic_unit_mode"
+                                    name="esic_unit_mode"
+                                    defaultValue={
+                                        client?.esic_unit_mode ?? 'statutory'
+                                    }
+                                    className="max-w-md"
+                                >
+                                    <option value="statutory">
+                                        Follow the ESIC rules (statutory)
+                                    </option>
+                                    <option value="ceiling">
+                                        ESIC on the wage ceiling, even above it
+                                    </option>
+                                    <option value="cutoff">
+                                        No ESIC when wages are above the ceiling
+                                    </option>
+                                </SelectNative>
+                                <p className="text-muted-foreground text-xs">
+                                    The last two are arrangements with this
+                                    client, not the ESI Act rule. With the
+                                    ceiling at Rs. 21,000, &quot;on the
+                                    ceiling&quot; charges ESIC on Rs. 21,000
+                                    for everyone in this unit, and &quot;no
+                                    ESIC above the ceiling&quot; charges
+                                    nothing for anyone above it, even if they
+                                    were covered earlier. Other units are not
+                                    affected.
+                                </p>
+                                <InputError message={errors.esic_unit_mode} />
+                            </div>
                             <div className="flex gap-2">
                                 <Button type="submit" disabled={processing}>
                                     {isEdit ? 'Save Changes' : 'Create Client'}
