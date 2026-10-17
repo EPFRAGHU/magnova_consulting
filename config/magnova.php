@@ -52,9 +52,8 @@ return [
     'company_cin' => env('MAGNOVA_COMPANY_CIN'),
     'bank_account_type' => env('MAGNOVA_BANK_ACCOUNT_TYPE'),
 
-    // Verified against a real Magnova tax invoice.
+    // Shown on the tax invoice unless the establishment has saved its own text. The payment-term and
+    // interest points were removed at the owner's request (17 Oct 2026).
     'default_terms_and_conditions' => "E & O.E\n"
-        ."1. Total payment due in 30 days.\n"
-        ."2. Interest @ 18% p.a. will be charged if payment is delayed beyond terms.\n"
-        ."3. Subject to 'Bhubaneswar' jurisdiction only.",
+        ."1. Subject to 'Bhubaneswar' jurisdiction only.",
 ];
