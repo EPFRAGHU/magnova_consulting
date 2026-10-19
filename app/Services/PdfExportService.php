@@ -75,6 +75,14 @@ class PdfExportService
         ])->setPaper('a4');
     }
 
+    /** The Register of Attendance of a contract-labour client, in that client's own layout (A4 landscape). */
+    public function contractLabourAttendanceRegister(Client $client, int $month, int $year): PdfBuilder
+    {
+        $html = app(ContractAttendanceRegister::class)->view($client, $month, $year)->render();
+
+        return Pdf::loadHTML($html)->setPaper('a4', 'landscape');
+    }
+
     /** The Register of Wages of a contract-labour client, in that client's own 29-column layout (A3 landscape). */
     public function contractLabourWageRegister(Client $client, int $month, int $year): PdfBuilder
     {

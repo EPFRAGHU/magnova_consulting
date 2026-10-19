@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import { Download } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import Heading from '@/components/heading';
 import { FilterBar, MONTHS } from '@/components/filter-bar';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index } from '@/routes/attendance';
-import { save } from '@/routes/attendance/contract';
+import { register, save } from '@/routes/attendance/contract';
 
 type ClientOption = { id: number; name: string; unit_label: string | null };
 
@@ -170,7 +171,12 @@ export default function ContractAttendance({
                         title="Register of Attendance"
                         description="Click a day to cycle P (present), A (absent), HD (half day), H (holiday) or blank (weekly off). Or select a cell and press P, A, D, H or X. Enter overtime hours under each day."
                     />
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
+                        <Button asChild variant="outline">
+                            <a href={`?${new URLSearchParams({ client_id: String(clientId), month: String(month), year: String(year) }).toString()}`}>
+                                <Download /> Download Register of Attendance
+                            </a>
+                        </Button>
                         <Button variant="outline" onClick={fillWorkingDays} disabled={employees.length === 0}>
                             Mark all present except Sundays
                         </Button>

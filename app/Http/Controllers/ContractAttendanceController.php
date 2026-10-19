@@ -3,17 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\Client;
 use App\Models\Employee;
+use App\Services\PdfExportService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /** Saves the attendance register of a contract-labour client: P / A / HD / holiday per day plus overtime hours. */
 class ContractAttendanceController extends Controller
 {
     public const CODES = ['present', 'absent', 'half_day', 'holiday'];
+
+    /** The printable Register of Attendance of a contract-labour unit for a month. */
+    public function register(Request $request, PdfExportService $pdf): HttpResponse
+    {
+        $data = $request->validate([
+            'client_id' => ['required', 'exists:clients,id'],
+            'month' => ['required', 'integer', 'min:1', 'max:12'],
+            'year' => ['required', 'integer', 'min:2000'],
+        ]);
+
+        $client = Client::findOrFail($data['client_id']);
+        abort_unless($client->payroll_profile === 'contract_labour', 422, 'This unit does not use the contract labour attendance register.');
+
+        $fileName = 'register-of-attendance-'.str_replace(['/', '\\', ' '], '-', $client->name)."-{$data['month']}-{$data['year']}.pdf";
+
+        return $pdf->contractLabourAttendanceRegister($client, (int) $data['month'], (int) $data['year'])->download($fileName);
+    }
 
     public function save(Request $request): RedirectResponse
     {

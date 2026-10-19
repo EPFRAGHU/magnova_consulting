@@ -32,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('attendance/save', [AttendanceController::class, 'save'])->name('attendance.save');
     Route::post('attendance', [AttendanceController::class, 'update'])->name('attendance.update');
     Route::post('attendance/contract', [ContractAttendanceController::class, 'save'])->name('attendance.contract.save');
+    Route::get('attendance/contract/register', [ContractAttendanceController::class, 'register'])->name('attendance.contract.register');
     Route::get('attendance/sheet', [AttendanceController::class, 'sheet'])->name('attendance.sheet');
 
     Route::get('wages', [WageController::class, 'index'])->name('wages.index');
