@@ -40,7 +40,7 @@ class WageRegisterCalculator
     public function ceilingSegments(int $month, int $year): array
     {
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
-        $changes = collect(config('magnova.epf_wage_ceiling_changes'))
+        $changes = collect((array) config('magnova.epf_wage_ceiling_changes'))
             ->sortBy('from')
             ->values();
         $segments = [];
@@ -98,7 +98,11 @@ class WageRegisterCalculator
         };
     }
 
-    /** Column headings that depend on the ceilings in force for the month and the unit's service charge and GST settings. */
+    /**
+     * Column headings that depend on the ceilings in force for the month and the unit's service charge and GST settings.
+     *
+     * @return array<string, string>
+     */
     public function headings(int $month, int $year, ?bool $serviceChargeOnBasic = false, ?bool $gstExempt = false, ?int $tenantId = null, ?string $esicUnitMode = null): array
     {
         $agency = $this->agencyHeading($serviceChargeOnBasic);
@@ -163,10 +167,13 @@ class WageRegisterCalculator
         return round(min($monthlyWage, config('magnova.bonus_cap')) * config('magnova.bonus_pct') / 100, 2);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function row(Employee $employee, ?Wage $wage, int $month, int $year, int $serialNumber): array
     {
         $daysDeployed = $this->workingDays($employee, $month, $year);
-        $minimumWage = (float) ($wage?->rate_per_day ?? $employee->rate_per_day);
+        $minimumWage = (float) ($wage->rate_per_day ?? $employee->rate_per_day);
         $monthlyWage = round($daysDeployed * $minimumWage, 2);
 
         return [
@@ -197,6 +204,8 @@ class WageRegisterCalculator
     /**
      * $employee and $saved let the ESIC rules see the employee's coverage history and a finalised wage's snapshot;
      * without them the figures are those of a new employee.
+     *
+     * @return array<string, mixed>
      */
     public function figures(float $monthlyWage, int $month, int $year, bool $bonusEnabled, bool $serviceChargeOnBasic = false, bool $gstExempt = false, ?Employee $employee = null, ?Wage $saved = null): array
     {

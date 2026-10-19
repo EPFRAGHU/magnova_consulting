@@ -43,6 +43,7 @@ class WageCalculator
         );
     }
 
+    /** @return Collection<int, Wage> */
     public function calculateForClient(int $clientId, int $month, int $year): Collection
     {
         return Employee::query()

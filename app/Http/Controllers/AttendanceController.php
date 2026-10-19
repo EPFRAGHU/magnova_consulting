@@ -11,6 +11,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -72,7 +73,7 @@ class AttendanceController extends Controller
             ->whereMonth('date', $month)
             ->get()
             ->groupBy('employee_id')
-            ->map(fn ($rows) => $rows->mapWithKeys(fn ($row) => [
+            ->map(fn (Collection $rows) => $rows->mapWithKeys(fn (Attendance $row) => [
                 $row->date->day => ['status' => $row->status, 'ot' => (float) $row->ot_hours],
             ]));
 
@@ -104,7 +105,7 @@ class AttendanceController extends Controller
             'status' => ['required', 'in:present,absent,holiday,leave,sunday,off'],
         ]);
 
-        $employee = Employee::findOrFail($data['employee_id']);
+        $employee = Employee::findOrFail((int) $data['employee_id']);
 
         // whereDate() (not where()) because the 'date' cast stores a full
         // datetime string, which a plain string-equality WHERE won't match.
@@ -146,7 +147,7 @@ class AttendanceController extends Controller
         ]);
 
         $daysInMonth = Carbon::create($data['year'], $data['month'], 1)->daysInMonth;
-        $employeeIds = collect($data['records'])
+        $employeeIds = collect((array) $data['records'])
             ->pluck('employee_id')
             ->unique()
             ->values();
@@ -193,7 +194,7 @@ class AttendanceController extends Controller
             'year' => ['required', 'integer', 'min:2000'],
         ]);
 
-        $client = Client::findOrFail($data['client_id']);
+        $client = Client::findOrFail((int) $data['client_id']);
         $safeName = str_replace(['/', '\\'], '-', $client->name);
         $fileName = "attendance-sheet-{$safeName}-{$data['month']}-{$data['year']}.pdf";
 

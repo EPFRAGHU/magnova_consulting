@@ -40,7 +40,7 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
 
-      # Same checks as `composer ci:check`, minus phpstan (212 older type-hint errors; to be fixed separately).
+      # Same checks as `composer ci:check`, run as separate steps so each failure is easy to read.
       - name: Frontend format and lint
         run: npm run check
 
@@ -49,6 +49,9 @@ jobs:
 
       - name: PHP code style
         run: composer lint:check
+
+      - name: PHP static analysis
+        run: composer types:check
 
       - name: Tests
         run: |

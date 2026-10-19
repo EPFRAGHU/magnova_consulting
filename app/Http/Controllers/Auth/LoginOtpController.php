@@ -91,7 +91,7 @@ class LoginOtpController extends Controller
 
         $result = DB::transaction(function () use ($request): array {
             $id = $request->session()->get('login_otp.id');
-            $otp = $id ? LoginOtp::query()->lockForUpdate()->find($id) : null;
+            $otp = $id ? LoginOtp::query()->lockForUpdate()->find((int) $id) : null;
 
             if (! $otp || $otp->consumed_at || $otp->expires_at->isPast() || $otp->attempts >= $otp->max_attempts) {
                 return [
@@ -142,7 +142,7 @@ class LoginOtpController extends Controller
     public function resend(Request $request): RedirectResponse
     {
         $otpId = $request->session()->get('login_otp.id');
-        $otp = $otpId ? LoginOtp::query()->find($otpId) : null;
+        $otp = $otpId ? LoginOtp::query()->find((int) $otpId) : null;
 
         if (! $otp || $otp->consumed_at || $otp->expires_at->isPast()) {
             $request->session()->forget(['login_otp.id', 'login_otp.mobile']);

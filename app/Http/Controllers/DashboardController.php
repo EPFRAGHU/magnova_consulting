@@ -101,7 +101,11 @@ class DashboardController extends Controller
         ]);
     }
 
-    /** Invoices that were sent to the client and are not paid yet (drafts are not billed yet). */
+    /**
+     * Invoices that were sent to the client and are not paid yet (drafts are not billed yet).
+     *
+     * @return array<string, int|float>
+     */
     private function outstandingInvoices(CarbonInterface $today): array
     {
         $sent = Invoice::where('status', 'sent');
@@ -117,6 +121,8 @@ class DashboardController extends Controller
     /**
      * Today's attendance counted exactly as marked in the attendance register.
      * Weekly off and holidays are not absences, and unmarked guards are shown separately.
+     *
+     * @return array<string, int|string>
      */
     private function attendanceToday(CarbonInterface $today, int $activeEmployees): array
     {
@@ -142,7 +148,11 @@ class DashboardController extends Controller
         ];
     }
 
-    /** Saved wage and invoice totals for the selected period. Nothing here says a return was filed. */
+    /**
+     * Saved wage and invoice totals for the selected period. Nothing here says a return was filed.
+     *
+     * @return array<string, int|float>
+     */
     private function contributions(int $month, int $year, int $activeEmployees): array
     {
         $wages = Wage::query()->where('month', $month)->where('year', $year);
@@ -158,13 +168,17 @@ class DashboardController extends Controller
         ];
     }
 
-    /** Latest real records (invoices, employees, saved wages), newest first. */
+    /**
+     * Latest real records (invoices, employees, saved wages), newest first.
+     *
+     * @return array<int, array<string, mixed>>
+     */
     private function recentRecords(): array
     {
         $invoices = Invoice::with('client')->latest()->limit(4)->get()->map(fn (Invoice $i) => [
             'type' => 'invoice',
             'title' => "Invoice {$i->invoice_no} ".($i->status === 'paid' ? 'paid' : ($i->status === 'sent' ? 'awaiting payment' : 'drafted')),
-            'detail' => $i->client?->name ?? '',
+            'detail' => $i->client->name ?? '',
             'amount' => (float) $i->grand_total,
             'at' => $i->created_at?->toIso8601String(),
             'url' => route('invoices.show', $i, false),
@@ -173,7 +187,7 @@ class DashboardController extends Controller
         $employees = Employee::with('client')->latest()->limit(4)->get()->map(fn (Employee $e) => [
             'type' => 'employee',
             'title' => "Employee {$e->name} added",
-            'detail' => trim(($e->client?->name ?? 'No unit').($e->designation ? ' · '.$e->designation : '')),
+            'detail' => trim(($e->client->name ?? 'No unit').($e->designation ? ' · '.$e->designation : '')),
             'at' => $e->created_at?->toIso8601String(),
             'url' => route('employees.edit', $e, false),
         ]);
@@ -184,17 +198,17 @@ class DashboardController extends Controller
             ->orderByDesc('last_saved')
             ->limit(3)
             ->get()
-            ->map(fn ($w) => [
+            ->map(fn (Wage $w) => [
                 'type' => 'wages',
                 'title' => Carbon::create((int) $w->year, (int) $w->month, 1)->format('F Y').' wages saved',
-                'detail' => "{$w->total} employees · Net payable",
-                'amount' => (float) $w->net,
-                'at' => Carbon::parse($w->last_saved)->toIso8601String(),
+                'detail' => "{$w->getAttribute('total')} employees · Net payable",
+                'amount' => (float) $w->getAttribute('net'),
+                'at' => Carbon::parse($w->getAttribute('last_saved'))->toIso8601String(),
                 'url' => route('wages.index', ['month' => (int) $w->month, 'year' => (int) $w->year], false),
             ]);
 
         return $invoices->concat($employees)->concat($wages)
-            ->filter(fn ($r) => $r['at'])
+            ->filter(fn (array $r) => (bool) $r['at'])
             ->sortByDesc('at')
             ->take(6)
             ->values()

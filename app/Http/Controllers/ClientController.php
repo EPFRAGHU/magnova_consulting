@@ -89,6 +89,9 @@ class ClientController extends Controller
         return to_route('clients.index');
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validated(Request $request): array
     {
         $request->merge([

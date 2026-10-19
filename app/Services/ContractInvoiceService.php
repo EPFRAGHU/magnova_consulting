@@ -80,8 +80,8 @@ class ContractInvoiceService
             [
                 'tenant_id' => $client->tenant_id,
                 'invoice_no' => $invoiceNo,
-                'invoice_date' => $existing?->invoice_date ?? $invoiceDate->toDateString(),
-                'due_date' => $existing?->due_date ?? $invoiceDate->copy()->addDays(30)->toDateString(),
+                'invoice_date' => $existing->invoice_date ?? $invoiceDate->toDateString(),
+                'due_date' => $existing->due_date ?? $invoiceDate->copy()->addDays(30)->toDateString(),
                 'rate_per_day' => 0,
                 'no_of_persons' => $rows->count(),
                 'no_of_duties' => $rows->sum('paid_days'),

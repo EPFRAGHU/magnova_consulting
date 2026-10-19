@@ -4,7 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon $expires_at
+ * @property Carbon|null $last_sent_at
+ * @property Carbon|null $consumed_at
+ */
 class LoginOtp extends Model
 {
     protected $fillable = [
@@ -28,6 +34,7 @@ class LoginOtp extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

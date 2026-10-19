@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Stancl\Tenancy\Contracts\Tenant as TenantContract;
 use Stancl\Tenancy\Database\Concerns\HasInternalKeys;
 use Stancl\Tenancy\Database\Concerns\TenantRun;
@@ -25,27 +26,31 @@ class Tenant extends Model implements TenantContract
         return 'id';
     }
 
-    public function getTenantKey()
+    public function getTenantKey(): mixed
     {
         return $this->getAttribute('id');
     }
 
-    public function users()
+    /** @return HasMany<User, $this> */
+    public function users(): HasMany
     {
         return $this->hasMany(User::class);
     }
 
-    public function clients()
+    /** @return HasMany<Client, $this> */
+    public function clients(): HasMany
     {
         return $this->hasMany(Client::class);
     }
 
-    public function employees()
+    /** @return HasMany<Employee, $this> */
+    public function employees(): HasMany
     {
         return $this->hasMany(Employee::class);
     }
 
-    public function invoices()
+    /** @return HasMany<Invoice, $this> */
+    public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
     }

@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 /** Calculates, saves and prints the Register of Wages of a contract-labour client. */
 class ContractWageController extends Controller
 {
+    /** @return array{0: Client, 1: int, 2: int} */
     private function contractClient(Request $request): array
     {
         $data = $request->validate([
@@ -21,7 +22,7 @@ class ContractWageController extends Controller
             'year' => ['required', 'integer', 'min:2000'],
         ]);
 
-        $client = Client::findOrFail($data['client_id']);
+        $client = Client::findOrFail((int) $data['client_id']);
         abort_unless($client->payroll_profile === 'contract_labour', 422, 'This unit does not use the contract labour wage sheet.');
 
         return [$client, (int) $data['month'], (int) $data['year']];

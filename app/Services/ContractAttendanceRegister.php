@@ -46,7 +46,7 @@ class ContractAttendanceRegister
             foreach ($days as $d) {
                 $record = $byDay->get($d['day']);
                 $status = $record?->status;
-                $hours = (float) ($record?->ot_hours ?? 0);
+                $hours = (float) ($record->ot_hours ?? 0);
 
                 $cells[] = ['code' => self::CODES[$status] ?? '', 'ot' => $hours];
                 $present += match ($status) {
@@ -72,11 +72,15 @@ class ContractAttendanceRegister
         return ['days' => $days, 'employees' => $rows];
     }
 
-    /** The four heading lines shared by every printed register of the client (attendance, fines, deductions). */
+    /**
+     * The four heading lines shared by every printed register of the client (attendance, fines, deductions).
+     *
+     * @return array<string, string>
+     */
     public function headings(Client $client, int $month, int $year): array
     {
         $tenant = Tenant::find($client->tenant_id);
-        $contractor = strtoupper(trim(preg_replace('~^\s*m/s\.?\s*~i', '', (string) ($tenant?->name ?? 'Magnova Consulting Pvt. Ltd.'))));
+        $contractor = strtoupper(trim(preg_replace('~^\s*m/s\.?\s*~i', '', (string) ($tenant->name ?? 'Magnova Consulting Pvt. Ltd.'))));
         $address = $client->contractorAddress();
 
         return [

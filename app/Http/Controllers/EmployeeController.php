@@ -30,7 +30,11 @@ class EmployeeController extends Controller
         ]);
     }
 
-    /** The master list of designations, each with the SAC code and description that apply to it. */
+    /**
+     * The master list of designations, each with the SAC code and description that apply to it.
+     *
+     * @return array<int, array<string, mixed>>
+     */
     private function designationOptions(DesignationCatalog $catalog): array
     {
         return DesignationSacCode::query()
@@ -84,6 +88,9 @@ class EmployeeController extends Controller
         return to_route('employees.index');
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validated(Request $request, ?Employee $employee = null): array
     {
         // The form always sends this marker; an unticked box sends nothing, so without the marker the value is left alone.

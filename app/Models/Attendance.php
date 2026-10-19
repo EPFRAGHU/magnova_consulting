@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
+/**
+ * @property Carbon $date
+ */
 class Attendance extends Model
 {
-    use BelongsToTenant, HasFactory;
+    use BelongsToTenant;
 
     protected $fillable = [
         'tenant_id', 'employee_id', 'date', 'status', 'ot_hours',
@@ -22,7 +26,8 @@ class Attendance extends Model
         ];
     }
 
-    public function employee()
+    /** @return BelongsTo<Employee, $this> */
+    public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class)->withTrashed();
     }
