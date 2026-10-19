@@ -11,6 +11,7 @@ use App\Models\Wage;
 use App\Services\InvoiceCalculator;
 use App\Services\WageCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class InvoiceRefreshTest extends TestCase
@@ -38,7 +39,7 @@ class InvoiceRefreshTest extends TestCase
         return [$user, $client, $invoice];
     }
 
-    private function save(User $user, Client $client, array $changes = []): \Illuminate\Testing\TestResponse
+    private function save(User $user, Client $client, array $changes = []): TestResponse
     {
         return $this->actingAs($user)->put(route('clients.update', $client), array_merge([
             'name' => $client->name,

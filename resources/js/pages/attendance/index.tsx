@@ -19,7 +19,14 @@ type Employee = {
 
 type AttendanceMap = Record<number, Record<number, string>>;
 
-const CYCLE = ['present', 'absent', 'holiday', 'leave', 'sunday', 'off'] as const;
+const CYCLE = [
+    'present',
+    'absent',
+    'holiday',
+    'leave',
+    'sunday',
+    'off',
+] as const;
 
 const CELL_STYLE: Record<string, string> = {
     present:
@@ -82,8 +89,7 @@ export default function AttendanceIndex({
                     isSunday: weekday === 0,
                     isWeekStart: weekday === 0 && day !== 1,
                     weekIndex: Math.floor(
-                        (day - 1 + new Date(year, month - 1, 1).getDay()) /
-                            7,
+                        (day - 1 + new Date(year, month - 1, 1).getDay()) / 7,
                     ),
                 };
             }),
@@ -156,7 +162,9 @@ export default function AttendanceIndex({
                         )}
                         <Button
                             onClick={saveAttendance}
-                            disabled={processing || !dirty || employees.length === 0}
+                            disabled={
+                                processing || !dirty || employees.length === 0
+                            }
                         >
                             {processing ? 'Saving...' : 'Save Attendance'}
                         </Button>
@@ -250,13 +258,15 @@ export default function AttendanceIndex({
                                             className="border-b last:border-0"
                                         >
                                             <td className="bg-card sticky left-0 z-10 max-w-0 overflow-hidden px-2 py-2 align-top sm:px-4">
-                                                <div className="min-w-0 max-w-full overflow-hidden">
-                                                    <span className="block break-words text-xs leading-tight font-medium sm:text-sm">
+                                                <div className="max-w-full min-w-0 overflow-hidden">
+                                                    <span className="block text-xs leading-tight font-medium break-words sm:text-sm">
                                                         {employee.name}
                                                     </span>
                                                     {employee.employee_code && (
-                                                        <span className="text-muted-foreground mt-0.5 block break-all text-[10px] leading-tight sm:text-xs">
-                                                            {employee.employee_code}
+                                                        <span className="text-muted-foreground mt-0.5 block text-[10px] leading-tight break-all sm:text-xs">
+                                                            {
+                                                                employee.employee_code
+                                                            }
                                                         </span>
                                                     )}
                                                 </div>
@@ -266,13 +276,17 @@ export default function AttendanceIndex({
                                             </td>
                                             {days.map((date) => {
                                                 const status =
-                                                    grid[employee.id]?.[date.day];
+                                                    grid[employee.id]?.[
+                                                        date.day
+                                                    ];
                                                 return (
                                                     <td
                                                         key={date.day}
                                                         className={cn(
                                                             'px-0 py-1 text-center',
-                                                            date.weekIndex % 2 === 1 &&
+                                                            date.weekIndex %
+                                                                2 ===
+                                                                1 &&
                                                                 'bg-slate-50/70 dark:bg-slate-900/30',
                                                             date.isSunday &&
                                                                 'bg-red-50/60 dark:bg-red-950/20',

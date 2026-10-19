@@ -24,9 +24,9 @@ export default function AppWorkspaceLayout({
     const current = breadcrumbs[breadcrumbs.length - 1]?.title ?? 'Page';
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-background">
+        <div className="dark:bg-background min-h-screen bg-slate-50">
             {/* Desktop sidebar */}
-            <aside className="fixed inset-y-0 left-0 z-20 hidden w-[215px] xl:w-[244px] lg:block">
+            <aside className="fixed inset-y-0 left-0 z-20 hidden w-[215px] lg:block xl:w-[244px]">
                 <WorkspaceSidebar />
             </aside>
 

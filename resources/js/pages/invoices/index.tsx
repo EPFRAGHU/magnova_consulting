@@ -35,7 +35,12 @@ export default function InvoicesIndex({
     clients: ClientOption[];
     client_id: number | null;
     invoice_prefix: string;
-    existing: { client_id: number; month: number; year: number; invoice_no: string }[];
+    existing: {
+        client_id: number;
+        month: number;
+        year: number;
+        invoice_no: string;
+    }[];
 }) {
     const { errors } = usePage<{ errors: Record<string, string> }>().props;
     const generateError =
@@ -142,7 +147,9 @@ export default function InvoicesIndex({
                                 </span>
                                 <Input
                                     value={genNumber}
-                                    onChange={(e) => setGenNumber(e.target.value)}
+                                    onChange={(e) =>
+                                        setGenNumber(e.target.value)
+                                    }
                                     placeholder="___"
                                     maxLength={20}
                                     className="w-24"
@@ -160,7 +167,10 @@ export default function InvoicesIndex({
                                   ? 'Regenerate Invoice'
                                   : 'Generate Invoice'}
                         </Button>
-                        <InputError message={generateError} className="basis-full" />
+                        <InputError
+                            message={generateError}
+                            className="basis-full"
+                        />
                     </CardContent>
                 </Card>
 

@@ -161,7 +161,7 @@ class InvoiceController extends Controller
 
     public function pdf(Invoice $invoice, PdfExportService $pdf): HttpResponse
     {
-        $fileName = str_replace(['/', '\\'], '-', $invoice->invoice_no) . '.pdf';
+        $fileName = str_replace(['/', '\\'], '-', $invoice->invoice_no).'.pdf';
 
         // A contract-labour invoice prints exactly the content it was issued with.
         if ($invoice->isContractLabour()) {

@@ -37,7 +37,7 @@ class PdfExportService
         $wages->loadMissing('employee.client');
         $wages = $wages->sortBy(fn (Wage $wage) => $wage->employee->skillSortKey())->values();
 
-        $ytd =$wages->mapWithKeys(fn (Wage $wage) => [$wage->id => $this->ytdFor($wage)]);
+        $ytd = $wages->mapWithKeys(fn (Wage $wage) => [$wage->id => $this->ytdFor($wage)]);
         $netSalaryWords = $wages->mapWithKeys(fn (Wage $wage) => [
             $wage->id => $this->words->amountToWords((float) $wage->net_salary),
         ]);

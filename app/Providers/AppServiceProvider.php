@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\DesignationCatalog;
+use App\Services\EsicCalculator;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +17,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(\App\Services\DesignationCatalog::class);
-        $this->app->singleton(\App\Services\EsicCalculator::class);
+        $this->app->singleton(DesignationCatalog::class);
+        $this->app->singleton(EsicCalculator::class);
     }
 
     /**

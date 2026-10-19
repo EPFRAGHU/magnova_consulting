@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\ContractWageSheet;
+use App\Services\InvoiceRefresher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -201,10 +202,10 @@ class ContractInvoiceGenerationTest extends TestCase
         $before = Invoice::first()->only(['taxable_value', 'grand_total', 'document']);
 
         $this->artisan('wages:apply-bonus-setting')->assertSuccessful();
-        app(\App\Services\InvoiceRefresher::class)->refreshDrafts($this->contract);
+        app(InvoiceRefresher::class)->refreshDrafts($this->contract);
 
         $this->assertEquals($before, Invoice::first()->only(['taxable_value', 'grand_total', 'document']));
-        $this->assertSame(0, app(\App\Services\InvoiceRefresher::class)->draftInvoiceCount($this->contract));
+        $this->assertSame(0, app(InvoiceRefresher::class)->draftInvoiceCount($this->contract));
     }
 
     public function test_the_wages_page_offers_the_invoice_button_with_the_number_prefix(): void

@@ -58,7 +58,7 @@ class InvoiceTermsTest extends TestCase
         $html = $this->terms(Tenant::create(['name' => 'Magnova Test', 'slug' => 'magnova-test']));
 
         $this->assertStringContainsString('E &amp; O.E', $html);
-        $this->assertStringContainsString("Subject to &#039;Bhubaneswar&#039; jurisdiction only.", $html);
+        $this->assertStringContainsString('Subject to &#039;Bhubaneswar&#039; jurisdiction only.', $html);
         $this->assertStringNotContainsString('Total payment due in 30 days', $html);
         $this->assertStringNotContainsString('Interest @ 18% p.a.', $html);
     }

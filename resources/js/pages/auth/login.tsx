@@ -183,7 +183,10 @@ export default function Login({
                                         </div>
                                     )}
                                     <div className="my-[18px] mt-0">
-                                        <label htmlFor="email" className={LABEL}>
+                                        <label
+                                            htmlFor="email"
+                                            className={LABEL}
+                                        >
                                             Email address
                                         </label>
                                         <input
@@ -285,7 +288,9 @@ export default function Login({
                                     >
                                         {processing && <Spinner />}
                                         Sign in
-                                        {!processing && <span aria-hidden>→</span>}
+                                        {!processing && (
+                                            <span aria-hidden>→</span>
+                                        )}
                                     </button>
                                 </>
                             )}
@@ -298,10 +303,7 @@ export default function Login({
                         </div>
 
                         {!otpMode ? (
-                            <Form
-                                {...requestOtp.form()}
-                                disableWhileProcessing
-                            >
+                            <Form {...requestOtp.form()} disableWhileProcessing>
                                 {({ processing, errors }) => (
                                     <>
                                         <label
@@ -386,7 +388,10 @@ export default function Login({
                                         </>
                                     )}
                                 </Form>
-                                <Form {...resendOtp.form()} className="text-center">
+                                <Form
+                                    {...resendOtp.form()}
+                                    className="text-center"
+                                >
                                     {({ processing }) => (
                                         <button
                                             type="submit"

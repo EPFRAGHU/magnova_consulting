@@ -92,7 +92,10 @@ export default function ClientsIndex({
     return (
         <>
             <Head title="Clients" />
-            <Dialog open={asking && regenerate !== null} onOpenChange={setAsking}>
+            <Dialog
+                open={asking && regenerate !== null}
+                onOpenChange={setAsking}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Update draft invoices?</DialogTitle>
@@ -244,25 +247,33 @@ export default function ClientsIndex({
                                                         ? 'No GST'
                                                         : 'GST on'}
                                                 </Badge>
-                                                {client.payroll_profile === 'contract_labour' && (
-                                                    <>
-                                                        {' '}
-                                                        <Badge className={CHIP.amber}>
-                                                            Contract labour
-                                                        </Badge>
-                                                    </>
-                                                )}
-                                                {client.esic_unit_mode !== 'statutory' && (
+                                                {client.payroll_profile ===
+                                                    'contract_labour' && (
                                                     <>
                                                         {' '}
                                                         <Badge
                                                             className={
-                                                                client.esic_unit_mode === 'ceiling'
+                                                                CHIP.amber
+                                                            }
+                                                        >
+                                                            Contract labour
+                                                        </Badge>
+                                                    </>
+                                                )}
+                                                {client.esic_unit_mode !==
+                                                    'statutory' && (
+                                                    <>
+                                                        {' '}
+                                                        <Badge
+                                                            className={
+                                                                client.esic_unit_mode ===
+                                                                'ceiling'
                                                                     ? CHIP.violet
                                                                     : CHIP.slate
                                                             }
                                                         >
-                                                            {client.esic_unit_mode === 'ceiling'
+                                                            {client.esic_unit_mode ===
+                                                            'ceiling'
                                                                 ? 'ESIC on ceiling'
                                                                 : 'No ESIC above ceiling'}
                                                         </Badge>

@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Attendance;
 use App\Models\Client;
 use App\Models\Employee;
 use App\Models\EsicSetting;
 use App\Models\User;
+use App\Services\WageCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -69,17 +71,17 @@ class EsicSettingsTest extends TestCase
             'skill_category' => 'skilled', 'rate_per_day' => 918, 'status' => 'active',
         ]);
         foreach (range(1, 30) as $day) {
-            \App\Models\Attendance::create(['tenant_id' => $user->tenant_id, 'employee_id' => $employee->id, 'date' => sprintf('2026-09-%02d', $day), 'status' => 'present']);
+            Attendance::create(['tenant_id' => $user->tenant_id, 'employee_id' => $employee->id, 'date' => sprintf('2026-09-%02d', $day), 'status' => 'present']);
         }
 
-        $before = app(\App\Services\WageCalculator::class)->calculateForEmployee($employee->fresh('client'), 9, 2026);
+        $before = app(WageCalculator::class)->calculateForEmployee($employee->fresh('client'), 9, 2026);
         $this->assertEquals(0, $before->esic_employee, 'above the ceiling, statutory: nothing');
 
         $this->actingAs($user)->post(route('esic.store'), $this->rules([
             'effective_from' => '2026-09-01', 'coverage_ceiling' => 21000, 'calculation_mode' => 'capped', 'confirm_capped' => 1,
         ]))->assertSessionHasNoErrors();
 
-        $after = app(\App\Services\WageCalculator::class)->calculateForEmployee($employee->fresh('client'), 9, 2026);
+        $after = app(WageCalculator::class)->calculateForEmployee($employee->fresh('client'), 9, 2026);
 
         $this->assertEquals(27540, $after->gross_wages);
         $this->assertEquals(158, $after->esic_employee, '0.75% of the Rs 21,000 ceiling');

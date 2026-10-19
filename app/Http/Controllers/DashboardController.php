@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
 use App\Models\Client;
 use App\Models\Employee;
 use App\Models\Invoice;
-use App\Models\Attendance;
 use App\Models\Wage;
 use App\Support\WageMonth;
-use Illuminate\Http\Request;
 use Carbon\CarbonInterface;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;

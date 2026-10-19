@@ -34,7 +34,12 @@ const bankFields: Array<{ name: keyof Establishment; label: string }> = [
     { name: 'bank_branch', label: 'Branch (with PIN)' },
 ];
 
-const fields: Array<{ name: keyof Establishment; label: string; type?: string; required?: boolean }> = [
+const fields: Array<{
+    name: keyof Establishment;
+    label: string;
+    type?: string;
+    required?: boolean;
+}> = [
     { name: 'name', label: 'Establishment name', required: true },
     { name: 'gstin', label: 'GSTIN' },
     { name: 'pan', label: 'PAN' },
@@ -68,17 +73,26 @@ export default function Establishment({ establishment }: Props) {
                         <>
                             <div className="grid gap-6 sm:grid-cols-2">
                                 {fields.map((field) => (
-                                    <div className="grid gap-2" key={field.name}>
-                                        <Label htmlFor={field.name}>{field.label}</Label>
+                                    <div
+                                        className="grid gap-2"
+                                        key={field.name}
+                                    >
+                                        <Label htmlFor={field.name}>
+                                            {field.label}
+                                        </Label>
                                         <Input
                                             id={field.name}
                                             name={field.name}
                                             type={field.type ?? 'text'}
-                                            defaultValue={establishment[field.name] ?? ''}
+                                            defaultValue={
+                                                establishment[field.name] ?? ''
+                                            }
                                             required={field.required}
                                             autoComplete="off"
                                         />
-                                        <InputError message={errors[field.name]} />
+                                        <InputError
+                                            message={errors[field.name]}
+                                        />
                                     </div>
                                 ))}
                             </div>
@@ -89,16 +103,25 @@ export default function Establishment({ establishment }: Props) {
                             />
                             <div className="grid gap-6 sm:grid-cols-2">
                                 {bankFields.map((field) => (
-                                    <div className="grid gap-2" key={field.name}>
-                                        <Label htmlFor={field.name}>{field.label}</Label>
+                                    <div
+                                        className="grid gap-2"
+                                        key={field.name}
+                                    >
+                                        <Label htmlFor={field.name}>
+                                            {field.label}
+                                        </Label>
                                         <Input
                                             id={field.name}
                                             name={field.name}
                                             type="text"
-                                            defaultValue={establishment[field.name] ?? ''}
+                                            defaultValue={
+                                                establishment[field.name] ?? ''
+                                            }
                                             autoComplete="off"
                                         />
-                                        <InputError message={errors[field.name]} />
+                                        <InputError
+                                            message={errors[field.name]}
+                                        />
                                     </div>
                                 ))}
                             </div>
