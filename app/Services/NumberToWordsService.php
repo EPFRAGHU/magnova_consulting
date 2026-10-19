@@ -24,6 +24,17 @@ class NumberToWordsService
         return $this->numberToWords((int) round($amount));
     }
 
+    /** Amount in words with the paise spelled out, for tax amounts: 10,105.92 -> Ten Thousand One Hundred Five and Ninety Two Paise. */
+    public function amountToWordsWithPaise(float $amount): string
+    {
+        $paise = (int) round($amount * 100);
+        $rupees = intdiv($paise, 100);
+        $rest = $paise % 100;
+        $words = $this->numberToWords($rupees);
+
+        return $rest > 0 ? $words.' and '.$this->numberToWords($rest).' Paise' : $words;
+    }
+
     public function numberToWords(int $number): string
     {
         if ($number === 0) {

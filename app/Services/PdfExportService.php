@@ -75,6 +75,15 @@ class PdfExportService
         ])->setPaper('a4');
     }
 
+    /** The Tally-style tax invoice for a contract-labour client; $data comes from ContractLabourInvoiceBuilder. */
+    public function contractLabourInvoice(array $data): PdfBuilder
+    {
+        return Pdf::loadView('pdf.contract-labour-invoice', [
+            'data' => $data,
+            'logoDataUri' => $this->logoDataUri(),
+        ])->setPaper('a4');
+    }
+
     /**
      * One row per designation for the "Summary of Duties" table, each with the
      * SAC code set for that designation in Settings (or the company default).

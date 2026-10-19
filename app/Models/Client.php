@@ -20,7 +20,7 @@ class Client extends Model
         'billing_name', 'billing_address',
         'contact_person', 'contact_phone', 'contact_email', 'active', 'bonus_enabled',
         'service_charge_on_basic', 'gst_exempt', 'esic_unit_mode', 'payroll_profile', 'principal_employer_name',
-        'principal_employer_address', 'principal_employer_gstin', 'contract_start', 'contract_end', 'register_contractor_address',
+        'principal_employer_address', 'principal_employer_gstin', 'contract_start', 'contract_end', 'register_contractor_address', 'buyer_order_no', 'buyer_order_date',
     ];
 
     protected function casts(): array
@@ -32,6 +32,7 @@ class Client extends Model
             'gst_exempt' => 'boolean',
             'contract_start' => 'date:Y-m-d',
             'contract_end' => 'date:Y-m-d',
+            'buyer_order_date' => 'date:Y-m-d',
         ];
     }
 

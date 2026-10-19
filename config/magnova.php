@@ -71,6 +71,8 @@ return [
     // HSN/SAC code for manpower supply services shown on the tax invoice.
     'hsn_sac_code' => '998525',
     'state' => 'Odisha',
+    // Place named in the jurisdiction line of the contract-labour tax invoice.
+    'jurisdiction' => 'Bhubaneswar',
     'company_cin' => env('MAGNOVA_COMPANY_CIN'),
     'bank_account_type' => env('MAGNOVA_BANK_ACCOUNT_TYPE'),
 

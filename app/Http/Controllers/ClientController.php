@@ -123,6 +123,8 @@ class ClientController extends Controller
             'contract_start' => ['nullable', 'date'],
             'contract_end' => ['nullable', 'date', 'after_or_equal:contract_start'],
             'register_contractor_address' => ['nullable', 'string', 'max:1000'],
+            'buyer_order_no' => ['nullable', 'string', 'max:100'],
+            'buyer_order_date' => ['nullable', 'date'],
         ]);
     }
 }

@@ -37,6 +37,8 @@ type Client = {
     contract_start: string | null;
     contract_end: string | null;
     register_contractor_address: string | null;
+    buyer_order_no: string | null;
+    buyer_order_date: string | null;
 };
 
 export default function ClientForm({ client }: { client?: Client }) {
@@ -295,6 +297,31 @@ export default function ClientForm({ client }: { client?: Client }) {
                                                     defaultValue={client?.contract_end ?? ''}
                                                 />
                                                 <InputError message={errors.contract_end} />
+                                            </div>
+                                        </div>
+                                        <div className="grid gap-4 sm:grid-cols-2">
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="buyer_order_no">
+                                                    Buyer's order / PO number
+                                                </Label>
+                                                <Input
+                                                    id="buyer_order_no"
+                                                    name="buyer_order_no"
+                                                    defaultValue={client?.buyer_order_no ?? ''}
+                                                />
+                                                <InputError message={errors.buyer_order_no} />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="buyer_order_date">
+                                                    Order date
+                                                </Label>
+                                                <Input
+                                                    id="buyer_order_date"
+                                                    name="buyer_order_date"
+                                                    type="date"
+                                                    defaultValue={client?.buyer_order_date ?? ''}
+                                                />
+                                                <InputError message={errors.buyer_order_date} />
                                             </div>
                                         </div>
                                         <div className="grid gap-2">
