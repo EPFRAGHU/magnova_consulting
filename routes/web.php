@@ -4,6 +4,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginOtpController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ContractAttendanceController;
+use App\Http\Controllers\ContractWageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EcrController;
 use App\Http\Controllers\EmployeeController;
@@ -36,6 +37,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('wages', [WageController::class, 'index'])->name('wages.index');
     Route::post('wages', [WageController::class, 'store'])->name('wages.store');
     Route::get('wages/register', [WageController::class, 'register'])->name('wages.register');
+    Route::post('wages/contract', [ContractWageController::class, 'save'])->name('wages.contract.save');
+    Route::get('wages/contract/register', [ContractWageController::class, 'register'])->name('wages.contract.register');
 
     Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
     Route::post('invoices', [InvoiceController::class, 'store'])->name('invoices.store');

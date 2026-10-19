@@ -75,6 +75,14 @@ class PdfExportService
         ])->setPaper('a4');
     }
 
+    /** The Register of Wages of a contract-labour client, in that client's own 29-column layout (A3 landscape). */
+    public function contractLabourWageRegister(Client $client, int $month, int $year): PdfBuilder
+    {
+        $html = app(ContractWageSheet::class)->registerView($client, $month, $year, $this->logoDataUri())->render();
+
+        return Pdf::loadHTML($html)->setPaper('a3', 'landscape');
+    }
+
     /** The Tally-style tax invoice for a contract-labour client; $data comes from ContractLabourInvoiceBuilder. */
     public function contractLabourInvoice(array $data): PdfBuilder
     {
