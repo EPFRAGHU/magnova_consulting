@@ -125,6 +125,24 @@ class ContractAttendanceRegisterTest extends TestCase
         }
     }
 
+    public function test_a_blank_contractor_address_falls_back_to_magnovas_own_on_the_screens_and_the_register(): void
+    {
+        $this->user->tenant->update(['address' => 'Magnova Plot 1, Sisupalgarh']);
+        $this->contract->update(['register_contractor_address' => null]);
+        $this->guard();
+        $query = ['client_id' => $this->contract->id, 'month' => 9, 'year' => 2026];
+
+        $this->actingAs($this->user)->get(route('attendance.index', $query))
+            ->assertInertia(fn ($page) => $page->where('client.register_contractor_address', 'Magnova Plot 1, Sisupalgarh'));
+        $this->actingAs($this->user)->get(route('wages.index', $query))
+            ->assertInertia(fn ($page) => $page->where('client.register_contractor_address', 'Magnova Plot 1, Sisupalgarh'));
+        $this->assertStringContainsString('MAGNOVA PLOT 1, SISUPALGARH', app(ContractAttendanceRegister::class)->view($this->contract, 9, 2026)->render());
+
+        $this->contract->update(['register_contractor_address' => 'Override Road']);
+        $this->actingAs($this->user)->get(route('attendance.index', $query))
+            ->assertInertia(fn ($page) => $page->where('client.register_contractor_address', 'Override Road'));
+    }
+
     public function test_the_pdf_downloads_and_a_regular_unit_is_refused(): void
     {
         $this->mark($this->guard(), [1 => ['present', 0]]);

@@ -77,7 +77,7 @@ class ContractAttendanceRegister
     {
         $tenant = Tenant::find($client->tenant_id);
         $contractor = strtoupper(trim(preg_replace('~^\s*m/s\.?\s*~i', '', (string) ($tenant?->name ?? 'Magnova Consulting Pvt. Ltd.'))));
-        $address = $client->register_contractor_address ?: $tenant?->address;
+        $address = $client->contractorAddress();
 
         return [
             'contractorLine' => 'CONTRACTOR NAME - '.$contractor.($address ? ', '.strtoupper($address) : ''),

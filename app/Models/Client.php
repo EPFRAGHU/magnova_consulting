@@ -46,6 +46,12 @@ class Client extends Model
         return $this->billing_address ?: $this->address;
     }
 
+    /** Contractor address printed on the contract-labour registers: the client's override, else Magnova's own address. */
+    public function contractorAddress(): ?string
+    {
+        return $this->register_contractor_address ?: Tenant::find($this->tenant_id)?->address;
+    }
+
     public function employees()
     {
         return $this->hasMany(Employee::class);

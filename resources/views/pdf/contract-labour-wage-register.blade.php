@@ -22,7 +22,7 @@
 @php
     $tenant = \App\Models\Tenant::find($client->tenant_id);
     $contractor = strtoupper(trim(preg_replace('~^\s*m/s\.?\s*~i', '', (string) ($tenant?->name ?? 'Magnova Consulting Pvt. Ltd.'))));
-    $contractorAddress = $client->register_contractor_address ?: $tenant?->address;
+    $contractorAddress = $client->contractorAddress();
     $money = fn ($v) => number_format((float) $v, 2);
     $days = fn ($v) => rtrim(rtrim(number_format((float) $v, 2), '0'), '.');
     $f = fn ($row, $key) => $money($row['figures'][$key] ?? 0);

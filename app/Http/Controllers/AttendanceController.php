@@ -79,8 +79,8 @@ class AttendanceController extends Controller
         return Inertia::render('attendance/contract-labour', [
             'client' => $client->only([
                 'id', 'name', 'unit_label', 'principal_employer_name', 'principal_employer_address',
-                'contract_start', 'contract_end', 'register_contractor_address',
-            ]),
+                'contract_start', 'contract_end',
+            ]) + ['register_contractor_address' => $client->contractorAddress()],
             'employees' => $employees->map(fn (Employee $e) => [
                 'id' => $e->id,
                 'name' => $e->name,

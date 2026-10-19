@@ -76,7 +76,7 @@ class WageController extends Controller
     private function contractLabour(Client $client, int $month, int $year, Request $request, ContractWageSheet $sheet): Response
     {
         return Inertia::render('wages/contract-labour', [
-            'client' => $client->only(['id', 'name', 'unit_label', 'principal_employer_name', 'principal_employer_address', 'contract_start', 'contract_end', 'register_contractor_address']),
+            'client' => $client->only(['id', 'name', 'unit_label', 'principal_employer_name', 'principal_employer_address', 'contract_start', 'contract_end']) + ['register_contractor_address' => $client->contractorAddress()],
             ...($rows = $sheet->rows($client, $month, $year)),
             'invoice' => Invoice::where('client_id', $client->id)->where('month', $month)->where('year', $year)
                 ->first(['id', 'invoice_no', 'status', 'grand_total']),
