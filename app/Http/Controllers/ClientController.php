@@ -116,6 +116,13 @@ class ClientController extends Controller
             'service_charge_on_basic' => ['boolean'],
             'gst_exempt' => ['boolean'],
             'esic_unit_mode' => ['required', Rule::in(Client::ESIC_UNIT_MODES)],
+            'payroll_profile' => ['sometimes', Rule::in(Client::PAYROLL_PROFILES)],
+            'principal_employer_name' => [Rule::requiredIf($request->input('payroll_profile') === 'contract_labour'), 'nullable', 'string', 'max:255'],
+            'principal_employer_address' => ['nullable', 'string', 'max:1000'],
+            'principal_employer_gstin' => ['nullable', 'string', 'max:20'],
+            'contract_start' => ['nullable', 'date'],
+            'contract_end' => ['nullable', 'date', 'after_or_equal:contract_start'],
+            'register_contractor_address' => ['nullable', 'string', 'max:1000'],
         ]);
     }
 }

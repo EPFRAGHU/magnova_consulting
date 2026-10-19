@@ -46,6 +46,28 @@ return [
     // bonus entirely above the ceiling; earlier months keep the older logic.
     'register_rules_from' => '2026-09-01',
 
+    // Wage-sheet rules for a contract-labour client (principal employer arrangement), copied from the client's own
+    // Wages sheet (Balmer Lawrie, September 2026). Each client can override any of these in clients.payroll_parameters.
+    'contract_labour' => [
+        'hours_per_day' => 8,
+        'ot_multiplier' => 2,
+        'bonus_pct' => 8.33,                // of earned wages, no ceiling
+        'leave_factor' => 1.25,             // leave wages = rate x 1.25 / day_divisor per paid day
+        'day_divisor' => 26,
+        'pmjjby_per_year' => 436,
+        'pmsby_per_year' => 20,
+        'pf_employee_pct' => 12,            // on earned wages within the EPF ceiling of the month
+        'pf_employer_pct' => 13,
+        'esic_employee_pct' => 0.75,        // on earned wages + overtime, no ceiling (as in the client's sheet)
+        'esic_employer_pct' => 3.25,
+        'ppe_per_month' => 750,
+        'ppe_enabled' => false,             // the sheet multiplies PPE by 0
+        'lwf_per_month' => 5,
+        'service_charge_pct' => 3.85,       // service charge = total CTC x pct / divisor
+        'service_charge_divisor' => 1.18,
+        'gst_pct' => 18,
+    ],
+
     // HSN/SAC code for manpower supply services shown on the tax invoice.
     'hsn_sac_code' => '998525',
     'state' => 'Odisha',

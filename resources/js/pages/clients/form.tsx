@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Form, Head } from '@inertiajs/react';
 import ClientController from '@/actions/App/Http/Controllers/ClientController';
 import Heading from '@/components/heading';
@@ -29,10 +30,18 @@ type Client = {
     service_charge_on_basic: boolean;
     gst_exempt: boolean;
     esic_unit_mode: string;
+    payroll_profile: string;
+    principal_employer_name: string | null;
+    principal_employer_address: string | null;
+    principal_employer_gstin: string | null;
+    contract_start: string | null;
+    contract_end: string | null;
+    register_contractor_address: string | null;
 };
 
 export default function ClientForm({ client }: { client?: Client }) {
     const isEdit = !!client;
+    const [profile, setProfile] = useState(client?.payroll_profile ?? 'standard');
     const submitOptions = isEdit
         ? ClientController.update.form(client!.id)
         : ClientController.store.form();
@@ -195,6 +204,118 @@ export default function ClientForm({ client }: { client?: Client }) {
                                 </div>
                             </div>
 
+                            <div className="grid gap-4 rounded-md border p-4">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="payroll_profile">
+                                        How is this client billed?
+                                    </Label>
+                                    <SelectNative
+                                        id="payroll_profile"
+                                        name="payroll_profile"
+                                        value={profile}
+                                        onChange={(e) =>
+                                            setProfile(e.target.value)
+                                        }
+                                        className="max-w-md"
+                                    >
+                                        <option value="standard">
+                                            Standard (regular unit)
+                                        </option>
+                                        <option value="contract_labour">
+                                            Contract labour (principal employer)
+                                        </option>
+                                    </SelectNative>
+                                    <p className="text-muted-foreground text-xs">
+                                        A contract labour client has its own
+                                        attendance register, wage sheet and tax
+                                        invoice layout. Regular units are not
+                                        affected.
+                                    </p>
+                                    <InputError message={errors.payroll_profile} />
+                                </div>
+
+                                {profile === 'contract_labour' && (
+                                    <div className="grid gap-4">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="principal_employer_name">
+                                                Principal employer
+                                            </Label>
+                                            <Input
+                                                id="principal_employer_name"
+                                                name="principal_employer_name"
+                                                defaultValue={client?.principal_employer_name ?? ''}
+                                                required
+                                            />
+                                            <InputError message={errors.principal_employer_name} />
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="principal_employer_address">
+                                                Principal employer address
+                                            </Label>
+                                            <Textarea
+                                                id="principal_employer_address"
+                                                name="principal_employer_address"
+                                                rows={2}
+                                                defaultValue={client?.principal_employer_address ?? ''}
+                                            />
+                                            <InputError message={errors.principal_employer_address} />
+                                        </div>
+                                        <div className="grid gap-4 sm:grid-cols-3">
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="principal_employer_gstin">
+                                                    Principal employer GSTIN
+                                                </Label>
+                                                <Input
+                                                    id="principal_employer_gstin"
+                                                    name="principal_employer_gstin"
+                                                    defaultValue={client?.principal_employer_gstin ?? ''}
+                                                />
+                                                <InputError message={errors.principal_employer_gstin} />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="contract_start">
+                                                    Contract starts
+                                                </Label>
+                                                <Input
+                                                    id="contract_start"
+                                                    name="contract_start"
+                                                    type="date"
+                                                    defaultValue={client?.contract_start ?? ''}
+                                                />
+                                                <InputError message={errors.contract_start} />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="contract_end">
+                                                    Contract ends
+                                                </Label>
+                                                <Input
+                                                    id="contract_end"
+                                                    name="contract_end"
+                                                    type="date"
+                                                    defaultValue={client?.contract_end ?? ''}
+                                                />
+                                                <InputError message={errors.contract_end} />
+                                            </div>
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="register_contractor_address">
+                                                Contractor address for the registers
+                                            </Label>
+                                            <Textarea
+                                                id="register_contractor_address"
+                                                name="register_contractor_address"
+                                                rows={2}
+                                                defaultValue={client?.register_contractor_address ?? ''}
+                                            />
+                                            <p className="text-muted-foreground text-xs">
+                                                Printed under &quot;Contractor name&quot; on this client&apos;s
+                                                registers. It can differ from the office address in Settings.
+                                            </p>
+                                            <InputError message={errors.register_contractor_address} />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                             <div className="grid gap-2">
                                 <div className="flex items-center gap-2">
                                     <Checkbox
