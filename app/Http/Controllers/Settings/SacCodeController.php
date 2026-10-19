@@ -46,7 +46,7 @@ class SacCodeController extends Controller
             'rows.*.sac_code.regex' => 'A SAC code is 6 digits, like 998525.',
         ]);
 
-        $rows = collect($data['rows'] ?? [])->map(fn (array $row) => [
+        $rows = collect((array) ($data['rows'] ?? []))->map(fn (array $row) => [
             'designation' => trim($row['designation']),
             'sac_code' => trim((string) ($row['sac_code'] ?? '')) ?: null,
             'sac_description' => trim((string) ($row['sac_description'] ?? '')) ?: null,

@@ -3,9 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
-/** One employee's saved line of a contract-labour client's Register of Wages for a month. */
+/**
+ * One employee's saved line of a contract-labour client's Register of Wages for a month.
+ *
+ * @property array<string, mixed> $figures
+ * @property array<string, mixed> $parameters
+ * @property Carbon|null $calculated_at
+ */
 class ContractWage extends Model
 {
     use BelongsToTenant;
@@ -27,12 +35,14 @@ class ContractWage extends Model
         ];
     }
 
-    public function employee()
+    /** @return BelongsTo<Employee, $this> */
+    public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class)->withTrashed();
     }
 
-    public function client()
+    /** @return BelongsTo<Client, $this> */
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
     }

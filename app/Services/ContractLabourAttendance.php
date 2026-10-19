@@ -17,29 +17,31 @@ class ContractLabourAttendance
      */
     public function forEmployees(Collection $employeeIds, int $month, int $year): array
     {
-        $summary = [];
-
-        Attendance::query()
+        $rows = Attendance::query()
             ->whereIn('employee_id', $employeeIds)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
-            ->get(['employee_id', 'status', 'ot_hours'])
-            ->each(function (Attendance $row) use (&$summary) {
-                $s = &$summary[$row->employee_id];
-                $s ??= ['present' => 0.0, 'half_days' => 0, 'holidays' => 0, 'absent' => 0, 'paid_days' => 0.0, 'ot_hours' => 0.0];
+            ->get(['employee_id', 'status', 'ot_hours']);
 
-                match ($row->status) {
-                    'present' => $s['present']++,
-                    'half_day' => $s['half_days']++,
-                    'holiday' => $s['holidays']++,
-                    'absent' => $s['absent']++,
-                    default => null,
-                };
-                $s['ot_hours'] += (float) $row->ot_hours;
-            });
+        $summary = [];
 
-        foreach ($summary as &$s) {
-            $s['paid_days'] = $s['present'] + 0.5 * $s['half_days'] + $s['holidays'];
+        foreach ($rows as $row) {
+            $s = $summary[$row->employee_id] ?? ['present' => 0.0, 'half_days' => 0, 'holidays' => 0, 'absent' => 0, 'paid_days' => 0.0, 'ot_hours' => 0.0];
+
+            match ($row->status) {
+                'present' => $s['present']++,
+                'half_day' => $s['half_days']++,
+                'holiday' => $s['holidays']++,
+                'absent' => $s['absent']++,
+                default => null,
+            };
+            $s['ot_hours'] += (float) $row->ot_hours;
+
+            $summary[$row->employee_id] = $s;
+        }
+
+        foreach ($summary as $employeeId => $s) {
+            $summary[$employeeId]['paid_days'] = $s['present'] + 0.5 * $s['half_days'] + $s['holidays'];
         }
 
         return $summary;

@@ -92,6 +92,9 @@ class EsicController extends Controller
         return to_route('esic.edit');
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function present(EsicSetting $setting): array
     {
         return [

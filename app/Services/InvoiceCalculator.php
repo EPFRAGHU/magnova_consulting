@@ -24,7 +24,7 @@ class InvoiceCalculator
 
         $noOfDuties = (float) $wages->sum('working_days');
         $noOfPersons = $wages->count();
-        $ratePerDay = (float) ($wages->first()?->rate_per_day ?? 0);
+        $ratePerDay = (float) ($wages->first()->rate_per_day ?? 0);
 
         // base_amount is the sum of each employee's own gross wages, not a
         // uniform rate x duties figure — employees are billed at different

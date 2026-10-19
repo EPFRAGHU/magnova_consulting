@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\Wage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as PdfBuilder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -32,8 +33,10 @@ class PdfExportService
         ])->setPaper('a4');
     }
 
+    /** @param  Collection<int, Wage>  $wages */
     public function bulkPayslips(Collection $wages, int $month, int $year): PdfBuilder
     {
+        $wages = new EloquentCollection($wages->all());
         $wages->loadMissing('employee.client');
         $wages = $wages->sortBy(fn (Wage $wage) => $wage->employee->skillSortKey())->values();
 
@@ -99,7 +102,11 @@ class PdfExportService
         return Pdf::loadHTML($html)->setPaper('a3', 'landscape');
     }
 
-    /** The Tally-style tax invoice for a contract-labour client; $data comes from ContractLabourInvoiceBuilder. */
+    /**
+     * The Tally-style tax invoice for a contract-labour client; $data comes from ContractLabourInvoiceBuilder.
+     *
+     * @param  array<string, mixed>  $data
+     */
     public function contractLabourInvoice(array $data): PdfBuilder
     {
         return Pdf::loadView('pdf.contract-labour-invoice', [
@@ -111,6 +118,8 @@ class PdfExportService
     /**
      * One row per designation for the "Summary of Duties" table, each with the
      * SAC code set for that designation in Settings (or the company default).
+     *
+     * @return Collection<int, non-empty-array<string, mixed>>
      */
     public function dutySummary(Invoice $invoice): Collection
     {
@@ -144,6 +153,9 @@ class PdfExportService
             ->values();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function sacRow(?int $tenantId, string $designation): array
     {
         $sac = $this->designationCatalog->lookup($tenantId, $designation);
@@ -225,6 +237,8 @@ class PdfExportService
     /**
      * Cumulative totals for the employee from the start of the Indian
      * financial year (April) through the wage record's own month/year.
+     *
+     * @return array<string, float>
      */
     private function ytdFor(Wage $wage): array
     {

@@ -13,7 +13,10 @@ namespace App\Services;
  */
 class ContractLabourCalculator
 {
-    /** @param array<string, mixed> $overrides per-client changes to the defaults in config('magnova.contract_labour') */
+    /**
+     * @param  array<string, mixed>  $overrides  per-client changes to the defaults in config('magnova.contract_labour')
+     * @return array<string, float>
+     */
     public function calculate(
         float $ratePerDay,
         float $paidDays,

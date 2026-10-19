@@ -21,7 +21,7 @@ class ContractNilRegisterController extends Controller
             'year' => ['required', 'integer', 'min:2000'],
         ]);
 
-        $client = Client::findOrFail($data['client_id']);
+        $client = Client::findOrFail((int) $data['client_id']);
         abort_unless($client->payroll_profile === 'contract_labour', 422, 'This unit does not use the contract labour registers.');
 
         $fileName = $registers->fileStem($kind).'-'.str_replace(['/', '\\', ' '], '-', $client->name)."-{$data['month']}-{$data['year']}.pdf";

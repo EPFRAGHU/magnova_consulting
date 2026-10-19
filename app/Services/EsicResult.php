@@ -17,7 +17,11 @@ final class EsicResult
         public readonly bool $employeeShareExempt = false,
     ) {}
 
-    /** What is stored with a finalised wage so it can always be explained later. */
+    /**
+     * What is stored with a finalised wage so it can always be explained later.
+     *
+     * @return array<string, mixed>
+     */
     public function snapshot(): array
     {
         return $this->settings + [
@@ -31,6 +35,9 @@ final class EsicResult
         ];
     }
 
+    /**
+     * @param  array<string, mixed>  $snapshot
+     */
     public static function fromSnapshot(array $snapshot): self
     {
         return new self(

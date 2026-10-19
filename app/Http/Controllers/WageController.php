@@ -100,7 +100,7 @@ class WageController extends Controller
         ]);
 
         foreach ($data['rows'] as $row) {
-            $employee = Employee::findOrFail($row['employee_id']);
+            $employee = Employee::findOrFail((int) $row['employee_id']);
             $calculator->calculateForEmployee($employee, $data['month'], $data['year']);
         }
 
@@ -117,7 +117,7 @@ class WageController extends Controller
             'year' => ['required', 'integer', 'min:2000'],
         ]);
 
-        $client = Client::findOrFail($data['client_id']);
+        $client = Client::findOrFail((int) $data['client_id']);
         $safeName = str_replace(['/', '\\'], '-', $client->name);
         $fileName = "wage-register-{$safeName}-{$data['month']}-{$data['year']}.pdf";
 

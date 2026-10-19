@@ -2,14 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
+/**
+ * @property Carbon|null $date_of_joining
+ * @property Carbon|null $esic_covered_from
+ */
 class Employee extends Model
 {
-    use BelongsToTenant, HasFactory, SoftDeletes;
+    use BelongsToTenant, SoftDeletes;
 
     protected $fillable = [
         'tenant_id', 'client_id', 'employee_code', 'name', 'gender', 'uan', 'epf_member_id',
@@ -41,28 +48,35 @@ class Employee extends Model
         return sprintf('%d|%s', $rank === false ? count(self::SKILL_ORDER) : $rank, mb_strtolower((string) $this->name));
     }
 
-    public function scopeOrderBySkill($query)
+    /**
+     * @param  Builder<Employee>  $query
+     * @return Builder<Employee>
+     */
+    public function scopeOrderBySkill(Builder $query): Builder
     {
-        $cases = collect(self::SKILL_ORDER)
-            ->map(fn (string $skill, int $rank) => "WHEN '{$skill}' THEN {$rank}")
-            ->implode(' ');
-
+        // One WHEN per entry of SKILL_ORDER (in that order); anything else sorts last.
         return $query
-            ->orderByRaw("CASE employees.skill_category {$cases} ELSE ".count(self::SKILL_ORDER).' END')
+            ->orderByRaw(
+                'CASE employees.skill_category WHEN ? THEN 0 WHEN ? THEN 1 WHEN ? THEN 2 WHEN ? THEN 3 ELSE 4 END',
+                self::SKILL_ORDER,
+            )
             ->orderBy('employees.name');
     }
 
-    public function client()
+    /** @return BelongsTo<Client, $this> */
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
     }
 
-    public function attendances()
+    /** @return HasMany<Attendance, $this> */
+    public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
     }
 
-    public function wages()
+    /** @return HasMany<Wage, $this> */
+    public function wages(): HasMany
     {
         return $this->hasMany(Wage::class);
     }

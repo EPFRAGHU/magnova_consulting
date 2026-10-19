@@ -20,7 +20,11 @@ class ContractWageSheet
         private readonly ContractLabourAttendance $attendance,
     ) {}
 
-    /** The rates for a client: the defaults in config, ready for per-client overrides. */
+    /**
+     * The rates for a client: the defaults in config, ready for per-client overrides.
+     *
+     * @return array<string, mixed>
+     */
     public function parameters(Client $client): array
     {
         return config('magnova.contract_labour');
@@ -37,7 +41,10 @@ class ContractWageSheet
         return trim(($employee->designation ?: 'Guard').' - '.$employee->skillLabel());
     }
 
-    /** @return array<string, float> */
+    /**
+     * @param  array<string, mixed>  $parameters
+     * @return array<string, float>
+     */
     private function figures(Employee $employee, float $paidDays, float $otHours, int $month, int $year, array $parameters): array
     {
         return $this->calculator->calculate(
@@ -70,7 +77,7 @@ class ContractWageSheet
                 'employee_id' => $employee->id,
                 'serial' => $i + 1,
                 'name' => $employee->name,
-                'category' => $line?->category ?? $this->category($employee),
+                'category' => $line->category ?? $this->category($employee),
                 'uan' => $employee->uan,
                 'esic_no' => $employee->esic_no,
                 'rate' => $line ? (float) $line->rate_per_day : $rate,
@@ -128,7 +135,11 @@ class ContractWageSheet
         return $employees->count();
     }
 
-    /** Column headings that quote the rates in force. */
+    /**
+     * Column headings that quote the rates in force.
+     *
+     * @return array<string, string>
+     */
     public function headings(Client $client): array
     {
         $p = $this->parameters($client);

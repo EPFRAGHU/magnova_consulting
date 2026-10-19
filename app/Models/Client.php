@@ -2,14 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
+/**
+ * @property Carbon|null $contract_start
+ * @property Carbon|null $contract_end
+ * @property Carbon|null $buyer_order_date
+ */
 class Client extends Model
 {
-    use BelongsToTenant, HasFactory, SoftDeletes;
+    use BelongsToTenant, SoftDeletes;
 
     public const ESIC_UNIT_MODES = ['statutory', 'ceiling', 'cutoff'];
 
@@ -52,12 +58,14 @@ class Client extends Model
         return $this->register_contractor_address ?: Tenant::find($this->tenant_id)?->address;
     }
 
-    public function employees()
+    /** @return HasMany<Employee, $this> */
+    public function employees(): HasMany
     {
         return $this->hasMany(Employee::class);
     }
 
-    public function invoices()
+    /** @return HasMany<Invoice, $this> */
+    public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
     }

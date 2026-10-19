@@ -18,7 +18,7 @@ return new class extends Migration
     public function up(): void
     {
         DB::table('tenants')->whereNotNull('terms_and_conditions')->orderBy('id')->each(function ($tenant) {
-            $lines = preg_split('/\r\n|\r|\n/', (string) $tenant->terms_and_conditions);
+            $lines = preg_split('/\r\n|\r|\n/', (string) $tenant->terms_and_conditions) ?: [];
             $kept = array_values(array_filter($lines, function (string $line) {
                 foreach (self::REMOVE as $pattern) {
                     if (preg_match($pattern, $line)) {

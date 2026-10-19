@@ -27,7 +27,7 @@ class ContractAttendanceController extends Controller
             'year' => ['required', 'integer', 'min:2000'],
         ]);
 
-        $client = Client::findOrFail($data['client_id']);
+        $client = Client::findOrFail((int) $data['client_id']);
         abort_unless($client->payroll_profile === 'contract_labour', 422, 'This unit does not use the contract labour attendance register.');
 
         $fileName = 'register-of-attendance-'.str_replace(['/', '\\', ' '], '-', $client->name)."-{$data['month']}-{$data['year']}.pdf";
@@ -51,7 +51,7 @@ class ContractAttendanceController extends Controller
         $year = (int) $data['year'];
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
         $employees = Employee::with('client')
-            ->whereIn('id', collect($data['records'])->pluck('employee_id')->unique())
+            ->whereIn('id', collect((array) $data['records'])->pluck('employee_id')->unique())
             ->get()
             ->keyBy('id');
 

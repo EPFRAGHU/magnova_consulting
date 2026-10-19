@@ -122,7 +122,7 @@ class EsicCalculator
     /** First month of the contribution period that contains the given month. */
     public function periodStart(int $month, int $year): Carbon
     {
-        $starts = collect(config('magnova.esic.contribution_period_start_months'))->sort()->values();
+        $starts = collect((array) config('magnova.esic.contribution_period_start_months'))->sort()->values();
         $startMonth = $starts->filter(fn (int $m) => $m <= $month)->last();
 
         return $startMonth !== null

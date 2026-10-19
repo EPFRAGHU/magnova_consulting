@@ -96,7 +96,7 @@ class InvoiceController extends Controller
             'invoice_number.regex' => 'The invoice number can contain only letters, digits and hyphens.',
         ]);
 
-        $client = Client::findOrFail($data['client_id']);
+        $client = Client::findOrFail((int) $data['client_id']);
 
         if ($client->payroll_profile === 'contract_labour') {
             $invoice = app(ContractInvoiceService::class)->generate(

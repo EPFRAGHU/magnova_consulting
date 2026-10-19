@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 /** One dated set of ESIC rules for an establishment. Rows are added, never edited. */
+/**
+ * @property Carbon|null $effective_from
+ */
 class EsicSetting extends Model
 {
     use BelongsToTenant;
@@ -33,6 +37,7 @@ class EsicSetting extends Model
     }
 
     /** Values used when an establishment has saved nothing of its own (from config/magnova.php). */
+    /** @return array<string, mixed> */
     public static function defaults(): array
     {
         $config = config('magnova.esic');

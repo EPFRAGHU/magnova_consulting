@@ -3,13 +3,20 @@
 namespace App\Models;
 
 use Carbon\CarbonInterface;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
+/**
+ * @property Carbon $invoice_date
+ * @property Carbon|null $due_date
+ * @property array<string, mixed>|null $document
+ */
 class Invoice extends Model
 {
-    use BelongsToTenant, HasFactory;
+    use BelongsToTenant;
 
     protected $fillable = [
         'tenant_id', 'client_id', 'invoice_no', 'ref_no', 'invoice_date', 'due_date',
@@ -52,7 +59,7 @@ class Invoice extends Model
     /** Fixed part of an invoice number: company initials and financial year, e.g. "MCPL/26-27/". */
     public static function numberPrefix(string $tenantName, CarbonInterface $date): string
     {
-        $initials = collect(preg_split('/\s+/', trim(preg_replace('~^\s*m/s\.?\s*~i', '', $tenantName))))
+        $initials = collect(preg_split('/\s+/', trim(preg_replace('~^\s*m/s\.?\s*~i', '', $tenantName))) ?: [])
             ->filter()
             ->map(fn ($word) => strtoupper(substr($word, 0, 1)))
             ->implode('');
@@ -66,12 +73,14 @@ class Invoice extends Model
         return ! empty($this->document);
     }
 
-    public function client()
+    /** @return BelongsTo<Client, $this> */
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    public function lineItems()
+    /** @return HasMany<InvoiceLineItem, $this> */
+    public function lineItems(): HasMany
     {
         return $this->hasMany(InvoiceLineItem::class);
     }
