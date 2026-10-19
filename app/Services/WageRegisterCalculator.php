@@ -69,7 +69,7 @@ class WageRegisterCalculator
     }
 
     /** Monthly Wage restricted by the EPF ceiling, averaged over the days of the month. */
-    private function epfWageBase(float $monthlyWage, int $month, int $year): float
+    public function epfWageBase(float $monthlyWage, int $month, int $year): float
     {
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
 

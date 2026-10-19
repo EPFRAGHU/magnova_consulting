@@ -46,6 +46,7 @@ type ClientRow = {
     service_charge_on_basic: boolean;
     gst_exempt: boolean;
     esic_unit_mode: string;
+    payroll_profile: string;
     employees_count: number;
 };
 
@@ -243,6 +244,14 @@ export default function ClientsIndex({
                                                         ? 'No GST'
                                                         : 'GST on'}
                                                 </Badge>
+                                                {client.payroll_profile === 'contract_labour' && (
+                                                    <>
+                                                        {' '}
+                                                        <Badge className={CHIP.amber}>
+                                                            Contract labour
+                                                        </Badge>
+                                                    </>
+                                                )}
                                                 {client.esic_unit_mode !== 'statutory' && (
                                                     <>
                                                         {' '}

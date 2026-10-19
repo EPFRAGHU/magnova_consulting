@@ -26,6 +26,12 @@ class AttendanceController extends Controller
 
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
 
+        $selected = $clientId ? Client::find($clientId) : null;
+
+        if ($selected?->payroll_profile === 'contract_labour') {
+            return $this->contractLabour($selected, $month, $year, $daysInMonth);
+        }
+
         $employees = Employee::query()
             ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
             ->where('status', 'active')
@@ -45,6 +51,45 @@ class AttendanceController extends Controller
             'attendance' => $attendance,
             'clients' => Client::where('active', true)->orderBy('name')->get(['id', 'name', 'unit_label']),
             'client_id' => $clientId,
+            'month' => $month,
+            'year' => $year,
+            'days_in_month' => $daysInMonth,
+        ]);
+    }
+
+    /** The register-style screen (P / A / HD / holiday and overtime hours) for a contract-labour client. */
+    private function contractLabour(Client $client, int $month, int $year, int $daysInMonth): Response
+    {
+        $employees = Employee::query()
+            ->where('client_id', $client->id)
+            ->where('status', 'active')
+            ->orderBySkill()
+            ->get(['id', 'name', 'employee_code', 'designation', 'skill_category']);
+
+        $days = Attendance::query()
+            ->whereIn('employee_id', $employees->pluck('id'))
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->get()
+            ->groupBy('employee_id')
+            ->map(fn ($rows) => $rows->mapWithKeys(fn ($row) => [
+                $row->date->day => ['status' => $row->status, 'ot' => (float) $row->ot_hours],
+            ]));
+
+        return Inertia::render('attendance/contract-labour', [
+            'client' => $client->only([
+                'id', 'name', 'unit_label', 'principal_employer_name', 'principal_employer_address',
+                'contract_start', 'contract_end',
+            ]) + ['register_contractor_address' => $client->contractorAddress()],
+            'employees' => $employees->map(fn (Employee $e) => [
+                'id' => $e->id,
+                'name' => $e->name,
+                'employee_code' => $e->employee_code,
+                'category' => trim(($e->designation ?: 'Guard').' - '.$e->skillLabel()),
+            ])->values(),
+            'days' => $days,
+            'clients' => Client::where('active', true)->orderBy('name')->get(['id', 'name', 'unit_label']),
+            'client_id' => $client->id,
             'month' => $month,
             'year' => $year,
             'days_in_month' => $daysInMonth,

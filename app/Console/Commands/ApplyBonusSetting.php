@@ -62,6 +62,11 @@ class ApplyBonusSetting extends Command
                     return;
                 }
 
+                if ($invoice->isContractLabour()) {
+                    // Issued from the client's own wage sheet; this command only knows regular units.
+                    return;
+                }
+
                 if ($invoice->status !== 'draft') {
                     $skipped++;
 

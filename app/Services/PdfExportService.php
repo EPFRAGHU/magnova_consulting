@@ -75,6 +75,39 @@ class PdfExportService
         ])->setPaper('a4');
     }
 
+    /** The Register of Attendance of a contract-labour client, in that client's own layout (A4 landscape). */
+    public function contractLabourAttendanceRegister(Client $client, int $month, int $year): PdfBuilder
+    {
+        $html = app(ContractAttendanceRegister::class)->view($client, $month, $year)->render();
+
+        return Pdf::loadHTML($html)->setPaper('a4', 'landscape');
+    }
+
+    /** The Register of Fines or Register of Deductions of a contract-labour client (NIL entries, A4 landscape). */
+    public function contractLabourNilRegister(string $kind, Client $client, int $month, int $year): PdfBuilder
+    {
+        $html = app(ContractNilRegister::class)->view($kind, $client, $month, $year)->render();
+
+        return Pdf::loadHTML($html)->setPaper('a4', 'landscape');
+    }
+
+    /** The Register of Wages of a contract-labour client, in that client's own 29-column layout (A3 landscape). */
+    public function contractLabourWageRegister(Client $client, int $month, int $year): PdfBuilder
+    {
+        $html = app(ContractWageSheet::class)->registerView($client, $month, $year, $this->logoDataUri())->render();
+
+        return Pdf::loadHTML($html)->setPaper('a3', 'landscape');
+    }
+
+    /** The Tally-style tax invoice for a contract-labour client; $data comes from ContractLabourInvoiceBuilder. */
+    public function contractLabourInvoice(array $data): PdfBuilder
+    {
+        return Pdf::loadView('pdf.contract-labour-invoice', [
+            'data' => $data,
+            'logoDataUri' => $this->logoDataUri(),
+        ])->setPaper('a4');
+    }
+
     /**
      * One row per designation for the "Summary of Duties" table, each with the
      * SAC code set for that designation in Settings (or the company default).

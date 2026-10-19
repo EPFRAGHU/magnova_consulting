@@ -11,13 +11,14 @@ class Attendance extends Model
     use BelongsToTenant, HasFactory;
 
     protected $fillable = [
-        'tenant_id', 'employee_id', 'date', 'status',
+        'tenant_id', 'employee_id', 'date', 'status', 'ot_hours',
     ];
 
     protected function casts(): array
     {
         return [
             'date' => 'date',
+            'ot_hours' => 'decimal:2',
         ];
     }
 

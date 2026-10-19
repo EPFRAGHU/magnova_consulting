@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Wage;
+use App\Services\ContractInvoiceService;
 use App\Services\InvoiceCalculator;
 use App\Services\PdfExportService;
 use Illuminate\Http\RedirectResponse;
@@ -97,6 +98,17 @@ class InvoiceController extends Controller
 
         $client = Client::findOrFail($data['client_id']);
 
+        if ($client->payroll_profile === 'contract_labour') {
+            $invoice = app(ContractInvoiceService::class)->generate(
+                $client, (int) $data['month'], (int) $data['year'], $data['invoice_number'] ?? null,
+                Invoice::numberPrefix(Auth::user()->tenant->name, now()),
+            );
+
+            Inertia::flash('toast', ['type' => 'success', 'message' => "Invoice {$invoice->invoice_no} generated from the saved wage sheet."]);
+
+            return to_route('invoices.show', $invoice);
+        }
+
         $hasWages = Wage::whereHas('employee', fn ($q) => $q->where('client_id', $client->id))
             ->where('month', $data['month'])
             ->where('year', $data['year'])
@@ -150,6 +162,11 @@ class InvoiceController extends Controller
     public function pdf(Invoice $invoice, PdfExportService $pdf): HttpResponse
     {
         $fileName = str_replace(['/', '\\'], '-', $invoice->invoice_no) . '.pdf';
+
+        // A contract-labour invoice prints exactly the content it was issued with.
+        if ($invoice->isContractLabour()) {
+            return $pdf->contractLabourInvoice($invoice->document)->download($fileName);
+        }
 
         return $pdf->invoice($invoice)->download($fileName);
     }
