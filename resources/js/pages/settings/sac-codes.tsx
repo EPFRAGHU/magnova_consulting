@@ -38,7 +38,8 @@ export default function SacCodes({
         return Object.entries(catalog)
             .filter(
                 ([code, description]) =>
-                    code.startsWith(term) || description.toLowerCase().includes(term),
+                    code.startsWith(term) ||
+                    description.toLowerCase().includes(term),
             )
             .slice(0, 8);
     }, [search, catalog]);
@@ -69,12 +70,20 @@ export default function SacCodes({
     const addRow = () => {
         const name = newName.trim();
         setNewName('');
-        if (!name || rows.some((r) => r.designation.toLowerCase() === name.toLowerCase())) {
+        if (
+            !name ||
+            rows.some((r) => r.designation.toLowerCase() === name.toLowerCase())
+        ) {
             return;
         }
         setRows((current) => [
             ...current,
-            { designation: name, sac_code: '', sac_description: '', in_use: false },
+            {
+                designation: name,
+                sac_code: '',
+                sac_description: '',
+                in_use: false,
+            },
         ]);
     };
 
@@ -115,7 +124,10 @@ export default function SacCodes({
                                         key={`${row.designation}-${index}`}
                                         className="grid grid-cols-[minmax(0,1.3fr)_5.5rem_minmax(0,2fr)_2rem] items-start gap-2 border-t px-3 py-1.5"
                                     >
-                                        <div className="truncate pt-1.5 text-sm font-medium" title={row.designation}>
+                                        <div
+                                            className="truncate pt-1.5 text-sm font-medium"
+                                            title={row.designation}
+                                        >
                                             {row.designation}
                                             <input
                                                 type="hidden"
@@ -127,8 +139,15 @@ export default function SacCodes({
                                             <Input
                                                 name={`rows[${index}][sac_code]`}
                                                 value={row.sac_code}
-                                                onChange={(e) => changeCode(index, e.target.value)}
-                                                onFocus={() => setActiveIndex(index)}
+                                                onChange={(e) =>
+                                                    changeCode(
+                                                        index,
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                onFocus={() =>
+                                                    setActiveIndex(index)
+                                                }
                                                 placeholder={defaultSac}
                                                 maxLength={6}
                                                 inputMode="numeric"
@@ -136,14 +155,23 @@ export default function SacCodes({
                                                 aria-label={`SAC code for ${row.designation}`}
                                                 className="h-8 px-2 text-sm"
                                             />
-                                            <InputError message={errors[`rows.${index}.sac_code`]} />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `rows.${index}.sac_code`
+                                                    ]
+                                                }
+                                            />
                                         </div>
                                         <div>
                                             <Input
                                                 name={`rows[${index}][sac_description]`}
                                                 value={row.sac_description}
                                                 onChange={(e) =>
-                                                    update(index, { sac_description: e.target.value })
+                                                    update(index, {
+                                                        sac_description:
+                                                            e.target.value,
+                                                    })
                                                 }
                                                 placeholder="Fills in for known codes"
                                                 maxLength={255}
@@ -151,7 +179,13 @@ export default function SacCodes({
                                                 aria-label={`Description for ${row.designation}`}
                                                 className="h-8 px-2 text-sm"
                                             />
-                                            <InputError message={errors[`rows.${index}.sac_description`]} />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `rows.${index}.sac_description`
+                                                    ]
+                                                }
+                                            />
                                         </div>
                                         {row.in_use ? (
                                             <span
@@ -168,7 +202,12 @@ export default function SacCodes({
                                                 className="size-8"
                                                 aria-label={`Remove ${row.designation}`}
                                                 onClick={() =>
-                                                    setRows((current) => current.filter((_, i) => i !== index))
+                                                    setRows((current) =>
+                                                        current.filter(
+                                                            (_, i) =>
+                                                                i !== index,
+                                                        ),
+                                                    )
                                                 }
                                             >
                                                 <X className="size-4" />
@@ -180,7 +219,9 @@ export default function SacCodes({
                                 <div className="bg-muted/30 flex items-center gap-2 border-t px-3 py-2">
                                     <Input
                                         value={newName}
-                                        onChange={(e) => setNewName(e.target.value)}
+                                        onChange={(e) =>
+                                            setNewName(e.target.value)
+                                        }
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') {
                                                 e.preventDefault();
@@ -193,14 +234,22 @@ export default function SacCodes({
                                         aria-label="New designation"
                                         className="h-8 text-sm"
                                     />
-                                    <Button type="button" variant="outline" size="sm" onClick={addRow}>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={addRow}
+                                    >
                                         Add
                                     </Button>
                                 </div>
                             </div>
 
                             <div className="space-y-1.5 rounded-md border p-3">
-                                <label htmlFor="sac-search" className="text-sm font-medium">
+                                <label
+                                    htmlFor="sac-search"
+                                    className="text-sm font-medium"
+                                >
                                     Find a SAC code
                                 </label>
                                 <Input
@@ -211,9 +260,12 @@ export default function SacCodes({
                                     autoComplete="off"
                                     className="h-8 text-sm"
                                 />
-                                {search.trim().length >= 2 && matches.length === 0 && (
-                                    <p className="text-muted-foreground text-xs">No match.</p>
-                                )}
+                                {search.trim().length >= 2 &&
+                                    matches.length === 0 && (
+                                        <p className="text-muted-foreground text-xs">
+                                            No match.
+                                        </p>
+                                    )}
                                 {matches.length > 0 && (
                                     <ul className="divide-y rounded-md border text-sm">
                                         {matches.map(([code, description]) => (
@@ -221,19 +273,32 @@ export default function SacCodes({
                                                 <button
                                                     type="button"
                                                     className="hover:bg-muted flex w-full items-baseline gap-2 px-2 py-1 text-left"
-                                                    onMouseDown={(e) => e.preventDefault()}
-                                                    onClick={() => useCode(code, description)}
+                                                    onMouseDown={(e) =>
+                                                        e.preventDefault()
+                                                    }
+                                                    onClick={() =>
+                                                        useCode(
+                                                            code,
+                                                            description,
+                                                        )
+                                                    }
                                                 >
-                                                    <span className="font-mono text-xs">{code}</span>
-                                                    <span className="truncate">{description}</span>
+                                                    <span className="font-mono text-xs">
+                                                        {code}
+                                                    </span>
+                                                    <span className="truncate">
+                                                        {description}
+                                                    </span>
                                                 </button>
                                             </li>
                                         ))}
                                     </ul>
                                 )}
                                 <p className="text-muted-foreground text-xs">
-                                    Click a row's SAC code box first, then click a result to fill it in.
-                                    The full official list has {Object.keys(catalog).length} codes.
+                                    Click a row's SAC code box first, then click
+                                    a result to fill it in. The full official
+                                    list has {Object.keys(catalog).length}{' '}
+                                    codes.
                                 </p>
                             </div>
 

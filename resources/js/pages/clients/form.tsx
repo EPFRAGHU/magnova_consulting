@@ -43,7 +43,9 @@ type Client = {
 
 export default function ClientForm({ client }: { client?: Client }) {
     const isEdit = !!client;
-    const [profile, setProfile] = useState(client?.payroll_profile ?? 'standard');
+    const [profile, setProfile] = useState(
+        client?.payroll_profile ?? 'standard',
+    );
     const submitOptions = isEdit
         ? ClientController.update.form(client!.id)
         : ClientController.store.form();
@@ -233,7 +235,9 @@ export default function ClientForm({ client }: { client?: Client }) {
                                         invoice layout. Regular units are not
                                         affected.
                                     </p>
-                                    <InputError message={errors.payroll_profile} />
+                                    <InputError
+                                        message={errors.payroll_profile}
+                                    />
                                 </div>
 
                                 {profile === 'contract_labour' && (
@@ -245,10 +249,17 @@ export default function ClientForm({ client }: { client?: Client }) {
                                             <Input
                                                 id="principal_employer_name"
                                                 name="principal_employer_name"
-                                                defaultValue={client?.principal_employer_name ?? ''}
+                                                defaultValue={
+                                                    client?.principal_employer_name ??
+                                                    ''
+                                                }
                                                 required
                                             />
-                                            <InputError message={errors.principal_employer_name} />
+                                            <InputError
+                                                message={
+                                                    errors.principal_employer_name
+                                                }
+                                            />
                                         </div>
                                         <div className="grid gap-2">
                                             <Label htmlFor="principal_employer_address">
@@ -258,9 +269,16 @@ export default function ClientForm({ client }: { client?: Client }) {
                                                 id="principal_employer_address"
                                                 name="principal_employer_address"
                                                 rows={2}
-                                                defaultValue={client?.principal_employer_address ?? ''}
+                                                defaultValue={
+                                                    client?.principal_employer_address ??
+                                                    ''
+                                                }
                                             />
-                                            <InputError message={errors.principal_employer_address} />
+                                            <InputError
+                                                message={
+                                                    errors.principal_employer_address
+                                                }
+                                            />
                                         </div>
                                         <div className="grid gap-4 sm:grid-cols-3">
                                             <div className="grid gap-2">
@@ -270,9 +288,16 @@ export default function ClientForm({ client }: { client?: Client }) {
                                                 <Input
                                                     id="principal_employer_gstin"
                                                     name="principal_employer_gstin"
-                                                    defaultValue={client?.principal_employer_gstin ?? ''}
+                                                    defaultValue={
+                                                        client?.principal_employer_gstin ??
+                                                        ''
+                                                    }
                                                 />
-                                                <InputError message={errors.principal_employer_gstin} />
+                                                <InputError
+                                                    message={
+                                                        errors.principal_employer_gstin
+                                                    }
+                                                />
                                             </div>
                                             <div className="grid gap-2">
                                                 <Label htmlFor="contract_start">
@@ -282,9 +307,16 @@ export default function ClientForm({ client }: { client?: Client }) {
                                                     id="contract_start"
                                                     name="contract_start"
                                                     type="date"
-                                                    defaultValue={client?.contract_start ?? ''}
+                                                    defaultValue={
+                                                        client?.contract_start ??
+                                                        ''
+                                                    }
                                                 />
-                                                <InputError message={errors.contract_start} />
+                                                <InputError
+                                                    message={
+                                                        errors.contract_start
+                                                    }
+                                                />
                                             </div>
                                             <div className="grid gap-2">
                                                 <Label htmlFor="contract_end">
@@ -294,9 +326,16 @@ export default function ClientForm({ client }: { client?: Client }) {
                                                     id="contract_end"
                                                     name="contract_end"
                                                     type="date"
-                                                    defaultValue={client?.contract_end ?? ''}
+                                                    defaultValue={
+                                                        client?.contract_end ??
+                                                        ''
+                                                    }
                                                 />
-                                                <InputError message={errors.contract_end} />
+                                                <InputError
+                                                    message={
+                                                        errors.contract_end
+                                                    }
+                                                />
                                             </div>
                                         </div>
                                         <div className="grid gap-4 sm:grid-cols-2">
@@ -307,9 +346,16 @@ export default function ClientForm({ client }: { client?: Client }) {
                                                 <Input
                                                     id="buyer_order_no"
                                                     name="buyer_order_no"
-                                                    defaultValue={client?.buyer_order_no ?? ''}
+                                                    defaultValue={
+                                                        client?.buyer_order_no ??
+                                                        ''
+                                                    }
                                                 />
-                                                <InputError message={errors.buyer_order_no} />
+                                                <InputError
+                                                    message={
+                                                        errors.buyer_order_no
+                                                    }
+                                                />
                                             </div>
                                             <div className="grid gap-2">
                                                 <Label htmlFor="buyer_order_date">
@@ -319,26 +365,43 @@ export default function ClientForm({ client }: { client?: Client }) {
                                                     id="buyer_order_date"
                                                     name="buyer_order_date"
                                                     type="date"
-                                                    defaultValue={client?.buyer_order_date ?? ''}
+                                                    defaultValue={
+                                                        client?.buyer_order_date ??
+                                                        ''
+                                                    }
                                                 />
-                                                <InputError message={errors.buyer_order_date} />
+                                                <InputError
+                                                    message={
+                                                        errors.buyer_order_date
+                                                    }
+                                                />
                                             </div>
                                         </div>
                                         <div className="grid gap-2">
                                             <Label htmlFor="register_contractor_address">
-                                                Contractor address for the registers
+                                                Contractor address for the
+                                                registers
                                             </Label>
                                             <Textarea
                                                 id="register_contractor_address"
                                                 name="register_contractor_address"
                                                 rows={2}
-                                                defaultValue={client?.register_contractor_address ?? ''}
+                                                defaultValue={
+                                                    client?.register_contractor_address ??
+                                                    ''
+                                                }
                                             />
                                             <p className="text-muted-foreground text-xs">
-                                                Printed under &quot;Contractor name&quot; on this client&apos;s
-                                                registers. It can differ from the office address in Settings.
+                                                Printed under &quot;Contractor
+                                                name&quot; on this client&apos;s
+                                                registers. It can differ from
+                                                the office address in Settings.
                                             </p>
-                                            <InputError message={errors.register_contractor_address} />
+                                            <InputError
+                                                message={
+                                                    errors.register_contractor_address
+                                                }
+                                            />
                                         </div>
                                     </div>
                                 )}
@@ -391,8 +454,8 @@ export default function ClientForm({ client }: { client?: Client }) {
                                         <span className="text-muted-foreground font-normal">
                                             (ticked: service charge is worked
                                             out on Basic Wages. Unticked: on
-                                            Gross Wages, including EPF, ESIC
-                                            and bonus)
+                                            Gross Wages, including EPF, ESIC and
+                                            bonus)
                                         </span>
                                     </Label>
                                 </div>
@@ -413,11 +476,11 @@ export default function ClientForm({ client }: { client?: Client }) {
                                     <Label htmlFor="gst_exempt">
                                         No GST{' '}
                                         <span className="text-muted-foreground font-normal">
-                                            (ticked: CGST and SGST are 0 in
-                                            this unit's invoices and register.
-                                            For educational institutions,
-                                            government departments and other
-                                            exempt clients)
+                                            (ticked: CGST and SGST are 0 in this
+                                            unit's invoices and register. For
+                                            educational institutions, government
+                                            departments and other exempt
+                                            clients)
                                         </span>
                                     </Label>
                                 </div>
@@ -450,12 +513,11 @@ export default function ClientForm({ client }: { client?: Client }) {
                                     The last two are arrangements with this
                                     client, not the ESI Act rule. With the
                                     ceiling at Rs. 21,000, &quot;on the
-                                    ceiling&quot; charges ESIC on Rs. 21,000
-                                    for everyone in this unit, and &quot;no
-                                    ESIC above the ceiling&quot; charges
-                                    nothing for anyone above it, even if they
-                                    were covered earlier. Other units are not
-                                    affected.
+                                    ceiling&quot; charges ESIC on Rs. 21,000 for
+                                    everyone in this unit, and &quot;no ESIC
+                                    above the ceiling&quot; charges nothing for
+                                    anyone above it, even if they were covered
+                                    earlier. Other units are not affected.
                                 </p>
                                 <InputError message={errors.esic_unit_mode} />
                             </div>

@@ -103,7 +103,8 @@ export default function EmployeesIndex({
                                             <td className="px-6 py-2">
                                                 {employee.gender === 'male'
                                                     ? 'M'
-                                                    : employee.gender === 'female'
+                                                    : employee.gender ===
+                                                        'female'
                                                       ? 'F'
                                                       : '-'}
                                             </td>
@@ -117,7 +118,10 @@ export default function EmployeesIndex({
                                                 {employee.designation ?? '-'}
                                             </td>
                                             <td className="px-6 py-2 capitalize">
-                                                {employee.skill_category.replace('_', '-')}
+                                                {employee.skill_category.replace(
+                                                    '_',
+                                                    '-',
+                                                )}
                                             </td>
                                             <td className="px-6 py-2">
                                                 {employee.rate_per_day}

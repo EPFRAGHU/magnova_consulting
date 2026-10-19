@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Settings;
 
+use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -82,8 +84,8 @@ class EstablishmentUpdateTest extends TestCase
             'bank_ifsc' => 'SMPL0123456',
             'bank_branch' => 'SAMPLE BRANCH, BHUBANESWAR 751000',
         ]);
-        $client = \App\Models\Client::create(['tenant_id' => $user->tenant_id, 'name' => 'Unit A', 'active' => true]);
-        $invoice = \App\Models\Invoice::create([
+        $client = Client::create(['tenant_id' => $user->tenant_id, 'name' => 'Unit A', 'active' => true]);
+        $invoice = Invoice::create([
             'tenant_id' => $user->tenant_id,
             'client_id' => $client->id,
             'invoice_no' => 'T/26-27/1',

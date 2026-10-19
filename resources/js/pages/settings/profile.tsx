@@ -77,7 +77,9 @@ export default function Profile() {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="mobile_number">Mobile number</Label>
+                                <Label htmlFor="mobile_number">
+                                    Mobile number
+                                </Label>
 
                                 <Input
                                     id="mobile_number"
@@ -89,8 +91,9 @@ export default function Profile() {
                                     placeholder="+91 9876543210"
                                 />
 
-                                <p className="text-sm text-muted-foreground">
-                                    Use an Indian mobile number to enable OTP login.
+                                <p className="text-muted-foreground text-sm">
+                                    Use an Indian mobile number to enable OTP
+                                    login.
                                 </p>
 
                                 <InputError

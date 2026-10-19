@@ -51,7 +51,8 @@ export default function EmployeeForm({
 }) {
     const [designation, setDesignation] = useState(employee?.designation ?? '');
     const selected = designations.find(
-        (option) => option.designation.toLowerCase() === designation.toLowerCase(),
+        (option) =>
+            option.designation.toLowerCase() === designation.toLowerCase(),
     );
     const isEdit = !!employee;
     const submitOptions = isEdit
@@ -90,7 +91,9 @@ export default function EmployeeForm({
                                     >
                                         <option value="">Select gender</option>
                                         <option value="male">Male (M)</option>
-                                        <option value="female">Female (F)</option>
+                                        <option value="female">
+                                            Female (F)
+                                        </option>
                                     </SelectNative>
                                     <InputError message={errors.gender} />
                                 </div>
@@ -146,13 +149,16 @@ export default function EmployeeForm({
                                             setDesignation(e.target.value)
                                         }
                                     >
-                                        <option value="">Select designation</option>
-                                        {employee?.designation &&
-                                            !selected && (
-                                                <option value={employee.designation}>
-                                                    {employee.designation}
-                                                </option>
-                                            )}
+                                        <option value="">
+                                            Select designation
+                                        </option>
+                                        {employee?.designation && !selected && (
+                                            <option
+                                                value={employee.designation}
+                                            >
+                                                {employee.designation}
+                                            </option>
+                                        )}
                                         {designations.map((option) => (
                                             <option
                                                 key={option.designation}
@@ -308,21 +314,31 @@ export default function EmployeeForm({
 
                             <div className="grid gap-4 sm:grid-cols-3">
                                 <div className="grid gap-2">
-                                    <input type="hidden" name="esic_applicable_form" value="1" />
+                                    <input
+                                        type="hidden"
+                                        name="esic_applicable_form"
+                                        value="1"
+                                    />
                                     <div className="flex items-center gap-2">
                                         <Checkbox
                                             id="esic_applicable"
                                             name="esic_applicable"
-                                            defaultChecked={employee?.esic_applicable ?? true}
+                                            defaultChecked={
+                                                employee?.esic_applicable ??
+                                                true
+                                            }
                                         />
                                         <Label htmlFor="esic_applicable">
                                             ESIC applicable
                                         </Label>
                                     </div>
                                     <p className="text-muted-foreground text-xs">
-                                        Untick for an employee who is not to be covered under ESIC.
+                                        Untick for an employee who is not to be
+                                        covered under ESIC.
                                     </p>
-                                    <InputError message={errors.esic_applicable} />
+                                    <InputError
+                                        message={errors.esic_applicable}
+                                    />
                                 </div>
                                 <div className="grid gap-2 sm:col-span-2">
                                     <Label htmlFor="esic_covered_from">
@@ -333,12 +349,22 @@ export default function EmployeeForm({
                                         name="esic_covered_from"
                                         type="date"
                                         className="sm:max-w-xs"
-                                        defaultValue={employee?.esic_covered_from ?? ''}
+                                        defaultValue={
+                                            employee?.esic_covered_from ?? ''
+                                        }
                                     />
                                     <p className="text-muted-foreground text-xs">
-                                        Fill this if the employee was already covered during the current contribution period (April to September, or October to March) and that is not visible from saved wages. Coverage then continues to the end of that period even if wages cross the ceiling.
+                                        Fill this if the employee was already
+                                        covered during the current contribution
+                                        period (April to September, or October
+                                        to March) and that is not visible from
+                                        saved wages. Coverage then continues to
+                                        the end of that period even if wages
+                                        cross the ceiling.
                                     </p>
-                                    <InputError message={errors.esic_covered_from} />
+                                    <InputError
+                                        message={errors.esic_covered_from}
+                                    />
                                 </div>
                             </div>
 

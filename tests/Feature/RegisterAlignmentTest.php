@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Attendance;
 use App\Models\Client;
 use App\Models\Employee;
+use App\Models\Invoice;
 use App\Models\Tenant;
 use App\Models\Wage;
 use App\Services\InvoiceCalculator;
@@ -225,7 +226,7 @@ class RegisterAlignmentTest extends TestCase
         $this->assertEquals($sentTotal, $sent->fresh()->grand_total);
     }
 
-    private function pdfText(\App\Models\Invoice $invoice): string
+    private function pdfText(Invoice $invoice): string
     {
         $html = view('pdf.invoice', [
             'invoice' => $invoice->loadMissing('client', 'lineItems.employee', 'tenant'),

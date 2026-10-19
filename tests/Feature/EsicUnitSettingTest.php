@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Employee;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Models\Wage;
 use App\Services\EsicCalculator;
 use App\Services\WageCalculator;
 use App\Services\WageRegisterCalculator;
@@ -143,7 +144,7 @@ class EsicUnitSettingTest extends TestCase
     public function test_a_unit_set_to_no_esic_above_the_ceiling_pays_nothing_above_it_even_for_a_continuing_employee(): void
     {
         $employee = $this->guard($this->unit('Cutoff unit', 'cutoff'));
-        \App\Models\Wage::create([
+        Wage::create([
             'tenant_id' => $this->tenant->id, 'employee_id' => $employee->id, 'month' => 8, 'year' => 2026, 'working_days' => 22,
             'rate_per_day' => 918, 'gross_wages' => 20000, 'bonus' => 0, 'epf_employee' => 0, 'esic_employee' => 150, 'net_salary' => 19850,
         ]);
@@ -162,7 +163,7 @@ class EsicUnitSettingTest extends TestCase
     public function test_the_same_continuing_employee_in_a_statutory_unit_still_pays_on_actual_wages(): void
     {
         $employee = $this->guard($this->unit('Plain unit', 'statutory'));
-        \App\Models\Wage::create([
+        Wage::create([
             'tenant_id' => $this->tenant->id, 'employee_id' => $employee->id, 'month' => 8, 'year' => 2026, 'working_days' => 22,
             'rate_per_day' => 918, 'gross_wages' => 20000, 'bonus' => 0, 'epf_employee' => 0, 'esic_employee' => 150, 'net_salary' => 19850,
         ]);
@@ -189,6 +190,7 @@ class EsicUnitSettingTest extends TestCase
         $this->assertStringContainsString('nil if', $heading);
         $this->assertStringContainsString('NOT statutory', $heading);
     }
+
     public function test_the_wages_page_headings_follow_the_selected_units_esic_mode(): void
     {
         $user = User::factory()->create(['tenant_id' => $this->tenant->id]);
@@ -202,4 +204,5 @@ class EsicUnitSettingTest extends TestCase
         $this->assertStringContainsString('capped at Rs.21,000', $heading($ceiling));
         $this->assertStringContainsString('nil if wages above Rs.21,000', $heading($cutoff));
         $this->assertStringContainsString('covered employees only', $heading($plain));
-    }}
+    }
+}

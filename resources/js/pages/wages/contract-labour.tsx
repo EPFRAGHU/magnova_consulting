@@ -43,11 +43,22 @@ type Row = {
 
 type Totals = { paid_days: number; ot_hours: number; figures: Figures };
 
-type InvoiceInfo = { id: number; invoice_no: string; status: string; grand_total: string } | null;
+type InvoiceInfo = {
+    id: number;
+    invoice_no: string;
+    status: string;
+    grand_total: string;
+} | null;
 
 const money = (value: number | undefined) =>
-    (value ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const days = (value: number) => (Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0$/, ''));
+    (value ?? 0).toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+const days = (value: number) =>
+    Number.isInteger(value)
+        ? String(value)
+        : value.toFixed(2).replace(/0$/, '');
 
 export default function ContractWages({
     client,
@@ -80,11 +91,19 @@ export default function ContractWages({
     const [processing, setProcessing] = useState(false);
     const unsaved = rows.filter((row) => !row.saved).length;
     const stale = rows.filter((row) => row.stale).length;
-    const query = new URLSearchParams({ client_id: String(clientId), month: String(month), year: String(year) }).toString();
+    const query = new URLSearchParams({
+        client_id: String(clientId),
+        month: String(month),
+        year: String(year),
+    }).toString();
 
     const saveSheet = () => {
         setProcessing(true);
-        router.post(save().url, { client_id: clientId, month, year }, { preserveScroll: true, onFinish: () => setProcessing(false) });
+        router.post(
+            save().url,
+            { client_id: clientId, month, year },
+            { preserveScroll: true, onFinish: () => setProcessing(false) },
+        );
     };
 
     const generateInvoice = () => {
@@ -131,7 +150,10 @@ export default function ContractWages({
             <Head title="Wages" />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                    <Heading title="Register of Wages" description="Calculated from the attendance register and this client's rates, in the client's own layout." />
+                    <Heading
+                        title="Register of Wages"
+                        description="Calculated from the attendance register and this client's rates, in the client's own layout."
+                    />
                     <div className="flex flex-wrap gap-2">
                         <Button asChild variant="outline">
                             <a href={`${register().url}?${query}`}>
@@ -148,18 +170,36 @@ export default function ContractWages({
                                 <Download /> Register of Deductions
                             </a>
                         </Button>
-                        <Button onClick={saveSheet} disabled={processing || rows.length === 0}>
-                            {processing ? 'Saving...' : 'Calculate & Save Wages'}
+                        <Button
+                            onClick={saveSheet}
+                            disabled={processing || rows.length === 0}
+                        >
+                            {processing
+                                ? 'Saving...'
+                                : 'Calculate & Save Wages'}
                         </Button>
                     </div>
                 </div>
 
-                <FilterBar url={index().url} clients={clients} clientId={clientId} month={month} year={year} />
+                <FilterBar
+                    url={index().url}
+                    clients={clients}
+                    clientId={clientId}
+                    month={month}
+                    year={year}
+                />
 
                 <div className="bg-card rounded-md border p-3 text-sm">
-                    <div className="font-medium">Contractor: {client.register_contractor_address ?? '-'}</div>
-                    <div>Principal employer: {client.principal_employer_name ?? '-'}</div>
-                    <div className="text-muted-foreground">Month: {MONTHS[month - 1]}, {year}</div>
+                    <div className="font-medium">
+                        Contractor: {client.register_contractor_address ?? '-'}
+                    </div>
+                    <div>
+                        Principal employer:{' '}
+                        {client.principal_employer_name ?? '-'}
+                    </div>
+                    <div className="text-muted-foreground">
+                        Month: {MONTHS[month - 1]}, {year}
+                    </div>
                 </div>
 
                 <div className="bg-card flex flex-wrap items-end gap-3 rounded-md border p-3 text-sm">
@@ -168,10 +208,15 @@ export default function ContractWages({
                         <>
                             <div>
                                 <strong>{invoice.invoice_no}</strong>{' '}
-                                <span className="text-muted-foreground">({invoice.status}) · Rs. {money(Number(invoice.grand_total))}</span>
+                                <span className="text-muted-foreground">
+                                    ({invoice.status}) · Rs.{' '}
+                                    {money(Number(invoice.grand_total))}
+                                </span>
                             </div>
                             <Button asChild variant="outline" size="sm">
-                                <Link href={show(invoice.id)}>View invoice</Link>
+                                <Link href={show(invoice.id)}>
+                                    View invoice
+                                </Link>
                             </Button>
                             <Button asChild variant="outline" size="sm">
                                 <a href={pdf(invoice.id).url}>
@@ -179,44 +224,72 @@ export default function ContractWages({
                                 </a>
                             </Button>
                             {invoice.status === 'draft' && (
-                                <Button size="sm" onClick={generateInvoice} disabled={invoicing || !canInvoice}>
-                                    {invoicing ? 'Updating...' : 'Update invoice from the saved wages'}
+                                <Button
+                                    size="sm"
+                                    onClick={generateInvoice}
+                                    disabled={invoicing || !canInvoice}
+                                >
+                                    {invoicing
+                                        ? 'Updating...'
+                                        : 'Update invoice from the saved wages'}
                                 </Button>
                             )}
                         </>
                     ) : (
                         <>
                             <div className="flex items-center gap-1">
-                                <span className="font-medium whitespace-nowrap">Invoice No. {invoicePrefix}</span>
+                                <span className="font-medium whitespace-nowrap">
+                                    Invoice No. {invoicePrefix}
+                                </span>
                                 <Input
                                     value={invoiceNumber}
-                                    onChange={(e) => setInvoiceNumber(e.target.value)}
+                                    onChange={(e) =>
+                                        setInvoiceNumber(e.target.value)
+                                    }
                                     placeholder="___"
                                     maxLength={20}
                                     className="h-8 w-24"
                                     aria-label="Invoice number"
                                 />
                             </div>
-                            <Button size="sm" onClick={generateInvoice} disabled={invoicing || !canInvoice}>
-                                {invoicing ? 'Generating...' : 'Generate Tax Invoice'}
+                            <Button
+                                size="sm"
+                                onClick={generateInvoice}
+                                disabled={invoicing || !canInvoice}
+                            >
+                                {invoicing
+                                    ? 'Generating...'
+                                    : 'Generate Tax Invoice'}
                             </Button>
                         </>
                     )}
                     {!canInvoice && rows.length > 0 && (
-                        <span className="text-muted-foreground">Save the wages for every employee first (and again after any attendance change).</span>
+                        <span className="text-muted-foreground">
+                            Save the wages for every employee first (and again
+                            after any attendance change).
+                        </span>
                     )}
-                    <InputError message={errors.invoice_number ?? errors.month} className="basis-full" />
+                    <InputError
+                        message={errors.invoice_number ?? errors.month}
+                        className="basis-full"
+                    />
                 </div>
 
                 {unsaved > 0 && (
                     <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-950/40">
-                        {unsaved === rows.length ? 'These wages are a preview and are not saved yet.' : `${unsaved} employee${unsaved === 1 ? '' : 's'} not saved yet.`}{' '}
-                        Press &quot;Calculate &amp; Save Wages&quot; to save them.
+                        {unsaved === rows.length
+                            ? 'These wages are a preview and are not saved yet.'
+                            : `${unsaved} employee${unsaved === 1 ? '' : 's'} not saved yet.`}{' '}
+                        Press &quot;Calculate &amp; Save Wages&quot; to save
+                        them.
                     </div>
                 )}
                 {stale > 0 && (
                     <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-950/40">
-                        Attendance or rates changed after {stale} line{stale === 1 ? ' was' : 's were'} saved (marked &quot;changed&quot;). Press &quot;Calculate &amp; Save Wages&quot; to update them.
+                        Attendance or rates changed after {stale} line
+                        {stale === 1 ? ' was' : 's were'} saved (marked
+                        &quot;changed&quot;). Press &quot;Calculate &amp; Save
+                        Wages&quot; to update them.
                     </div>
                 )}
 
@@ -225,15 +298,33 @@ export default function ContractWages({
                         <thead>
                             <tr className="bg-muted/50 text-muted-foreground text-left">
                                 <th className="px-2 py-2 font-medium">S.No.</th>
-                                <th className="bg-card sticky left-0 z-10 px-2 py-2 font-medium">Name</th>
-                                <th className="px-2 py-2 font-medium">Category</th>
-                                <th className="px-2 py-2 font-medium">UAN No</th>
-                                <th className="px-2 py-2 font-medium">ESIC No</th>
+                                <th className="bg-card sticky left-0 z-10 px-2 py-2 font-medium">
+                                    Name
+                                </th>
+                                <th className="px-2 py-2 font-medium">
+                                    Category
+                                </th>
+                                <th className="px-2 py-2 font-medium">
+                                    UAN No
+                                </th>
+                                <th className="px-2 py-2 font-medium">
+                                    ESIC No
+                                </th>
                                 {left.map(([label]) => (
-                                    <th key={label} className="px-2 py-2 text-right font-medium">{label}</th>
+                                    <th
+                                        key={label}
+                                        className="px-2 py-2 text-right font-medium"
+                                    >
+                                        {label}
+                                    </th>
                                 ))}
                                 {figureColumns.map(([label]) => (
-                                    <th key={label} className="px-2 py-2 text-right font-medium">{label}</th>
+                                    <th
+                                        key={label}
+                                        className="px-2 py-2 text-right font-medium"
+                                    >
+                                        {label}
+                                    </th>
                                 ))}
                                 <th className="px-2 py-2 font-medium" />
                             </tr>
@@ -241,45 +332,85 @@ export default function ContractWages({
                         <tbody>
                             {rows.map((row) => (
                                 <tr key={row.employee_id} className="border-t">
-                                    <td className="px-2 py-1.5">{row.serial}</td>
-                                    <td className="bg-card sticky left-0 z-10 px-2 py-1.5 font-medium">{row.name}</td>
-                                    <td className="px-2 py-1.5">{row.category}</td>
+                                    <td className="px-2 py-1.5">
+                                        {row.serial}
+                                    </td>
+                                    <td className="bg-card sticky left-0 z-10 px-2 py-1.5 font-medium">
+                                        {row.name}
+                                    </td>
+                                    <td className="px-2 py-1.5">
+                                        {row.category}
+                                    </td>
                                     <td className="px-2 py-1.5">{row.uan}</td>
-                                    <td className="px-2 py-1.5">{row.esic_no}</td>
+                                    <td className="px-2 py-1.5">
+                                        {row.esic_no}
+                                    </td>
                                     {left.map(([label, value]) => (
-                                        <td key={label} className="px-2 py-1.5 text-right">{value(row)}</td>
+                                        <td
+                                            key={label}
+                                            className="px-2 py-1.5 text-right"
+                                        >
+                                            {value(row)}
+                                        </td>
                                     ))}
                                     {figureColumns.map(([label, key]) => (
-                                        <td key={label} className="px-2 py-1.5 text-right">
-                                            {key === '' ? days(row.ot_hours) : money(row.figures[key])}
+                                        <td
+                                            key={label}
+                                            className="px-2 py-1.5 text-right"
+                                        >
+                                            {key === ''
+                                                ? days(row.ot_hours)
+                                                : money(row.figures[key])}
                                         </td>
                                     ))}
                                     <td className="px-2 py-1.5">
                                         {!row.saved ? (
-                                            <span className="text-muted-foreground">preview</span>
+                                            <span className="text-muted-foreground">
+                                                preview
+                                            </span>
                                         ) : row.stale ? (
-                                            <span className="font-medium text-amber-600">changed</span>
+                                            <span className="font-medium text-amber-600">
+                                                changed
+                                            </span>
                                         ) : (
-                                            <span className="text-green-600">saved</span>
+                                            <span className="text-green-600">
+                                                saved
+                                            </span>
                                         )}
                                     </td>
                                 </tr>
                             ))}
                             {rows.length === 0 && (
                                 <tr>
-                                    <td colSpan={figureColumns.length + left.length + 6} className="text-muted-foreground px-6 py-8 text-center">
+                                    <td
+                                        colSpan={
+                                            figureColumns.length +
+                                            left.length +
+                                            6
+                                        }
+                                        className="text-muted-foreground px-6 py-8 text-center"
+                                    >
                                         No active employees in this unit yet.
                                     </td>
                                 </tr>
                             )}
                             {rows.length > 0 && (
                                 <tr className="bg-muted/40 border-t font-semibold">
-                                    <td colSpan={5} className="px-2 py-2">Total</td>
+                                    <td colSpan={5} className="px-2 py-2">
+                                        Total
+                                    </td>
                                     <td />
-                                    <td className="px-2 py-2 text-right">{days(totals.paid_days)}</td>
+                                    <td className="px-2 py-2 text-right">
+                                        {days(totals.paid_days)}
+                                    </td>
                                     {figureColumns.map(([label, key]) => (
-                                        <td key={label} className="px-2 py-2 text-right">
-                                            {key === '' ? days(totals.ot_hours) : money(totals.figures[key])}
+                                        <td
+                                            key={label}
+                                            className="px-2 py-2 text-right"
+                                        >
+                                            {key === ''
+                                                ? days(totals.ot_hours)
+                                                : money(totals.figures[key])}
                                         </td>
                                     ))}
                                     <td />

@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\User;
 use App\Services\ContractAttendanceRegister;
 use App\Services\ContractLabourAttendance;
+use App\Services\PdfExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -163,7 +164,7 @@ class ContractAttendanceRegisterTest extends TestCase
             $this->mark($employee, array_fill_keys(range(1, 30), ['present', 1]));
         }
 
-        $pdf = app(\App\Services\PdfExportService::class)->contractLabourAttendanceRegister($this->contract, 9, 2026)->output();
+        $pdf = app(PdfExportService::class)->contractLabourAttendanceRegister($this->contract, 9, 2026)->output();
 
         $this->assertLessThanOrEqual(2, preg_match_all('#/Type\s*/Page\b#', $pdf));
     }

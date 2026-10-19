@@ -1,11 +1,11 @@
 <?php
 
 use App\Http\Controllers\Settings\EsicController;
+use App\Http\Controllers\Settings\EstablishmentController;
 use App\Http\Controllers\Settings\MaintenanceController;
 use App\Http\Controllers\Settings\ProfileController;
-use App\Http\Controllers\Settings\SecurityController;
-use App\Http\Controllers\Settings\EstablishmentController;
 use App\Http\Controllers\Settings\SacCodeController;
+use App\Http\Controllers\Settings\SecurityController;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
 

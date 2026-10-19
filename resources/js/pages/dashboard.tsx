@@ -262,7 +262,12 @@ function Metric({
     icon: ReactNode;
 }) {
     return (
-        <div className={cn('flex items-center gap-2 rounded-lg p-2.5', TINT[tone])}>
+        <div
+            className={cn(
+                'flex items-center gap-2 rounded-lg p-2.5',
+                TINT[tone],
+            )}
+        >
             {icon}
             <div className="min-w-0">
                 <small className="text-foreground/70 block text-[10px] whitespace-nowrap">
@@ -825,9 +830,9 @@ export default function Dashboard({
                             <ArrowRight className="size-4" />
                         </Link>
                         <p className="text-muted-foreground mt-3 text-[11px]">
-                            Totals come from saved wages and generated
-                            invoices. The app does not track whether EPF, ESIC
-                            or GST returns have been filed.
+                            Totals come from saved wages and generated invoices.
+                            The app does not track whether EPF, ESIC or GST
+                            returns have been filed.
                         </p>
                     </Panel>
                 </div>

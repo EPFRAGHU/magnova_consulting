@@ -226,9 +226,21 @@ export default function Welcome() {
                                     </div>
                                     <div className="grid grid-cols-3 gap-2.5">
                                         {[
-                                            ['Active workforce', '248', 'Example figure'],
-                                            ['Client sites', '18', 'Example figure'],
-                                            ['Attendance', '96.8%', 'Example figure'],
+                                            [
+                                                'Active workforce',
+                                                '248',
+                                                'Example figure',
+                                            ],
+                                            [
+                                                'Client sites',
+                                                '18',
+                                                'Example figure',
+                                            ],
+                                            [
+                                                'Attendance',
+                                                '96.8%',
+                                                'Example figure',
+                                            ],
                                         ].map(([label, value, note]) => (
                                             <div
                                                 key={label}
@@ -258,7 +270,9 @@ export default function Welcome() {
                                                 <span
                                                     key={i}
                                                     className="min-h-5 flex-1 rounded-t-[5px] rounded-b-[2px] bg-gradient-to-b from-[#6da0ff] to-[#1764ed]"
-                                                    style={{ height: `${height}%` }}
+                                                    style={{
+                                                        height: `${height}%`,
+                                                    }}
                                                 />
                                             ))}
                                         </div>
@@ -316,7 +330,10 @@ export default function Welcome() {
                         </div>
                     </section>
 
-                    <section id="features" className="scroll-mt-4 py-[54px] sm:py-[74px]">
+                    <section
+                        id="features"
+                        className="scroll-mt-4 py-[54px] sm:py-[74px]"
+                    >
                         <div className="mx-auto w-[min(1160px,calc(100%-30px))] sm:w-[min(1160px,calc(100%-44px))]">
                             <div className="mx-auto mb-9 max-w-[700px] text-center">
                                 <div className="text-xs font-extrabold tracking-[0.12em] text-[#1764ed] uppercase">
@@ -354,7 +371,10 @@ export default function Welcome() {
                         </div>
                     </section>
 
-                    <section id="workflow" className="scroll-mt-4 bg-[#f4f7fc] py-[54px] sm:py-[74px]">
+                    <section
+                        id="workflow"
+                        className="scroll-mt-4 bg-[#f4f7fc] py-[54px] sm:py-[74px]"
+                    >
                         <div className="mx-auto w-[min(1160px,calc(100%-30px))] sm:w-[min(1160px,calc(100%-44px))]">
                             <div className="mx-auto mb-9 max-w-[700px] text-center">
                                 <div className="text-xs font-extrabold tracking-[0.12em] text-[#1764ed] uppercase">
@@ -422,14 +442,12 @@ export default function Welcome() {
                 <footer className="border-t border-[#e4eaf3] py-[25px] text-xs text-[#78869a]">
                     <div className="mx-auto flex w-[min(1160px,calc(100%-30px))] flex-wrap justify-between gap-[18px] sm:w-[min(1160px,calc(100%-44px))]">
                         <span>
-                            <strong className="text-[#102b52]">
-                                MAGNOVA
-                            </strong>{' '}
+                            <strong className="text-[#102b52]">MAGNOVA</strong>{' '}
                             · Operations management
                         </span>
                         <span>
-                            © {new Date().getFullYear()} Magnova Consulting
-                            Pvt. Ltd. All rights reserved.
+                            © {new Date().getFullYear()} Magnova Consulting Pvt.
+                            Ltd. All rights reserved.
                         </span>
                     </div>
                 </footer>

@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Employee;
 use App\Models\User;
 use App\Services\ContractNilRegister;
+use App\Services\PdfExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -54,7 +55,7 @@ class ContractNilRegisterTest extends TestCase
 
         foreach ([
             'CONTRACTOR NAME - MAGNOVA CONSULTING PVT. LTD', 'SISUPALGARH', 'PRINCIPAL EMPLOYER- BALMER LAWRIE AND CO. LTD.', 'Register of Fines',
-            'Contract Period - 01.09.2026 To 30.08.2029', 'Month - September,2026', 'Name of workman', "Father&#039;s/ Husband&#039;s name",
+            'Contract Period - 01.09.2026 To 30.08.2029', 'Month - September,2026', 'Name of workman', 'Father&#039;s/ Husband&#039;s name',
             'Act/Omission for which fine imposed', 'Date of offence', 'Whether workman showed cause against fine', 'Wage periods and wages payable',
             'Amount of fine imposed', 'Date on which fine realized', 'Remarks', 'RAMESH MOHAPATRA', 'ARUN SAINI',
         ] as $text) {
@@ -118,7 +119,7 @@ class ContractNilRegisterTest extends TestCase
         }
 
         foreach (['fines', 'deductions'] as $kind) {
-            $pdf = app(\App\Services\PdfExportService::class)->contractLabourNilRegister($kind, $this->contract, 9, 2026)->output();
+            $pdf = app(PdfExportService::class)->contractLabourNilRegister($kind, $this->contract, 9, 2026)->output();
 
             $this->assertLessThanOrEqual(2, preg_match_all('#/Type\s*/Page\b#', $pdf), $kind);
         }
