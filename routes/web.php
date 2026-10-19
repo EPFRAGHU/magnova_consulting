@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginOtpController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ContractAttendanceController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EcrController;
 use App\Http\Controllers\EmployeeController;
@@ -29,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('attendance/save', [AttendanceController::class, 'save'])->name('attendance.save');
     Route::post('attendance', [AttendanceController::class, 'update'])->name('attendance.update');
+    Route::post('attendance/contract', [ContractAttendanceController::class, 'save'])->name('attendance.contract.save');
     Route::get('attendance/sheet', [AttendanceController::class, 'sheet'])->name('attendance.sheet');
 
     Route::get('wages', [WageController::class, 'index'])->name('wages.index');
