@@ -83,6 +83,14 @@ class PdfExportService
         return Pdf::loadHTML($html)->setPaper('a4', 'landscape');
     }
 
+    /** The Register of Fines or Register of Deductions of a contract-labour client (NIL entries, A4 landscape). */
+    public function contractLabourNilRegister(string $kind, Client $client, int $month, int $year): PdfBuilder
+    {
+        $html = app(ContractNilRegister::class)->view($kind, $client, $month, $year)->render();
+
+        return Pdf::loadHTML($html)->setPaper('a4', 'landscape');
+    }
+
     /** The Register of Wages of a contract-labour client, in that client's own 29-column layout (A3 landscape). */
     public function contractLabourWageRegister(Client $client, int $month, int $year): PdfBuilder
     {

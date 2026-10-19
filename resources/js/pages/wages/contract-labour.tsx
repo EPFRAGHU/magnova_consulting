@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { dashboard } from '@/routes';
 import { pdf, show, store as storeInvoice } from '@/routes/invoices';
 import { index } from '@/routes/wages';
+import { nil } from '@/routes/registers/contract';
 import { register, save } from '@/routes/wages/contract';
 
 type ClientOption = { id: number; name: string; unit_label: string | null };
@@ -131,10 +132,20 @@ export default function ContractWages({
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <Heading title="Register of Wages" description="Calculated from the attendance register and this client's rates, in the client's own layout." />
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <Button asChild variant="outline">
                             <a href={`${register().url}?${query}`}>
                                 <Download /> Download Register of Wages
+                            </a>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <a href={`${nil('fines').url}?${query}`}>
+                                <Download /> Register of Fines
+                            </a>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <a href={`${nil('deductions').url}?${query}`}>
+                                <Download /> Register of Deductions
                             </a>
                         </Button>
                         <Button onClick={saveSheet} disabled={processing || rows.length === 0}>

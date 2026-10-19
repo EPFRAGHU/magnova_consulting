@@ -72,19 +72,24 @@ class ContractAttendanceRegister
         return ['days' => $days, 'employees' => $rows];
     }
 
-    public function view(Client $client, int $month, int $year): View
+    /** The four heading lines shared by every printed register of the client (attendance, fines, deductions). */
+    public function headings(Client $client, int $month, int $year): array
     {
         $tenant = Tenant::find($client->tenant_id);
         $contractor = strtoupper(trim(preg_replace('~^\s*m/s\.?\s*~i', '', (string) ($tenant?->name ?? 'Magnova Consulting Pvt. Ltd.'))));
         $address = $client->register_contractor_address ?: $tenant?->address;
 
-        return view('pdf.contract-labour-attendance-register', [
-            'register' => $this->data($client, $month, $year),
+        return [
             'contractorLine' => 'CONTRACTOR NAME - '.$contractor.($address ? ', '.strtoupper($address) : ''),
             'principalLine' => 'PRINCIPAL EMPLOYER- '.strtoupper((string) $client->principal_employer_name)
                 .($client->principal_employer_address ? ', '.strtoupper($client->principal_employer_address) : ''),
             'contractPeriod' => 'Contract Period - '.($client->contract_start?->format('d.m.Y') ?? '-').' To '.($client->contract_end?->format('d.m.Y') ?? '-'),
             'monthLabel' => 'Month - '.Carbon::create($year, $month, 1)->format('F').','.$year,
-        ]);
+        ];
+    }
+
+    public function view(Client $client, int $month, int $year): View
+    {
+        return view('pdf.contract-labour-attendance-register', ['register' => $this->data($client, $month, $year)] + $this->headings($client, $month, $year));
     }
 }

@@ -173,7 +173,7 @@ export default function ContractAttendance({
                     />
                     <div className="flex flex-wrap gap-2">
                         <Button asChild variant="outline">
-                            <a href={`?${new URLSearchParams({ client_id: String(clientId), month: String(month), year: String(year) }).toString()}`}>
+                            <a href={`${register().url}?${new URLSearchParams({ client_id: String(clientId), month: String(month), year: String(year) }).toString()}`}>
                                 <Download /> Download Register of Attendance
                             </a>
                         </Button>
