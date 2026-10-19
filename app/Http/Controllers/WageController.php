@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Employee;
+use App\Models\Invoice;
 use App\Models\Wage;
 use App\Services\PdfExportService;
 use App\Services\WageCalculator;
@@ -76,7 +77,11 @@ class WageController extends Controller
     {
         return Inertia::render('wages/contract-labour', [
             'client' => $client->only(['id', 'name', 'unit_label', 'principal_employer_name', 'principal_employer_address', 'contract_start', 'contract_end', 'register_contractor_address']),
-            ...$sheet->rows($client, $month, $year),
+            ...($rows = $sheet->rows($client, $month, $year)),
+            'invoice' => Invoice::where('client_id', $client->id)->where('month', $month)->where('year', $year)
+                ->first(['id', 'invoice_no', 'status', 'grand_total']),
+            'invoice_prefix' => Invoice::numberPrefix($request->user()->tenant->name, now()),
+            'can_invoice' => $rows['rows'] !== [] && ! collect($rows['rows'])->contains(fn ($row) => ! $row['saved'] || $row['stale']),
             'headings' => $sheet->headings($client),
             'clients' => Client::where('active', true)->orderBy('name')->get(['id', 'name', 'unit_label']),
             'client_id' => $client->id,

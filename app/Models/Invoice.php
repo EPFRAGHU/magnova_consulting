@@ -16,7 +16,7 @@ class Invoice extends Model
         'place_of_supply', 'reverse_charge', 'month', 'year',
         'rate_per_day', 'no_of_persons', 'no_of_duties', 'base_amount',
         'epf_employer', 'epf_admin', 'edli_cont', 'esi_employer', 'taxable_value', 'service_charge',
-        'cgst', 'sgst', 'grand_total', 'status',
+        'cgst', 'sgst', 'igst', 'grand_total', 'status', 'document',
     ];
 
     protected function casts(): array
@@ -25,6 +25,7 @@ class Invoice extends Model
             'invoice_date' => 'date:Y-m-d',
             'due_date' => 'date:Y-m-d',
             'reverse_charge' => 'boolean',
+            'document' => 'array',
             'rate_per_day' => 'decimal:2',
             'no_of_duties' => 'decimal:2',
             'base_amount' => 'decimal:2',
@@ -57,6 +58,12 @@ class Invoice extends Model
             ->implode('');
 
         return $initials.'/'.self::financialYearLabel($date).'/';
+    }
+
+    /** True for an invoice issued from a contract-labour client's wage sheet (it carries its own printed content). */
+    public function isContractLabour(): bool
+    {
+        return ! empty($this->document);
     }
 
     public function client()

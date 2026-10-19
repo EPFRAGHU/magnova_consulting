@@ -16,7 +16,8 @@ class InvoiceRefresher
 
     public function draftInvoiceCount(Client $client): int
     {
-        return Invoice::query()->where('client_id', $client->id)->where('status', 'draft')->count();
+        // Contract-labour invoices are issued from their own wage sheet and are never refreshed here.
+        return Invoice::query()->where('client_id', $client->id)->where('status', 'draft')->whereNull('document')->count();
     }
 
     /**
@@ -30,6 +31,7 @@ class InvoiceRefresher
         Invoice::query()
             ->where('client_id', $client->id)
             ->where('status', 'draft')
+            ->whereNull('document')
             ->get()
             ->each(function (Invoice $invoice) use ($client, &$refreshed) {
                 $wages = Wage::query()

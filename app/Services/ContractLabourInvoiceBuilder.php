@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Client;
 use App\Models\Tenant;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 
 /**
@@ -19,7 +20,7 @@ class ContractLabourInvoiceBuilder
      * @param  array<int, array{category: string, persons: int, mandays: float, amount: float}>  $categoryLines
      * @return array<string, mixed>
      */
-    public function build(Tenant $tenant, Client $client, int $month, int $year, string $invoiceNo, Carbon $invoiceDate, array $categoryLines): array
+    public function build(Tenant $tenant, Client $client, int $month, int $year, string $invoiceNo, CarbonInterface $invoiceDate, array $categoryLines): array
     {
         $supplier = $this->party(
             $this->plainName((string) $tenant->name),
