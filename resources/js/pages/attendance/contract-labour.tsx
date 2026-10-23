@@ -270,17 +270,17 @@ export default function ContractAttendance({
                 </div>
 
                 <div className="overflow-x-auto rounded-md border">
-                    <table className="w-full text-xs">
+                    <table className="w-full border-collapse text-xs [&_td]:border-slate-400 dark:[&_td]:border-slate-500 [&_th]:border-slate-400 dark:[&_th]:border-slate-500">
                         <thead>
                             <tr className="bg-muted/50 text-muted-foreground">
-                                <th className="bg-card sticky left-0 z-10 w-44 min-w-44 px-2 py-2 text-left font-medium">
+                                <th className="bg-card sticky left-0 z-10 w-44 min-w-44 border px-2 py-2 text-left font-medium">
                                     Name
                                 </th>
                                 {columns.map((column) => (
                                     <th
                                         key={column.day}
                                         className={cn(
-                                            'min-w-[26px] px-0 py-1 text-center font-medium',
+                                            'w-8 min-w-8 border px-0 py-1 text-center font-medium',
                                             column.sunday &&
                                                 'bg-slate-200/70 dark:bg-slate-700/50',
                                         )}
@@ -291,16 +291,16 @@ export default function ContractAttendance({
                                         </div>
                                     </th>
                                 ))}
-                                <th className="px-1.5 py-2 text-center font-medium">
+                                <th className="border px-1.5 py-2 text-center font-medium">
                                     Present days
                                 </th>
-                                <th className="px-1.5 py-2 text-center font-medium">
+                                <th className="border px-1.5 py-2 text-center font-medium">
                                     Holidays
                                 </th>
-                                <th className="px-1.5 py-2 text-center font-medium">
+                                <th className="border px-1.5 py-2 text-center font-medium">
                                     Total days
                                 </th>
-                                <th className="px-1.5 py-2 text-center font-medium">
+                                <th className="border px-1.5 py-2 text-center font-medium">
                                     OT hours
                                 </th>
                             </tr>
@@ -314,7 +314,7 @@ export default function ContractAttendance({
                                         <tr className="border-t">
                                             <td
                                                 rowSpan={2}
-                                                className="bg-card sticky left-0 z-10 px-2 py-1 align-top"
+                                                className="bg-card sticky left-0 z-10 border px-2 py-1 align-top"
                                             >
                                                 <div className="font-medium">
                                                     {index + 1}. {employee.name}
@@ -333,7 +333,7 @@ export default function ContractAttendance({
                                                     <td
                                                         key={column.day}
                                                         className={cn(
-                                                            'p-0 text-center',
+                                                            'border p-0 text-center',
                                                             column.sunday &&
                                                                 'bg-slate-100/80 dark:bg-slate-800/40',
                                                         )}
@@ -370,7 +370,7 @@ export default function ContractAttendance({
                                                                 }
                                                             }}
                                                             className={cn(
-                                                                'focus-visible:ring-ring h-7 w-full min-w-[26px] text-[11px] font-semibold focus-visible:ring-2 focus-visible:outline-none',
+                                                                'focus-visible:ring-ring hover:bg-accent/60 h-8 w-8 min-w-8 text-[11px] font-semibold focus-visible:ring-2 focus-visible:outline-none',
                                                                 cell.status &&
                                                                     STYLE[
                                                                         cell
@@ -388,18 +388,18 @@ export default function ContractAttendance({
                                                     </td>
                                                 );
                                             })}
-                                            <td className="px-2 text-center font-semibold">
+                                            <td className="border px-2 text-center font-semibold">
                                                 {number(t.present)}
                                             </td>
-                                            <td className="px-2 text-center">
+                                            <td className="border px-2 text-center">
                                                 {t.holidays}
                                             </td>
-                                            <td className="px-2 text-center font-semibold">
+                                            <td className="border px-2 text-center font-semibold">
                                                 {number(t.total)}
                                             </td>
                                             <td
                                                 rowSpan={2}
-                                                className="px-2 text-center font-semibold"
+                                                className="border px-2 text-center font-semibold"
                                             >
                                                 {number(t.ot)}
                                             </td>
@@ -409,7 +409,7 @@ export default function ContractAttendance({
                                                 <td
                                                     key={column.day}
                                                     className={cn(
-                                                        'p-0',
+                                                        'border p-0',
                                                         column.sunday &&
                                                             'bg-slate-100/80 dark:bg-slate-800/40',
                                                     )}
@@ -427,7 +427,7 @@ export default function ContractAttendance({
                                                                 column.day,
                                                             ).ot || ''
                                                         }
-                                                        placeholder="·"
+                                                        placeholder=""
                                                         onChange={(e) =>
                                                             update(
                                                                 employee.id,
@@ -448,13 +448,13 @@ export default function ContractAttendance({
                                                                 },
                                                             )
                                                         }
-                                                        className="text-muted-foreground focus:bg-accent h-6 w-full min-w-[26px] [appearance:textfield] bg-transparent text-center text-[11px] outline-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                        className="text-foreground focus:bg-accent focus:ring-ring h-8 w-8 min-w-8 [appearance:textfield] border-0 bg-white text-center text-[11px] outline-none hover:bg-amber-50 focus:ring-2 focus:ring-inset dark:bg-slate-900 dark:hover:bg-slate-800 [&::-webkit-inner-spin-button]:appearance-none"
                                                     />
                                                 </td>
                                             ))}
                                             <td
                                                 colSpan={3}
-                                                className="text-muted-foreground px-2 text-center text-[10px]"
+                                                className="text-muted-foreground border px-2 text-center text-[10px]"
                                             >
                                                 OT hours (row)
                                             </td>
