@@ -59,11 +59,8 @@ class ContractLabourInvoiceBuilder
         $sgst = $inter ? 0.0 : round($taxTotal - $cgst, 2);
         $igst = $inter ? $taxTotal : 0.0;
 
-        $exact = $taxable + $taxTotal;
-        $total = (int) round($exact);
-
-        // The printed bill shows whole rupees: taxable value rounded, and the tax as what is left of the rounded total.
-        $taxableShown = (float) round($taxable);
+        // Exact to the paisa: the invoice total is the taxable value plus the tax, with no round-off to the rupee.
+        $total = round($taxable + $taxTotal, 2);
 
         $periodStart = Carbon::create($year, $month, 1);
 
@@ -93,11 +90,11 @@ class ContractLabourInvoiceBuilder
             'sgst' => $sgst,
             'igst' => $igst,
             'tax_total' => $taxTotal,
-            'taxable_shown' => $taxableShown,
-            'tax_shown' => (float) $total - $taxableShown,
-            'round_off' => round($total - $exact, 2),
-            'total' => (float) $total,
-            'total_words' => $this->words->amountToWords($total),
+            'taxable_shown' => $taxable,
+            'tax_shown' => $taxTotal,
+            'round_off' => 0.0,
+            'total' => $total,
+            'total_words' => $this->words->amountToWordsWithPaise($total),
             'tax_words' => $this->words->amountToWordsWithPaise($taxTotal),
             'bank' => [
                 'holder' => $this->plainName((string) $tenant->name) ? 'M/s '.$this->plainName((string) $tenant->name) : null,

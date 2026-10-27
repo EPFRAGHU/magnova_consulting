@@ -165,6 +165,6 @@ class EsicPayrollTest extends TestCase
         $wage = $this->save($employee->fresh(), 11, 2026);
 
         $this->assertEquals(0, $wage->bonus);
-        $this->assertEquals(188, $wage->esic_employee);
+        $this->assertEquals(187.5, $wage->esic_employee);
     }
 }

@@ -161,7 +161,7 @@ class WageRegisterCalculator
         if ($this->usesCurrentRules($month, $year)) {
             return $monthlyWage > (float) config('magnova.bonus_eligibility_ceiling')
                 ? 0.0
-                : round($monthlyWage * config('magnova.bonus_pct') / 100, 0);
+                : round($monthlyWage * config('magnova.bonus_pct') / 100, 2);
         }
 
         return round(min($monthlyWage, config('magnova.bonus_cap')) * config('magnova.bonus_pct') / 100, 2);
@@ -210,7 +210,8 @@ class WageRegisterCalculator
     public function figures(float $monthlyWage, int $month, int $year, bool $bonusEnabled, bool $serviceChargeOnBasic = false, bool $gstExempt = false, ?Employee $employee = null, ?Wage $saved = null): array
     {
         $current = $this->usesCurrentRules($month, $year);
-        $precision = $current ? 0 : 2;
+        // Every amount is kept to the paisa; nothing is rounded to the rupee.
+        $precision = 2;
         $esicCeiling = (float) config('magnova.esic_wage_ceiling');
 
         $epfBase = $this->epfWageBase($monthlyWage, $month, $year);

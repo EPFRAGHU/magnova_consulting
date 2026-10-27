@@ -7,7 +7,8 @@ use Tests\TestCase;
 
 /**
  * The contract-labour calculator must reproduce the client's own Wages sheet (Balmer Lawrie, September 2026)
- * figure for figure. The expected values in the fixture are the cached results of that workbook.
+ * figure for figure. The expected values in the fixture are the cached results of that workbook. The workbook rounds PF to the
+ * rupee, so these tests ask for that with pf_round_digits = 0; the app itself keeps PF exact (see the last tests here).
  */
 class ContractLabourCalculatorTest extends TestCase
 {
@@ -16,6 +17,8 @@ class ContractLabourCalculatorTest extends TestCase
         'total_deduction', 'net_salary', 'pf_employer', 'esic_employer', 'ppe', 'lwf', 'total_contribution', 'total_ctc',
         'service_charge', 'gross_amount', 'gst', 'amount_incl_gst',
     ];
+
+    private const SHEET_PF = ['pf_round_digits' => 0];
 
     private function sheet(): array
     {
@@ -28,7 +31,7 @@ class ContractLabourCalculatorTest extends TestCase
         $calculator = new ContractLabourCalculator;
 
         foreach ($sheet['rows'] as $i => $row) {
-            $figures = $calculator->calculate($row['rate'], $row['paid_days'], $row['ot_hours'], $sheet['month'], $sheet['year']);
+            $figures = $calculator->calculate($row['rate'], $row['paid_days'], $row['ot_hours'], $sheet['month'], $sheet['year'], self::SHEET_PF);
 
             foreach (self::MONEY as $key) {
                 $this->assertEqualsWithDelta($row[$key], $figures[$key], 0.0001, 'row '.($i + 1)." ({$row['category']}): {$key}");
@@ -43,7 +46,7 @@ class ContractLabourCalculatorTest extends TestCase
         $totals = [];
 
         foreach ($sheet['rows'] as $row) {
-            foreach ($calculator->calculate($row['rate'], $row['paid_days'], $row['ot_hours'], $sheet['month'], $sheet['year']) as $key => $value) {
+            foreach ($calculator->calculate($row['rate'], $row['paid_days'], $row['ot_hours'], $sheet['month'], $sheet['year'], self::SHEET_PF) as $key => $value) {
                 $totals[$key] = ($totals[$key] ?? 0) + $value;
             }
         }
@@ -56,7 +59,7 @@ class ContractLabourCalculatorTest extends TestCase
     public function test_a_worked_row_matches_the_hand_calculation(): void
     {
         // FLO-Skilled: Rs 781 a day, 26 days, 38 overtime hours.
-        $f = (new ContractLabourCalculator)->calculate(781, 26, 38, 9, 2026);
+        $f = (new ContractLabourCalculator)->calculate(781, 26, 38, 9, 2026, self::SHEET_PF);
 
         $this->assertEqualsWithDelta(20306, $f['earn_wages'], 0.0001);
         $this->assertEqualsWithDelta(7419.5, $f['ot_amount'], 0.0001, 'overtime is paid at double the hourly rate');
@@ -68,6 +71,16 @@ class ContractLabourCalculatorTest extends TestCase
         $this->assertEqualsWithDelta(901.07875, $f['esic_employer'], 0.0001);
         $this->assertEqualsWithDelta(0, $f['ppe'], 0.0001, 'PPE is switched off, as in the sheet');
         $this->assertEqualsWithDelta(5, $f['lwf'], 0.0001);
+    }
+
+    public function test_pf_is_exact_to_the_paisa_unless_rounding_is_asked_for(): void
+    {
+        $exact = (new ContractLabourCalculator)->calculate(781, 26, 38, 9, 2026);
+
+        $this->assertEqualsWithDelta(2097.136, $exact['pf_employee'], 0.0001, 'no rounding to the rupee');
+        $this->assertEqualsWithDelta(2271.8973, $exact['pf_employer'], 0.0001);
+        $this->assertEqualsWithDelta(33609.2159, $exact['total_ctc'], 0.0001);
+        $this->assertEqualsWithDelta(28126.1626, $exact['net_salary'], 0.0001);
     }
 
     public function test_zero_days_gives_zero_everywhere(): void

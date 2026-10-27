@@ -65,9 +65,9 @@ class EsicCalculatorTest extends TestCase
     public static function newEmployeeWages(): array
     {
         return [
-            'Rs 15,000' => [15000, true, 15000, 113, 488],
+            'Rs 15,000' => [15000, true, 15000, 112.5, 487.5],
             'Rs 20,000' => [20000, true, 20000, 150, 650],
-            'Rs 21,000 is still covered' => [21000, true, 21000, 158, 683],
+            'Rs 21,000 is still covered' => [21000, true, 21000, 157.5, 682.5],
             'Rs 22,000 is above the ceiling' => [22000, false, 0, 0, 0],
             'Rs 30,000 is above the ceiling' => [30000, false, 0, 0, 0],
         ];
@@ -195,7 +195,7 @@ class EsicCalculatorTest extends TestCase
 
         $this->assertTrue($result->covered);
         $this->assertEquals(0, $result->employeeAmount);
-        $this->assertEquals(149, $result->employerAmount);
+        $this->assertEquals(148.72, $result->employerAmount);
     }
 
     public function test_capped_mode_is_separate_clearly_labelled_and_caps_the_contribution_wages(): void
@@ -207,8 +207,8 @@ class EsicCalculatorTest extends TestCase
         $this->assertTrue($result->covered);
         $this->assertSame('capped', $result->mode);
         $this->assertEquals(21000, $result->contributionWages);
-        $this->assertEquals(158, $result->employeeAmount);
-        $this->assertEquals(683, $result->employerAmount);
+        $this->assertEquals(157.5, $result->employeeAmount);
+        $this->assertEquals(682.5, $result->employerAmount);
         $this->assertStringContainsString('NOT statutory', EsicSetting::modeLabel('capped'));
     }
 

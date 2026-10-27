@@ -115,7 +115,8 @@ class EsicCalculator
         return match ($mode) {
             'up' => (float) ceil($amount),
             'down' => (float) floor($amount),
-            default => round($amount, 0),
+            'nearest' => round($amount, 0),
+            default => round($amount, 2),   // 'exact': to the paisa, no rounding to the rupee
         };
     }
 

@@ -45,7 +45,7 @@ class ContractLabourInvoiceDocumentTest extends TestCase
             'Details of Receiver (Billed To)', 'Details of Parties (Billed From)', 'M/S Balmer Lawrie and Company Limited', '21AABCB0984E1Z7',
             'PAN No.', 'Contact No.', '7008960018', 'Billing Period', '01-09-2026 to 30-09-2026',
             'Summary of Duties Performed in the Month of September 2026', 'Particulars (Rank)', 'SAC Code', 'Total Amount', 'Handling Manpower Contract',
-            'SUB-TOTAL (Taxable Value)', 'GST @ 18.00%', 'GRAND TOTAL', 'Amount in words: <b>Six Lakh Two Thousand Seven Hundred Seventy only.</b>',
+            'SUB-TOTAL (Taxable Value)', 'GST @ 18.00%', 'GRAND TOTAL', 'Amount in words: <b>Six Lakh Two Thousand Seven Hundred Seventy and Fifteen Paise only.</b>',
             'Bank Details', 'Terms and Conditions', 'For M/s Magnova Consulting Pvt. Ltd.', 'Authorized Signature', 'ANNEXURE TO TAX INVOICE',
         ] as $text) {
             $this->assertStringContainsString($text, $html, $text);
@@ -54,18 +54,19 @@ class ContractLabourInvoiceDocumentTest extends TestCase
         $this->assertStringNotContainsString('Round Off', $html, 'the bill shows whole rupees, no round-off line');
     }
 
-    public function test_the_bill_shows_whole_rupees_that_add_up_to_the_grand_total(): void
+    public function test_the_bill_shows_exact_paise_that_add_up_to_the_grand_total(): void
     {
         $data = $this->data();
         $html = view('pdf.contract-labour-invoice', ['data' => $data, 'logoDataUri' => null])->render();
 
-        $this->assertSame(510822.0, $data['taxable_shown']);
-        $this->assertSame(91948.0, $data['tax_shown']);
-        $this->assertEquals($data['total'], $data['taxable_shown'] + $data['tax_shown']);
-        $this->assertStringContainsString('510,822.00', $html);
-        $this->assertStringContainsString('91,948.00', $html);
-        $this->assertStringContainsString('602,770.00', $html);
-        $this->assertSame(510822.16, $data['taxable_value'], 'the stored exact figures are unchanged');
+        $this->assertSame(510822.16, $data['taxable_shown']);
+        $this->assertSame(91947.99, $data['tax_shown']);
+        $this->assertEqualsWithDelta($data['total'], $data['taxable_shown'] + $data['tax_shown'], 0.0001);
+        $this->assertSame(602770.15, $data['total']);
+        $this->assertStringContainsString('510,822.16', $html);
+        $this->assertStringContainsString('91,947.99', $html);
+        $this->assertStringContainsString('602,770.15', $html);
+        $this->assertStringNotContainsString('510,822.00', $html, 'no rounding to the rupee');
     }
 
     public function test_a_buyer_in_another_state_gets_one_igst_line(): void
@@ -83,6 +84,9 @@ class ContractLabourInvoiceDocumentTest extends TestCase
             unset($old[$key]);
         }
         unset($old['supplier']['phone']);
+        // Invoices issued before exact amounts carried a whole-rupee total and a round-off line.
+        $old['total'] = 602770.0;
+        $old['round_off'] = -0.15;
 
         $html = view('pdf.contract-labour-invoice', ['data' => $old, 'logoDataUri' => null])->render();
 

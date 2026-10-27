@@ -306,71 +306,69 @@ export default function WagesIndex({
                                                     {row.nature_of_deployment}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(
+                                                    {formatDays(
                                                         row.days_deployed,
                                                     )}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(
+                                                    {formatMoney(
                                                         row.minimum_wage,
                                                     )}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(
+                                                    {formatMoney(
                                                         values.monthlyWage,
                                                     )}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(
+                                                    {formatMoney(
                                                         values.epfEmployer,
                                                     )}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(
+                                                    {formatMoney(
                                                         values.edliAndEpfAdmin,
                                                     )}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(
+                                                    {formatMoney(
                                                         values.esicEmployer,
                                                     )}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(
-                                                        values.bonus,
-                                                    )}
+                                                    {formatMoney(values.bonus)}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(
+                                                    {formatMoney(
                                                         values.totalGrossSalary,
                                                     )}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(values.gst)}
+                                                    {formatMoney(values.gst)}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(
+                                                    {formatMoney(
                                                         values.agencyFee,
                                                     )}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(
+                                                    {formatMoney(
                                                         values.totalBillAmount,
                                                     )}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(values.epf)}
+                                                    {formatMoney(values.epf)}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(values.esic)}
+                                                    {formatMoney(values.esic)}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
-                                                    {formatRounded(
+                                                    {formatMoney(
                                                         row.other_deduction,
                                                     )}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top font-medium break-words">
-                                                    {formatRounded(values.net)}
+                                                    {formatMoney(values.net)}
                                                 </td>
                                                 <td className="px-1 py-1 text-center align-top break-words">
                                                     {row.saved && (
@@ -394,63 +392,61 @@ export default function WagesIndex({
                                                 Total
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(totals.days)}
+                                                {formatDays(totals.days)}
                                             </td>
                                             <td className="px-1 py-1" />
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(
+                                                {formatMoney(
                                                     totals.monthlyWage,
                                                 )}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(
+                                                {formatMoney(
                                                     totals.epfEmployer,
                                                 )}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(
+                                                {formatMoney(
                                                     totals.edliAndEpfAdmin,
                                                 )}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(
+                                                {formatMoney(
                                                     totals.esicEmployer,
                                                 )}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(totals.bonus)}
+                                                {formatMoney(totals.bonus)}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(
+                                                {formatMoney(
                                                     totals.totalGrossSalary,
                                                 )}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(totals.gst)}
+                                                {formatMoney(totals.gst)}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(
-                                                    totals.agencyFee,
-                                                )}
+                                                {formatMoney(totals.agencyFee)}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(
+                                                {formatMoney(
                                                     totals.totalBillAmount,
                                                 )}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(totals.epf)}
+                                                {formatMoney(totals.epf)}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(totals.esic)}
+                                                {formatMoney(totals.esic)}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(
+                                                {formatMoney(
                                                     totals.otherDeduction,
                                                 )}
                                             </td>
                                             <td className="px-1 py-1 text-center">
-                                                {formatRounded(totals.net)}
+                                                {formatMoney(totals.net)}
                                             </td>
                                             <td className="px-1 py-1" />
                                         </tr>
@@ -476,10 +472,13 @@ export default function WagesIndex({
     );
 }
 
-function formatRounded(n: number) {
-    const rounded = n >= 0 ? Math.floor(n + 0.5) : Math.ceil(n - 0.5);
+// Amounts are shown exactly, with two decimals and no rounding to the rupee.
+function formatMoney(n: number) {
+    return n.toFixed(2);
+}
 
-    return String(rounded);
+function formatDays(n: number) {
+    return n.toFixed(2).replace(/\.?0+$/, '');
 }
 
 WagesIndex.layout = {
