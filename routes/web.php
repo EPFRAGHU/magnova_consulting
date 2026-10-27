@@ -52,6 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('payslips', [PayslipController::class, 'index'])->name('payslips.index');
     Route::get('payslips/bulk', [PayslipController::class, 'bulk'])->name('payslips.bulk');
+    Route::get('payslips/contract/{contractWage}', [PayslipController::class, 'contractShow'])->name('payslips.contract.show');
     Route::get('payslips/{wage}', [PayslipController::class, 'show'])->name('payslips.show');
 
     Route::get('ecr', [EcrController::class, 'index'])->name('ecr.index');
