@@ -36,6 +36,25 @@ class Employee extends Model
 
     public const SKILL_ORDER = ['high_skilled', 'skilled', 'semi_skilled', 'unskilled'];
 
+    /**
+     * The PF A/C number printed on payslips: the establishment's PF code followed by the 7-digit member ID. A member ID
+     * that is already a full number (or any other format) is printed as it was typed.
+     */
+    public function pfAccountNumber(): ?string
+    {
+        $memberId = trim((string) $this->epf_member_id);
+        if ($memberId === '') {
+            return null;
+        }
+
+        $code = strtoupper(trim((string) Tenant::find($this->tenant_id)?->pf_establishment_code));
+        if ($code !== '' && preg_match('/^\d{1,7}$/', $memberId)) {
+            return $code.str_pad($memberId, 7, '0', STR_PAD_LEFT);
+        }
+
+        return $memberId;
+    }
+
     public function skillLabel(): string
     {
         return ucwords(str_replace('_', '-', (string) $this->skill_category), '-');
