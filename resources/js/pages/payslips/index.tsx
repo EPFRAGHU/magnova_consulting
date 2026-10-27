@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { dashboard } from '@/routes';
 import { bulk, index, show } from '@/routes/payslips';
+import { show as showContract } from '@/routes/payslips/contract';
 
 type ClientOption = { id: number; name: string; unit_label: string | null };
 
@@ -16,12 +17,14 @@ type WageRow = {
 };
 
 export default function PayslipsIndex({
+    contract,
     wages,
     clients,
     client_id: clientId,
     month,
     year,
 }: {
+    contract: boolean;
     wages: WageRow[];
     clients: ClientOption[];
     client_id: number | null;
@@ -109,7 +112,14 @@ export default function PayslipsIndex({
                                                     size="icon"
                                                 >
                                                     <a
-                                                        href={show(wage.id).url}
+                                                        href={
+                                                            (contract
+                                                                ? showContract(
+                                                                      wage.id,
+                                                                  )
+                                                                : show(wage.id)
+                                                            ).url
+                                                        }
                                                         title="Download payslip"
                                                     >
                                                         <Download />
@@ -124,8 +134,9 @@ export default function PayslipsIndex({
                                                 colSpan={3}
                                                 className="text-muted-foreground px-6 py-6 text-center"
                                             >
-                                                No wages saved for this client
-                                                and month yet.
+                                                {contract
+                                                    ? 'No wages saved for this client and month yet. Open Payroll and press Calculate & Save Wages first.'
+                                                    : 'No wages saved for this client and month yet.'}
                                             </td>
                                         </tr>
                                     )}

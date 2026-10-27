@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Attendance;
 use App\Models\Client;
+use App\Models\ContractWage;
 use App\Models\Employee;
 use App\Models\Invoice;
 use App\Models\Wage;
@@ -74,6 +75,28 @@ class PdfExportService
             'dutySummary' => $dutySummary,
             'bonus' => $bonus,
             'amountInWords' => $this->words->amountToWords((float) $invoice->grand_total),
+            'logoDataUri' => $this->logoDataUri(),
+        ])->setPaper('a4');
+    }
+
+    /**
+     * Payslips of a contract-labour client, one page per saved wage line (one line gives a single payslip).
+     *
+     * @param  Collection<int, ContractWage>  $lines
+     */
+    public function contractPayslips(Client $client, Collection $lines): PdfBuilder
+    {
+        $payslips = app(ContractPayslip::class);
+
+        $slips = $lines->map(fn (ContractWage $line) => [
+            'line' => $line,
+            'ytd' => $payslips->ytd($line),
+            'words' => $this->words->amountToWordsWithPaise((float) ($line->figures['net_salary'] ?? 0)),
+        ])->all();
+
+        return Pdf::loadView('pdf.contract-payslips', [
+            'slips' => $slips,
+            'headings' => app(ContractWageSheet::class)->headings($client),
             'logoDataUri' => $this->logoDataUri(),
         ])->setPaper('a4');
     }
