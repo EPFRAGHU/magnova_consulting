@@ -51,7 +51,10 @@ type Invoice = {
 };
 
 function money(v: string | number) {
-    return Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    return Number(v).toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
 }
 
 export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
