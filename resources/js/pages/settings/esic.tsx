@@ -81,7 +81,12 @@ export default function Esic({
                                 ? 'No daily-wage exemption'
                                 : `No employee share when the daily wage is up to ${rupees(current.daily_wage_exemption)}`}
                         </li>
-                        <li>Rounding: {current.rounding}, to a whole rupee</li>
+                        <li>
+                            Rounding:{' '}
+                            {current.rounding === 'exact'
+                                ? 'none, exact to the paisa'
+                                : `${current.rounding}, to a whole rupee`}
+                        </li>
                         <li>
                             {current.include_bonus
                                 ? 'Bonus counts as ESIC wages'
@@ -241,14 +246,15 @@ export default function Esic({
                                     />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="rounding">
-                                        Rounding to a whole rupee
-                                    </Label>
+                                    <Label htmlFor="rounding">Rounding</Label>
                                     <SelectNative
                                         id="rounding"
                                         name="rounding"
                                         defaultValue={current.rounding}
                                     >
+                                        <option value="exact">
+                                            Exact paise (no rounding)
+                                        </option>
                                         <option value="nearest">
                                             Nearest rupee
                                         </option>

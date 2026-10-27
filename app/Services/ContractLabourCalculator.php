@@ -5,7 +5,8 @@ namespace App\Services;
 /**
  * Wage-sheet arithmetic for a contract-labour client, reproducing that client's own Wages sheet column by column
  * (Wages sheet, Balmer Lawrie, September 2026). It is pure: no database, no clients, no employees. Figures are
- * returned at full precision; rounding for display is the caller's choice. Only PF is rounded to the rupee, as in the sheet.
+ * returned at full precision, with no rounding to the rupee anywhere; the caller shows them to two decimals. The client's Excel sheet
+ * rounds PF to the rupee: set pf_round_digits to 0 in the parameters to reproduce it (the golden test does).
  *
  * Column map (sheet letter -> key): H earn_wages, J ot_amount, K bonus, L leave_wages, M pmjjby, N pmsby, O gross,
  * P pf_employee, Q esic_employee, R total_deduction, S net_salary, T pf_employer, U esic_employer, V ppe, W lwf,
@@ -38,13 +39,13 @@ class ContractLabourCalculator
         $gross = $earn + $ot + $bonus + $leave + $pmjjby + $pmsby;                            // O
 
         $epfBase = (new WageRegisterCalculator)->epfWageBase($earn, $month, $year);
-        $pfEmployee = $pfApplicable ? round($epfBase * $p['pf_employee_pct'] / 100, 0) : 0.0; // P
+        $pfEmployee = $pfApplicable ? $this->pf($epfBase * $p['pf_employee_pct'] / 100, $p) : 0.0; // P
         $esicWages = $earn + $ot;
         $esicEmployee = $esicApplicable ? $esicWages * $p['esic_employee_pct'] / 100 : 0.0;   // Q
         $totalDeduction = $pfEmployee + $esicEmployee;                                        // R
         $net = $gross - $totalDeduction;                                                      // S
 
-        $pfEmployer = $pfApplicable ? round($epfBase * $p['pf_employer_pct'] / 100, 0) : 0.0; // T
+        $pfEmployer = $pfApplicable ? $this->pf($epfBase * $p['pf_employer_pct'] / 100, $p) : 0.0; // T
         $esicEmployer = $esicApplicable ? $esicWages * $p['esic_employer_pct'] / 100 : 0.0;   // U
         $ppe = $p['ppe_enabled'] ? ($p['ppe_per_month'] / $p['day_divisor']) * $paidDays : 0.0; // V
         $lwf = ($p['lwf_per_month'] / $p['day_divisor']) * $paidDays;                         // W
@@ -78,5 +79,15 @@ class ContractLabourCalculator
             'gst' => (float) $gst,
             'amount_incl_gst' => (float) ($grossAmount + $gst),
         ];
+    }
+
+    /**
+     * PF is exact unless the parameters ask for rounding (pf_round_digits).
+     *
+     * @param  array<string, mixed>  $p
+     */
+    private function pf(float $amount, array $p): float
+    {
+        return isset($p['pf_round_digits']) ? round($amount, (int) $p['pf_round_digits']) : $amount;
     }
 }

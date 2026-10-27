@@ -221,7 +221,7 @@
             </tr>
         </tbody>
     </table>
-    <p style="font-size:9px; margin-top:10px">The taxable value on the invoice is this total rounded to the whole rupee. The register of attendance and register of wages for the month are furnished separately.</p>
+    <p style="font-size:9px; margin-top:10px">The register of attendance and register of wages for the month are furnished separately.</p>
 </div>
 </body>
 </html>

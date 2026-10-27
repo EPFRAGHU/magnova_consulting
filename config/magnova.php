@@ -38,7 +38,7 @@ return [
         'daily_wage_exemption' => 176,
         'include_bonus' => false,
         // nearest | up | down, to a whole rupee.
-        'rounding' => 'nearest',
+        'rounding' => 'exact',              // exact paise; 'nearest', 'up' and 'down' round to a whole rupee
         // Contribution periods start in these months (Apr-Sep and Oct-Mar).
         'contribution_period_start_months' => [4, 10],
     ],
@@ -61,6 +61,7 @@ return [
         'pmsby_per_year' => 20,
         'pf_employee_pct' => 12,            // on earned wages within the EPF ceiling of the month
         'pf_employer_pct' => 13,
+        'pf_round_digits' => null,          // null = exact; 0 rounds PF to the rupee as the client's Excel sheet does
         'esic_employee_pct' => 0.75,        // on earned wages + overtime, no ceiling (as in the client's sheet)
         'esic_employer_pct' => 3.25,
         'ppe_per_month' => 750,

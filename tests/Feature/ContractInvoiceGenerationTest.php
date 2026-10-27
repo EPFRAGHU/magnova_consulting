@@ -25,6 +25,7 @@ class ContractInvoiceGenerationTest extends TestCase
     {
         parent::setUp();
         Carbon::setTestNow('2026-10-05 10:00:00');
+        config(['magnova.contract_labour.pf_round_digits' => 0]);   // the sheet numbers below are the client's workbook, which rounds PF
         $this->user = User::factory()->create();
         $this->user->tenant->update(['name' => 'Magnova Consulting Pvt. Ltd.', 'gstin' => '21AAFCM1234B1Z5', 'pan' => 'AAFCM1234B']);
         $this->contract = Client::create([
@@ -84,11 +85,25 @@ class ContractInvoiceGenerationTest extends TestCase
         $this->assertEqualsWithDelta(510822.16, (float) $invoice->taxable_value, 0.001);
         $this->assertEqualsWithDelta(45974.00, (float) $invoice->cgst, 0.001);
         $this->assertEqualsWithDelta(45973.99, (float) $invoice->sgst, 0.001);
-        $this->assertEquals(602770, (float) $invoice->grand_total);
+        $this->assertEquals(602770.15, (float) $invoice->grand_total);
         $this->assertSame(24, (int) $invoice->no_of_persons);
         $this->assertEquals(584, (float) $invoice->no_of_duties);
         $this->assertSame('2026-10-05', $invoice->invoice_date->toDateString());
         $this->assertSame('2026-11-04', $invoice->due_date->toDateString());
+    }
+
+    public function test_by_default_the_invoice_is_exact_to_the_paisa_with_no_round_off(): void
+    {
+        config(['magnova.contract_labour.pf_round_digits' => null]);
+        $this->septemberSheet();
+
+        $this->generate()->assertSessionHasNoErrors();
+
+        $invoice = Invoice::firstOrFail();
+        $this->assertEqualsWithDelta(510823.12, (float) $invoice->taxable_value, 0.001);
+        $this->assertEqualsWithDelta($invoice->taxable_value + $invoice->cgst + $invoice->sgst, (float) $invoice->grand_total, 0.001);
+        $this->assertEqualsWithDelta(602771.28, (float) $invoice->grand_total, 0.001);
+        $this->assertEquals(0, $invoice->document['round_off']);
     }
 
     public function test_the_snapshot_holds_the_category_lines_and_the_tax_split(): void
@@ -101,7 +116,7 @@ class ContractInvoiceGenerationTest extends TestCase
         $this->assertSame(['FLO - Skilled', 'Picker - Semi-Skilled', 'Loader - Unskilled'], array_column($document['lines'], 'particulars'));
         $this->assertSame([3, 4, 17], array_column($document['lines'], 'persons'));
         $this->assertSame('intra', $document['tax_mode']);
-        $this->assertEquals(602770, $document['total']);
+        $this->assertEquals(602770.15, $document['total']);
         $this->assertSame($this->prefix().'12', $document['invoice_no']);
     }
 
@@ -115,7 +130,7 @@ class ContractInvoiceGenerationTest extends TestCase
         $invoice = Invoice::first();
         $this->assertEqualsWithDelta(91947.99, (float) $invoice->igst, 0.001);
         $this->assertEquals(0, (float) $invoice->cgst + (float) $invoice->sgst);
-        $this->assertEquals(602770, (float) $invoice->grand_total);
+        $this->assertEquals(602770.15, (float) $invoice->grand_total);
     }
 
     public function test_without_saved_wages_there_is_no_invoice(): void
@@ -192,7 +207,7 @@ class ContractInvoiceGenerationTest extends TestCase
 
         $response->assertOk();
         $this->assertStringContainsString('application/pdf', (string) $response->headers->get('content-type'));
-        $this->assertEquals(602770, (float) Invoice::first()->grand_total, 'the stored invoice is untouched');
+        $this->assertEquals(602770.15, (float) Invoice::first()->grand_total, 'the stored invoice is untouched');
     }
 
     public function test_the_other_invoice_tools_leave_a_contract_invoice_alone(): void

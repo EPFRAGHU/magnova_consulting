@@ -16,7 +16,7 @@ class EsicSetting extends Model
 
     public const MODES = ['statutory', 'capped', 'cutoff'];
 
-    public const ROUNDING = ['nearest', 'up', 'down'];
+    public const ROUNDING = ['exact', 'nearest', 'up', 'down'];
 
     protected $fillable = [
         'tenant_id', 'effective_from', 'establishment_covered', 'calculation_mode', 'coverage_ceiling',

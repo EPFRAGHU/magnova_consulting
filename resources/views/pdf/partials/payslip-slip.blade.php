@@ -31,12 +31,12 @@
         <td class="value">{{ $employee->date_of_joining?->format('d-m-Y') ?? '-' }}</td>
         <td class="label">LOP Days</td>
         <td class="c">:</td>
-        <td class="value">{{ (int) $lopDays }}</td>
+        <td class="value">{{ rtrim(rtrim(number_format($lopDays, 2), '0'), '.') }}</td>
     </tr>
     <tr>
         <td class="label">Paid Days</td>
         <td class="c">:</td>
-        <td class="value">{{ (int) $wage->working_days }}</td>
+        <td class="value">{{ rtrim(rtrim(number_format((float) $wage->working_days, 2), '0'), '.') }}</td>
         <td class="label">UAN</td>
         <td class="c">:</td>
         <td class="value">{{ $employee->uan ?? '-' }}</td>

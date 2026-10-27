@@ -76,6 +76,7 @@ class ContractWageSheetTest extends TestCase
 
     public function test_saving_the_sheet_reproduces_the_clients_own_figures_for_a_real_row(): void
     {
+        config(['magnova.contract_labour.pf_round_digits' => 0]);   // the client's workbook rounds PF to the rupee
         $employee = $this->guard($this->contract);   // Ramesh Mohapatra: Rs 781, 26 paid days, 38 overtime hours
         $this->attend($employee, 26, 38);
 
@@ -92,8 +93,21 @@ class ContractWageSheetTest extends TestCase
         $this->assertNotNull($wage->parameters, 'the rates used are kept with the row');
     }
 
+    public function test_a_saved_line_is_exact_to_the_paisa_by_default(): void
+    {
+        $employee = $this->guard($this->contract);
+        $this->attend($employee, 26, 38);
+
+        $this->calculate($this->contract)->assertSessionHasNoErrors();
+
+        $wage = ContractWage::where('employee_id', $employee->id)->firstOrFail();
+        $this->assertEqualsWithDelta(2097.136, $wage->figures['pf_employee'], 0.0001, 'PF is not rounded to the rupee');
+        $this->assertEqualsWithDelta(33609.2159, $wage->figures['total_ctc'], 0.0001);
+    }
+
     public function test_the_whole_september_sheet_adds_up_to_the_clients_workbook_totals(): void
     {
+        config(['magnova.contract_labour.pf_round_digits' => 0]);   // the client's workbook rounds PF to the rupee
         $sheet = json_decode(file_get_contents(base_path('tests/Fixtures/contract_labour_sep_2026.json')), true);
 
         foreach ($sheet['rows'] as $row) {

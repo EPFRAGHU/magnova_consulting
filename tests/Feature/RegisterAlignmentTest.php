@@ -92,14 +92,14 @@ class RegisterAlignmentTest extends TestCase
         $invoice = app(InvoiceCalculator::class)->generateForClient($client, 9, 2026, 'INV-TEST-1');
         $rows = collect($employees)->map(fn (Employee $e) => $register->row($e, null, 9, 2026, 1));
 
-        $this->assertEquals($rows->sum('monthly_wage'), $invoice->base_amount);
-        $this->assertEquals($rows->sum('epf_employer'), $invoice->epf_employer);
-        $this->assertEquals($rows->sum('edli_and_epf_admin'), $invoice->epf_admin + $invoice->edli_cont);
-        $this->assertEquals($rows->sum('esic_employer'), $invoice->esi_employer);
-        $this->assertEquals($rows->sum('total_gross_salary'), $invoice->taxable_value);
-        $this->assertEquals($rows->sum('agency_fee'), $invoice->service_charge);
-        $this->assertEquals($rows->sum('gst'), $invoice->cgst + $invoice->sgst);
-        $this->assertEquals($rows->sum('total_bill_amount'), $invoice->grand_total);
+        $this->assertEqualsWithDelta($rows->sum('monthly_wage'), $invoice->base_amount, 0.005);
+        $this->assertEqualsWithDelta($rows->sum('epf_employer'), $invoice->epf_employer, 0.005);
+        $this->assertEqualsWithDelta($rows->sum('edli_and_epf_admin'), $invoice->epf_admin + $invoice->edli_cont, 0.005);
+        $this->assertEqualsWithDelta($rows->sum('esic_employer'), $invoice->esi_employer, 0.005);
+        $this->assertEqualsWithDelta($rows->sum('total_gross_salary'), $invoice->taxable_value, 0.005);
+        $this->assertEqualsWithDelta($rows->sum('agency_fee'), $invoice->service_charge, 0.005);
+        $this->assertEqualsWithDelta($rows->sum('gst'), $invoice->cgst + $invoice->sgst, 0.005);
+        $this->assertEqualsWithDelta($rows->sum('total_bill_amount'), $invoice->grand_total, 0.005);
 
         $this->assertStringStartsWith('%PDF', app(PdfExportService::class)->invoice($invoice)->output());
     }
@@ -116,12 +116,13 @@ class RegisterAlignmentTest extends TestCase
         $invoice = app(InvoiceCalculator::class)->generateForClient($client, 9, 2026, 'INV-TEST-BASIC');
         $rows = collect($employees)->map(fn (Employee $e) => $register->row($e, null, 9, 2026, 1));
 
-        $this->assertEquals($rows->sum('agency_fee'), $invoice->service_charge);
-        $this->assertEquals($rows->sum(fn ($r) => round($r['monthly_wage'] * 3.85 / 100)), $invoice->service_charge);
-        $this->assertEquals($rows->sum('total_bill_amount'), $invoice->grand_total);
-        $this->assertEquals(
+        $this->assertEqualsWithDelta($rows->sum('agency_fee'), $invoice->service_charge, 0.005);
+        $this->assertEqualsWithDelta($rows->sum(fn ($r) => round($r['monthly_wage'] * 3.85 / 100, 2)), $invoice->service_charge, 0.005);
+        $this->assertEqualsWithDelta($rows->sum('total_bill_amount'), $invoice->grand_total, 0.005);
+        $this->assertEqualsWithDelta(
             $invoice->taxable_value + $invoice->service_charge + $invoice->cgst + $invoice->sgst,
             $invoice->grand_total,
+            0.005,
         );
     }
 
@@ -140,7 +141,7 @@ class RegisterAlignmentTest extends TestCase
         $this->assertEquals(0, $invoice->cgst);
         $this->assertEquals(0, $invoice->sgst);
         $this->assertEquals($invoice->taxable_value + $invoice->service_charge, $invoice->grand_total);
-        $this->assertEquals($rows->sum('total_bill_amount'), $invoice->grand_total);
+        $this->assertEqualsWithDelta($rows->sum('total_bill_amount'), $invoice->grand_total, 0.005);
         $this->assertEquals(0, $rows->sum('gst'));
         $this->assertStringStartsWith('%PDF', app(PdfExportService::class)->invoice($invoice)->output());
     }
@@ -173,8 +174,8 @@ class RegisterAlignmentTest extends TestCase
         $gross->update(['service_charge_on_basic' => true]);
         $onBasic = app(InvoiceCalculator::class)->generateForClient($gross->fresh(), 8, 2026, 'INV-AUG-GROSS');
 
-        $this->assertEquals(round($onGross->taxable_value * 3.85 / 100, 2), $onGross->service_charge);
-        $this->assertEquals(round($onBasic->base_amount * 3.85 / 100, 2), $onBasic->service_charge);
+        $this->assertEqualsWithDelta(round($onGross->taxable_value * 3.85 / 100, 2), $onGross->service_charge, 0.005);
+        $this->assertEqualsWithDelta(round($onBasic->base_amount * 3.85 / 100, 2), $onBasic->service_charge, 0.005);
         $this->assertLessThan($onGross->service_charge, $onBasic->service_charge);
     }
 
@@ -190,9 +191,10 @@ class RegisterAlignmentTest extends TestCase
 
         $invoice = app(InvoiceCalculator::class)->generateForClient($client, 9, 2026, 'INV-TEST-OFF');
 
-        $this->assertEquals(
+        $this->assertEqualsWithDelta(
             $invoice->base_amount + $invoice->epf_employer + $invoice->epf_admin + $invoice->edli_cont + $invoice->esi_employer,
             $invoice->taxable_value,
+            0.005,
         );
         $this->assertStringNotContainsString('Bonus @', $this->pdfText($invoice));
     }

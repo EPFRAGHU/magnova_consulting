@@ -81,16 +81,17 @@ class ContractLabourInvoiceBuilderTest extends TestCase
         $this->assertSame('intra', $data['tax_mode']);
     }
 
-    public function test_the_total_is_rounded_to_the_rupee_with_a_round_off_line(): void
+    public function test_the_total_is_exact_to_the_paisa_with_no_round_off(): void
     {
         $data = $this->build();
         $exact = $data['taxable_value'] + $data['tax_total'];
 
-        $this->assertEquals((int) round($exact), $data['total']);
-        $this->assertEquals(0.0, fmod((float) $data['total'], 1.0), 'whole rupees');
-        $this->assertEqualsWithDelta($data['total'] - $exact, $data['round_off'], 0.0001);
-        $this->assertLessThanOrEqual(0.5, abs($data['round_off']));
-        $this->assertSame((new NumberToWordsService)->amountToWords($data['total']), $data['total_words']);
+        $this->assertEqualsWithDelta($exact, $data['total'], 0.0001, 'nothing is rounded to the rupee');
+        $this->assertEquals(round($data['total'], 2), $data['total'], 'whole paise');
+        $this->assertSame(0.0, $data['round_off']);
+        $this->assertSame($data['taxable_value'], $data['taxable_shown']);
+        $this->assertSame($data['tax_total'], $data['tax_shown']);
+        $this->assertSame((new NumberToWordsService)->amountToWordsWithPaise($data['total']), $data['total_words']);
         $this->assertSame((new NumberToWordsService)->amountToWordsWithPaise($data['tax_total']), $data['tax_words']);
     }
 

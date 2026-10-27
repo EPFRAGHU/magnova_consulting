@@ -62,8 +62,8 @@ class EsicUnitSettingTest extends TestCase
         $this->assertSame('capped', $result->mode);
         $this->assertSame('capped_unit_setting', $result->reason);
         $this->assertEquals(21000, $result->contributionWages);
-        $this->assertEquals(158, $result->employeeAmount);
-        $this->assertEquals(683, $result->employerAmount);
+        $this->assertEquals(157.5, $result->employeeAmount);
+        $this->assertEquals(682.5, $result->employerAmount);
     }
 
     public function test_other_units_keep_the_statutory_rule(): void
@@ -104,7 +104,7 @@ class EsicUnitSettingTest extends TestCase
         $cappedWage = app(WageCalculator::class)->calculateForEmployee($capped, 9, 2026);
         $plainWage = app(WageCalculator::class)->calculateForEmployee($plain, 9, 2026);
 
-        $this->assertEquals(158, $cappedWage->esic_employee);
+        $this->assertEquals(157.5, $cappedWage->esic_employee);
         $this->assertEquals(0, $plainWage->esic_employee);
         $this->assertSame('capped', $cappedWage->esic_snapshot['mode']);
         $this->assertSame('statutory', $plainWage->esic_snapshot['mode']);
@@ -179,8 +179,8 @@ class EsicUnitSettingTest extends TestCase
         $result = app(EsicCalculator::class)->calculate(21000, 9, 2026, $this->guard($this->unit('Cutoff unit', 'cutoff')));
 
         $this->assertTrue($result->covered);
-        $this->assertEquals(158, $result->employeeAmount);
-        $this->assertEquals(683, $result->employerAmount);
+        $this->assertEquals(157.5, $result->employeeAmount);
+        $this->assertEquals(682.5, $result->employerAmount);
     }
 
     public function test_the_register_heading_for_a_cutoff_unit_says_so(): void
