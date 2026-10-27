@@ -103,6 +103,7 @@ export default function PayslipsIndex({
                                                     wage.net_salary,
                                                 ).toLocaleString('en-IN', {
                                                     minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2,
                                                 })}
                                             </td>
                                             <td className="px-6 py-2 text-right">

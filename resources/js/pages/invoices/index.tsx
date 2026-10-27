@@ -230,6 +230,7 @@ export default function InvoicesIndex({
                                                     invoice.grand_total,
                                                 ).toLocaleString('en-IN', {
                                                     minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2,
                                                 })}
                                             </td>
                                             <td className="px-6 py-2">
