@@ -48,6 +48,9 @@ return [
 
     // Wage-sheet rules for a contract-labour client (principal employer arrangement), copied from the client's own
     // Wages sheet (Balmer Lawrie, September 2026). Each client can override any of these in clients.payroll_parameters.
+    // The one line the contract-labour tax invoice prints under 'Particulars (Rank)'; the rank-wise split is on the annexure page.
+    'contract_invoice_particulars' => 'Handling Manpower Contract',
+
     'contract_labour' => [
         'hours_per_day' => 8,
         'ot_multiplier' => 2,
