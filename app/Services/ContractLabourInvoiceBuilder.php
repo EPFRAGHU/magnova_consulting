@@ -8,8 +8,9 @@ use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 
 /**
- * Assembles everything the contract-labour tax invoice prints (the Tally-style layout with Consignee, Buyer,
- * an HSN/SAC tax summary and a round-off line) from the establishment, the client and the category totals.
+ * Assembles everything the contract-labour tax invoice prints (the one-page bill with Billed To / Billed From, a one-line
+ * summary, taxable value, GST and grand total, plus the rank-wise annexure) from the establishment, the client and the
+ * category totals.
  * It computes nothing about wages: the category amounts come from the wage sheet.
  */
 class ContractLabourInvoiceBuilder
@@ -27,7 +28,7 @@ class ContractLabourInvoiceBuilder
             $tenant->address,
             $tenant->gstin,
             config('magnova.state'),
-        ) + ['email' => $tenant->contact_email, 'pan' => $tenant->pan];
+        ) + ['email' => $tenant->contact_email, 'pan' => $tenant->pan, 'phone' => $tenant->contact_phone];
 
         $consignee = $this->party($client->principal_employer_name ?: $client->name, $client->principal_employer_address ?: $client->address, $client->principal_employer_gstin ?: $client->gstin);
         $buyer = $client->billing_name
@@ -61,6 +62,9 @@ class ContractLabourInvoiceBuilder
         $exact = $taxable + $taxTotal;
         $total = (int) round($exact);
 
+        // The printed bill shows whole rupees: taxable value rounded, and the tax as what is left of the rounded total.
+        $taxableShown = (float) round($taxable);
+
         $periodStart = Carbon::create($year, $month, 1);
 
         return [
@@ -68,7 +72,11 @@ class ContractLabourInvoiceBuilder
             'consignee' => $consignee,
             'buyer' => $buyer,
             'invoice_no' => $invoiceNo,
+            'ref_no' => $client->gemc_no,
+            'summary_particulars' => config('magnova.contract_invoice_particulars'),
             'invoice_date' => $invoiceDate->format('d-M-y'),
+            'invoice_date_iso' => $invoiceDate->format('Y-m-d'),
+            'period_start' => $periodStart->format('Y-m-d'),
             'buyer_order_no' => $client->buyer_order_no,
             'buyer_order_date' => $client->buyer_order_date?->format('d-M-y'),
             'terms_of_delivery' => 'Total Mandays from '.$periodStart->format('jS F, Y').' to '.$periodStart->copy()->endOfMonth()->format('jS F, Y').'.',
@@ -85,6 +93,8 @@ class ContractLabourInvoiceBuilder
             'sgst' => $sgst,
             'igst' => $igst,
             'tax_total' => $taxTotal,
+            'taxable_shown' => $taxableShown,
+            'tax_shown' => (float) $total - $taxableShown,
             'round_off' => round($total - $exact, 2),
             'total' => (float) $total,
             'total_words' => $this->words->amountToWords($total),

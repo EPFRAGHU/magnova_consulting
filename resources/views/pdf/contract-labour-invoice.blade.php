@@ -6,53 +6,55 @@
         * { box-sizing: border-box; }
         @page { size: A4 portrait; margin: 0; }
         html, body { margin: 0; padding: 0; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 9.5px; line-height: 1.25; color: #000; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 10.5px; line-height: 1.2; color: #000; }
         table { border-collapse: collapse; width: 100%; }
         td, th { vertical-align: top; }
-        .page { width: 7.6in; margin: 0.3in auto 0; }
-        .page-break { page-break-after: always; }
+        .sheet-page { width: 8.27in; }
+        .page { width: 7.50in; margin: 0.35in; }
+        .frame { width: 7.50in; border: 1.4px solid #000; }
+        .frame > tbody > tr > td { border-top: 1.4px solid #000; padding: 8px 10px; }
+        .frame > tbody > tr:first-child > td { border-top: none; }
+        .topline td { font-size: 10.5px; font-weight: bold; }
+        .topline .title { text-align: center; font-size: 15px; }
+        .topline .right { text-align: right; }
+        .company { text-align: center; }
+        .company-logo { width: 52px; height: auto; margin-bottom: 2px; }
+        .company .name { font-size: 18px; font-weight: bold; }
+        .company .service { font-size: 11.5px; margin-top: 3px; }
+        .company .meta { font-size: 9.5px; margin-top: 3px; }
+        .two-col > tbody > tr > td { width: 50%; padding: 0; }
+        .two-col > tbody > tr > td:first-child { border-right: 1.4px solid #000; padding-right: 10px; }
+        .two-col > tbody > tr > td:last-child { padding-left: 10px; }
+        .kv td { padding: 2px 0; font-size: 9.5px; }
+        .kv .label { width: 98px; font-weight: bold; }
+        .kv .colon { width: 9px; }
+        .section-title { font-weight: bold; font-size: 11px; margin-bottom: 5px; }
+        .summary-title { text-align: center; font-weight: bold; font-size: 11.5px; margin-bottom: 8px; }
+        table.summary { table-layout: fixed; }
+        table.summary th, table.summary td { border: 1px solid #000; padding: 6px 5px; font-size: 10px; }
+        table.summary th { text-align: center; background: #eee; font-weight: bold; vertical-align: middle; }
+        table.summary td.center { text-align: center; }
+        table.summary td.amount { text-align: right; }
+        table.charges { table-layout: fixed; margin-top: 10px; }
+        table.charges td { padding: 4px 4px; font-size: 10px; }
+        table.charges .label { width: 78%; }
+        table.charges .amount { text-align: right; width: 22%; }
+        table.charges .strong td { font-weight: bold; }
+        table.charges .strong.top td { border-top: 1px solid #000; }
+        .words-line { font-size: 10.5px; }
+        .footer-col { width: 33.33%; padding: 0 8px; font-size: 9.25px; }
+        .footer-col:not(:first-child) { border-left: 1.4px solid #000; }
+        .footer-title { font-weight: bold; font-size: 10px; margin-bottom: 4px; }
+        .sign-line { margin-top: 60px; border-top: 1px solid #000; padding-top: 4px; }
         .head { width: 100%; margin-bottom: 3px; }
         .head td { font-size: 10px; }
         .head .title { text-align: center; font-size: 12.5px; font-weight: bold; }
-        .head .orig { text-align: right; }
-        table.sheet { border: 1px solid #000; }
-        table.sheet > tbody > tr > td { border: 1px solid #000; padding: 0; }
-        .parties { padding: 0; }
-        .block { padding: 4px 6px; font-size: 9px; }
-        .block + .block { border-top: 1px solid #000; }
-        .block .name { font-weight: bold; font-size: 10px; }
-        .block .lbl { font-size: 8.5px; }
-        .block table td { padding: 0; font-size: 9px; }
-        .supplier-table td { vertical-align: top; }
-        .logo { width: 46px; height: auto; }
-        table.fields td { border: 1px solid #000; padding: 3px 5px; font-size: 8.5px; height: 30px; width: 50%; }
-        table.fields td .v { font-weight: bold; font-size: 9.5px; display: block; margin-top: 2px; }
-        table.fields td.full { height: auto; font-size: 8.5px; border-bottom: none; }
-        table.fields tr:first-child td { border-top: none; }
-        table.fields td:first-child { border-left: none; }
-        table.fields td:last-child { border-right: none; }
-        table.items th { border: 1px solid #000; padding: 3px 4px; font-size: 8.5px; font-weight: normal; text-align: center; }
-        table.items td { padding: 2px 4px; font-size: 9.5px; border-left: 1px solid #000; border-right: 1px solid #000; }
-        table.items td.r { text-align: right; }
-        table.items td.c { text-align: center; }
-        table.items td b { font-size: 10px; }
-        table.items tr.total td { border: 1px solid #000; font-weight: bold; font-size: 10px; }
-        table.items tr.filler td { height: 2.55in; }
-        .words { padding: 4px 6px; font-size: 9.5px; }
-        .words .small { font-size: 8.5px; }
-        table.tax th, table.tax td { border: 1px solid #000; padding: 2px 4px; font-size: 8.5px; text-align: center; }
-        table.tax td.r { text-align: right; }
-        table.tax th { font-weight: normal; }
-        table.tax tr.total td { font-weight: bold; }
-        .tax-words { padding: 4px 6px; font-size: 9px; }
-        table.foot > tbody > tr > td { padding: 4px 6px; font-size: 8.5px; }
-        .sign-space { height: 60px; }
-        .centered { text-align: center; font-size: 8.5px; margin-top: 6px; }
         table.annex th, table.annex td { border: 1px solid #000; padding: 4px 6px; font-size: 10px; }
         table.annex th { background: #eee; }
         table.annex td.r { text-align: right; }
         table.annex td.c { text-align: center; }
         table.annex tr.total td { font-weight: bold; }
+        .annex-page { width: 7.6in; margin: 0 auto; page-break-before: always; padding-top: 0.3in; }
     </style>
 </head>
 <body>
@@ -61,208 +63,140 @@
     $inter = $d['tax_mode'] === 'inter';
     $money = fn ($v) => number_format((float) $v, 2);
     $days = fn ($v) => rtrim(rtrim(number_format((float) $v, 2), '0'), '.');
-    $declaration = preg_split('/\r\n|\r|\n/', (string) $d['declaration']);
+    $supplier = $d['supplier'];
+    $buyer = $d['buyer'];
+    // Old stored invoices have no 'shown' figures: work them out the same way from the saved total.
+    $taxableShown = $d['taxable_shown'] ?? round((float) $d['taxable_value']);
+    $taxShown = $d['tax_shown'] ?? ((float) $d['total'] - $taxableShown);
+    $particulars = $d['summary_particulars'] ?? 'Handling Manpower Contract';
+    $refNo = $d['ref_no'] ?? null;
+    $coreName = strtoupper($supplier['name']);
+    // Stored invoices from before this layout only carry the date as d-M-y.
+    $billDate = isset($d['invoice_date_iso']) ? \Illuminate\Support\Carbon::parse($d['invoice_date_iso']) : \Illuminate\Support\Carbon::createFromFormat('d-M-y', $d['invoice_date']);
+    $terms = trim((string) $d['declaration']);
 @endphp
 
-<div class="page page-break">
-    <table class="head">
+<div class="sheet-page">
+<div class="page">
+<table class="frame">
+    <tbody>
         <tr>
-            <td style="width:25%"></td>
-            <td class="title" style="width:50%">Tax Invoice</td>
-            <td class="orig" style="width:25%">(ORIGINAL FOR RECIPIENT)</td>
-        </tr>
-    </table>
-
-    <table class="sheet">
-        <tbody>
-        <tr>
-            <td class="parties" style="width:52%">
-                <div class="block">
-                    <table class="supplier-table">
-                        <tr>
-                            @if (!empty($logoDataUri))
-                                <td style="width:54px"><img class="logo" src="{{ $logoDataUri }}" alt=""></td>
-                            @endif
-                            <td>
-                                <div class="name">{{ strtoupper($d['supplier']['name']) }}</div>
-                                @if ($d['supplier']['address'])<div>{{ $d['supplier']['address'] }}</div>@endif
-                                <div>GSTIN/UIN: {{ $d['supplier']['gstin'] ?: '—' }}</div>
-                                <div>State Name : {{ $d['supplier']['state_name'] }}, Code : {{ $d['supplier']['state_code'] }}</div>
-                                @if ($d['supplier']['email'])<div>E-Mail : {{ $d['supplier']['email'] }}</div>@endif
-                            </td>
-                        </tr>
-                    </table>
+            <td>
+                <table class="topline">
+                    <tr>
+                        <td style="width:33%">Ref no: {{ $refNo ?: '—' }}</td>
+                        <td class="title" style="width:34%">TAX INVOICE</td>
+                        <td class="right" style="width:33%">Invoice No: {{ $d['invoice_no'] }}</td>
+                    </tr>
+                </table>
+                <div class="company">
+                    @if (!empty($logoDataUri))
+                        <img class="company-logo" src="{{ $logoDataUri }}" alt="Magnova">
+                    @endif
+                    <div class="name">M/s {{ $coreName }}</div>
+                    <div class="service">Security and Manpower Service Provider</div>
+                    <div class="meta">CIN NO: {{ config('magnova.company_cin') ?: '—' }} &nbsp;&nbsp; GSTIN NO: {{ $supplier['gstin'] ?: '—' }}</div>
+                    @if ($supplier['address'])
+                        <div class="meta">{{ $supplier['address'] }}</div>
+                    @endif
                 </div>
-                <div class="block">
-                    <div class="lbl">Consignee (Ship to)</div>
-                    <div class="name">M/S {{ $d['consignee']['name'] }}</div>
-                    @if ($d['consignee']['address'])<div>{{ $d['consignee']['address'] }}</div>@endif
-                    <table>
-                        <tr><td style="width:62px">GSTIN/UIN</td><td>: {{ $d['consignee']['gstin'] ?: '—' }}</td></tr>
-                        <tr><td>State Name</td><td>: {{ $d['consignee']['state_name'] }}, Code : {{ $d['consignee']['state_code'] }}</td></tr>
-                    </table>
-                </div>
-                <div class="block">
-                    <div class="lbl">Buyer (Bill to)</div>
-                    <div class="name">M/S {{ $d['buyer']['name'] }}</div>
-                    @if ($d['buyer']['address'])<div>{{ $d['buyer']['address'] }}</div>@endif
-                    <table>
-                        <tr><td style="width:62px">GSTIN/UIN</td><td>: {{ $d['buyer']['gstin'] ?: '—' }}</td></tr>
-                        <tr><td>State Name</td><td>: {{ $d['buyer']['state_name'] }}, Code : {{ $d['buyer']['state_code'] }}</td></tr>
-                    </table>
-                </div>
-            </td>
-            <td class="parties" style="width:48%">
-                <table class="fields">
-                    <tr><td>Invoice No.<span class="v">{{ $d['invoice_no'] }}</span></td><td>Dated<span class="v">{{ $d['invoice_date'] }}</span></td></tr>
-                    <tr><td>Delivery Note<span class="v">&nbsp;</span></td><td>Mode/Terms of Payment<span class="v">&nbsp;</span></td></tr>
-                    <tr><td>Reference No. &amp; Date.<span class="v">&nbsp;</span></td><td>Other References<span class="v">&nbsp;</span></td></tr>
-                    <tr><td>Buyer's Order No.<span class="v">{{ $d['buyer_order_no'] }}&nbsp;</span></td><td>Dated<span class="v">{{ $d['buyer_order_date'] }}&nbsp;</span></td></tr>
-                    <tr><td>Dispatch Doc No.<span class="v">&nbsp;</span></td><td>Delivery Note Date<span class="v">&nbsp;</span></td></tr>
-                    <tr><td>Dispatched through<span class="v">&nbsp;</span></td><td>Destination<span class="v">&nbsp;</span></td></tr>
-                    <tr><td class="full" colspan="2">Terms of Delivery<br><b>{{ $d['terms_of_delivery'] }}</b><br>&nbsp;</td></tr>
+                <table class="topline" style="margin-top:6px">
+                    <tr>
+                        <td style="width:50%">Bill for the month of {{ str_replace(' ', '-', $d['period_label']) }}</td>
+                        <td class="right" style="width:50%">Date: {{ $billDate->format('d-m-Y') }}</td>
+                    </tr>
                 </table>
             </td>
         </tr>
         <tr>
-            <td colspan="2">
-                <table class="items">
+            <td>
+                <table class="two-col">
+                    <tr>
+                        <td>
+                            <div class="section-title">Details of Receiver (Billed To)</div>
+                            <table class="kv">
+                                <tr><td class="label">Name</td><td class="colon">:</td><td>M/S {{ $buyer['name'] ?: '—' }}</td></tr>
+                                <tr><td class="label">Address</td><td class="colon">:</td><td>{!! $buyer['address'] ? nl2br(e($buyer['address'])) : '—' !!}</td></tr>
+                                <tr><td class="label">GSTIN</td><td class="colon">:</td><td>{{ $buyer['gstin'] ?: '—' }}</td></tr>
+                            </table>
+                        </td>
+                        <td>
+                            <div class="section-title">Details of Parties (Billed From)</div>
+                            <table class="kv">
+                                <tr><td class="label">Name</td><td class="colon">:</td><td>M/s {{ $supplier['name'] }}</td></tr>
+                                <tr><td class="label">Address</td><td class="colon">:</td><td>{!! $supplier['address'] ? nl2br(e($supplier['address'])) : '—' !!}</td></tr>
+                                <tr><td class="label">GSTIN</td><td class="colon">:</td><td>{{ $supplier['gstin'] ?: '—' }}</td></tr>
+                                <tr><td class="label">PAN No.</td><td class="colon">:</td><td>{{ $supplier['pan'] ?: '—' }}</td></tr>
+                                <tr><td class="label">Contact No.</td><td class="colon">:</td><td>{{ $supplier['phone'] ?? '—' }}</td></tr>
+                                <tr><td class="label">Billing Period</td><td class="colon">:</td><td>{{ \Illuminate\Support\Carbon::parse($d['period_start'] ?? $d['period_label'])->format('d-m-Y') }} to {{ \Illuminate\Support\Carbon::parse($d['period_start'] ?? $d['period_label'])->endOfMonth()->format('d-m-Y') }}</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="height:2.9in">
+                <div class="summary-title">Summary of Duties Performed in the Month of {{ $d['period_label'] }}</div>
+                <table class="summary">
                     <thead>
                         <tr>
-                            <th style="width:5%">Sl<br>No.</th>
-                            <th style="width:37%">Particulars</th>
-                            <th style="width:12%">HSN/SAC</th>
-                            <th style="width:12%">Quantity<br>(Mandays)</th>
-                            <th style="width:10%">Rate</th>
-                            <th style="width:6%">per</th>
-                            <th style="width:18%">Amount</th>
+                            <th style="width:9%">Sl No</th>
+                            <th style="width:47%">Particulars (Rank)</th>
+                            <th style="width:20%">SAC Code</th>
+                            <th style="width:24%">Total Amount</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($d['lines'] as $line)
-                            <tr>
-                                <td class="c">{{ $line['sl'] }}</td>
-                                <td><b>{{ $line['particulars'] }}</b><br>{{ $line['note'] }}</td>
-                                <td class="c">{{ $line['hsn'] }}</td>
-                                <td class="r">{{ $days($line['mandays']) }}</td>
-                                <td></td>
-                                <td></td>
-                                <td class="r">{{ $money($line['amount']) }}</td>
-                            </tr>
-                        @endforeach
-                        <tr><td colspan="7" style="height:10px"></td></tr>
-                        @if ($inter)
-                            <tr><td></td><td class="r"><b>IGST {{ $d['tax_rate'] + 0 }}%</b></td><td></td><td></td><td></td><td></td><td class="r"><b>{{ $money($d['igst']) }}</b></td></tr>
-                        @else
-                            <tr><td></td><td class="r"><b>CGST {{ $d['half_rate'] + 0 }}%</b></td><td></td><td></td><td></td><td></td><td class="r"><b>{{ $money($d['cgst']) }}</b></td></tr>
-                            <tr><td></td><td class="r"><b>SGST {{ $d['half_rate'] + 0 }}%</b></td><td></td><td></td><td></td><td></td><td class="r"><b>{{ $money($d['sgst']) }}</b></td></tr>
-                        @endif
-                        <tr><td></td><td><b>Round Off</b></td><td></td><td></td><td></td><td></td><td class="r"><b>{{ $d['round_off'] < 0 ? '(-)' : '' }}{{ number_format(abs($d['round_off']), 2) }}</b></td></tr>
-                        <tr class="filler"><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                        <tr class="total">
-                            <td></td><td class="r">Total</td><td></td><td class="r">{{ $days($d['total_mandays']) }}</td><td></td><td></td><td class="r">Rs {{ $money($d['total']) }}</td>
+                        <tr>
+                            <td class="center">1</td>
+                            <td>{{ $particulars }}</td>
+                            <td class="center">{{ $d['hsn'] }}</td>
+                            <td class="amount">{{ $money($taxableShown) }}</td>
                         </tr>
                     </tbody>
+                </table>
+                <table class="charges">
+                    <tr class="strong top"><td class="label">SUB-TOTAL (Taxable Value)</td><td class="amount">{{ $money($taxableShown) }}</td></tr>
+                    <tr><td class="label">{{ $inter ? 'IGST' : 'GST' }} @ {{ number_format($d['tax_rate'], 2) }}%</td><td class="amount">{{ $money($taxShown) }}</td></tr>
+                    <tr class="strong top"><td class="label">GRAND TOTAL</td><td class="amount">{{ $money($d['total']) }}</td></tr>
                 </table>
             </td>
         </tr>
         <tr>
-            <td colspan="2" class="words">
-                <span class="small">Amount Chargeable (in words)</span> <span class="small" style="float:right">E. &amp; O.E</span><br>
-                <b>INR {{ $d['total_words'] }} Only</b>
+            <td style="padding:14px 10px">
+                <div class="words-line">Amount in words: <b>{{ $d['total_words'] }} only.</b></div>
             </td>
         </tr>
         <tr>
-            <td colspan="2" style="padding:0">
-                <table class="tax">
-                    <thead>
-                        @if ($inter)
-                            <tr>
-                                <th rowspan="2" style="width:22%">HSN/SAC</th><th rowspan="2" style="width:20%">Taxable<br>Value</th>
-                                <th colspan="2">IGST</th><th rowspan="2" style="width:20%">Total<br>Tax Amount</th>
-                            </tr>
-                            <tr><th style="width:10%">Rate</th><th style="width:20%">Amount</th></tr>
-                        @else
-                            <tr>
-                                <th rowspan="2" style="width:16%">HSN/SAC</th><th rowspan="2" style="width:20%">Taxable<br>Value</th>
-                                <th colspan="2">CGST</th><th colspan="2">SGST/UTGST</th><th rowspan="2" style="width:18%">Total<br>Tax Amount</th>
-                            </tr>
-                            <tr><th style="width:8%">Rate</th><th style="width:15%">Amount</th><th style="width:8%">Rate</th><th style="width:15%">Amount</th></tr>
-                        @endif
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="text-align:left">{{ $d['hsn'] }}</td>
-                            <td class="r">{{ $money($d['taxable_value']) }}</td>
-                            @if ($inter)
-                                <td>{{ $d['tax_rate'] + 0 }}%</td><td class="r">{{ $money($d['igst']) }}</td>
-                            @else
-                                <td>{{ $d['half_rate'] + 0 }}%</td><td class="r">{{ $money($d['cgst']) }}</td>
-                                <td>{{ $d['half_rate'] + 0 }}%</td><td class="r">{{ $money($d['sgst']) }}</td>
-                            @endif
-                            <td class="r">{{ $money($d['tax_total']) }}</td>
-                        </tr>
-                        <tr class="total">
-                            <td class="r">Total</td>
-                            <td class="r">{{ $money($d['taxable_value']) }}</td>
-                            @if ($inter)
-                                <td></td><td class="r">{{ $money($d['igst']) }}</td>
-                            @else
-                                <td></td><td class="r">{{ $money($d['cgst']) }}</td><td></td><td class="r">{{ $money($d['sgst']) }}</td>
-                            @endif
-                            <td class="r">{{ $money($d['tax_total']) }}</td>
-                        </tr>
-                    </tbody>
+            <td style="padding:0; vertical-align:bottom">
+                <table>
+                    <tr>
+                        <td class="footer-col">
+                            <div class="footer-title">Bank Details</div>
+                            <div>Bank: {{ $d['bank']['bank'] ?: '—' }}</div>
+                            <div>Account No.: {{ $d['bank']['account'] ?: '—' }}</div>
+                            <div>IFSC Code: {{ $d['bank']['ifsc'] ?: '—' }}</div>
+                            <div>Branch: {{ $d['bank']['branch'] ?: '—' }}</div>
+                        </td>
+                        <td class="footer-col">
+                            <div class="footer-title">Terms and Conditions</div>
+                            <div>{!! nl2br(e($terms)) !!}</div>
+                        </td>
+                        <td class="footer-col">
+                            <div class="footer-title">For M/s {{ $supplier['name'] }}</div>
+                            <div class="sign-line">Authorized Signature</div>
+                        </td>
+                    </tr>
                 </table>
             </td>
         </tr>
-        <tr>
-            <td colspan="2" class="tax-words">Tax Amount (in words) : <b>INR {{ $d['tax_words'] }} Only</b></td>
-        </tr>
-        <tr>
-            <td colspan="2" style="padding:0">
-                <table class="foot">
-                    <tbody>
-                        <tr>
-                            <td style="width:50%; border-right:1px solid #000">
-                                <div>Company's PAN &nbsp;&nbsp;&nbsp;&nbsp;: <b>{{ $d['supplier']['pan'] ?: '—' }}</b></div>
-                                <div style="margin-top:4px"><u>Declaration</u></div>
-                                @foreach ($declaration as $line)
-                                    @if (trim($line) !== '')<div>{{ $line }}</div>@endif
-                                @endforeach
-                            </td>
-                            <td style="width:50%">
-                                <div><u>Company's Bank Details</u></div>
-                                <table>
-                                    <tr><td style="width:92px; font-size:8.5px; padding:0">A/c Holder's Name</td><td style="padding:0; font-size:8.5px">: <b>{{ strtoupper((string) $d['bank']['holder']) }}</b></td></tr>
-                                    <tr><td style="padding:0; font-size:8.5px">Bank Name</td><td style="padding:0; font-size:8.5px">: <b>{{ $d['bank']['bank'] ?: '—' }}</b></td></tr>
-                                    <tr><td style="padding:0; font-size:8.5px">A/c No.</td><td style="padding:0; font-size:8.5px">: <b>{{ $d['bank']['account'] ?: '—' }}</b></td></tr>
-                                    <tr><td style="padding:0; font-size:8.5px">Branch &amp; IFS Code</td><td style="padding:0; font-size:8.5px">: <b>{{ $d['bank']['branch'] ?: '—' }} &amp; {{ $d['bank']['ifsc'] ?: '—' }}</b></td></tr>
-                                </table>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border-right:1px solid #000; border-top:1px solid #000">
-                                Customer's Seal and Signature
-                                <div class="sign-space"></div>
-                            </td>
-                            <td style="border-top:1px solid #000; text-align:right">
-                                for <b>M/s {{ strtoupper($d['supplier']['name']) }}</b>
-                                <div class="sign-space"></div>
-                                Authorised Signatory
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <div class="centered"><b>SUBJECT TO {{ strtoupper($d['jurisdiction']) }} JURISDICTION</b></div>
-    <div class="centered">This is a Computer Generated Invoice</div>
+    </tbody>
+</table>
+</div>
 </div>
 
-<div class="page">
+<div class="annex-page">
     <table class="head">
         <tr><td class="title">ANNEXURE TO TAX INVOICE</td></tr>
     </table>
@@ -287,7 +221,7 @@
             </tr>
         </tbody>
     </table>
-    <p style="font-size:9px; margin-top:10px">The register of attendance and register of wages for the month are furnished separately.</p>
+    <p style="font-size:9px; margin-top:10px">The taxable value on the invoice is this total rounded to the whole rupee. The register of attendance and register of wages for the month are furnished separately.</p>
 </div>
 </body>
 </html>
