@@ -13,7 +13,7 @@ class Tenant extends Model implements TenantContract
     use HasInternalKeys, TenantRun;
 
     protected $fillable = [
-        'name', 'slug', 'gstin', 'pan', 'contact_email', 'contact_phone',
+        'name', 'slug', 'gstin', 'pan', 'pf_establishment_code', 'contact_email', 'contact_phone',
         'address', 'establishment_address1', 'establishment_address2', 'establishment_city',
         'establishment_district', 'establishment_pin', 'establishment_mobile',
         'establishment_email', 'establishment_website', 'bank_name', 'bank_account_no',

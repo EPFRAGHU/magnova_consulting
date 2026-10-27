@@ -285,7 +285,7 @@ export default function EmployeeForm({
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="epf_member_id">
-                                        EPF Member ID
+                                        EPF Member ID (7 digits)
                                     </Label>
                                     <Input
                                         id="epf_member_id"
@@ -294,6 +294,11 @@ export default function EmployeeForm({
                                             employee?.epf_member_id ?? ''
                                         }
                                     />
+                                    <p className="text-muted-foreground text-xs">
+                                        Type only the 7-digit member ID; the PF
+                                        code from Settings &gt; Establishment is
+                                        added on the payslip.
+                                    </p>
                                     <InputError
                                         message={errors.epf_member_id}
                                     />

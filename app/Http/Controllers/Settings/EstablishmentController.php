@@ -19,6 +19,7 @@ class EstablishmentController extends Controller
                 'name',
                 'gstin',
                 'pan',
+                'pf_establishment_code',
                 'establishment_address1',
                 'establishment_address2',
                 'establishment_city',
@@ -45,6 +46,7 @@ class EstablishmentController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'gstin' => ['nullable', 'string', 'max:30'],
             'pan' => ['nullable', 'string', 'max:20'],
+            'pf_establishment_code' => ['nullable', 'string', 'max:30', 'regex:/^[A-Za-z0-9]+$/'],
             'establishment_address1' => ['nullable', 'string', 'max:255'],
             'establishment_address2' => ['nullable', 'string', 'max:255'],
             'establishment_city' => ['nullable', 'string', 'max:100'],
@@ -58,9 +60,14 @@ class EstablishmentController extends Controller
             'bank_ifsc' => ['nullable', 'string', 'regex:/^[A-Za-z]{4}0[A-Za-z0-9]{6}$/'],
             'bank_branch' => ['nullable', 'string', 'max:255'],
         ], [
+            'pf_establishment_code.regex' => 'The PF code can contain only letters and digits, like ORBBS2012397000.',
             'bank_account_no.regex' => 'The account number must be 9 to 18 digits.',
             'bank_ifsc.regex' => 'The IFSC code must be 11 characters, like UBIN0572586.',
         ]);
+
+        if (! empty($data['pf_establishment_code'])) {
+            $data['pf_establishment_code'] = strtoupper($data['pf_establishment_code']);
+        }
 
         if (! empty($data['bank_ifsc'])) {
             $data['bank_ifsc'] = strtoupper($data['bank_ifsc']);

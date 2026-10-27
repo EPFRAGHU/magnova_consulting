@@ -44,7 +44,7 @@
     <tr>
         <td class="label">PF A/C Number</td>
         <td class="c">:</td>
-        <td class="value">{{ $employee->epf_member_id ?? '-' }}</td>
+        <td class="value">{{ $employee->pfAccountNumber() ?? '-' }}</td>
         <td class="label">ESI Number</td>
         <td class="c">:</td>
         <td class="value">{{ $employee->esic_no ?? '-' }}</td>

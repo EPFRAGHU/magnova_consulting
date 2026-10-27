@@ -11,6 +11,7 @@ type Establishment = {
     name: string;
     gstin: string | null;
     pan: string | null;
+    pf_establishment_code: string | null;
     establishment_address1: string | null;
     establishment_address2: string | null;
     establishment_city: string | null;
@@ -43,6 +44,10 @@ const fields: Array<{
     { name: 'name', label: 'Establishment name', required: true },
     { name: 'gstin', label: 'GSTIN' },
     { name: 'pan', label: 'PAN' },
+    {
+        name: 'pf_establishment_code',
+        label: 'PF establishment code (for the PF A/C number on payslips)',
+    },
     { name: 'establishment_address1', label: 'Address line 1' },
     { name: 'establishment_address2', label: 'Address line 2' },
     { name: 'establishment_city', label: 'City' },
