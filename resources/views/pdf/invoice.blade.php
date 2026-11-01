@@ -5,35 +5,32 @@
     <style>
         * { box-sizing: border-box; }
         @page { size: A4 portrait; margin: 0; }
-        html, body { width: 8.27in; height: 11.69in; margin: 0; padding: 0; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 10.5px; line-height: 1.2; color: #000; }
+        html, body { margin: 0; padding: 0; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11.5px; line-height: 1.25; color: #000; }
         table { border-collapse: collapse; width: 100%; }
         td, th { vertical-align: top; }
-        .page { width: 7.50in; height: 10.85in; margin: 0.35in; }
-        .frame { width: 7.50in; height: 10.85in; min-height: 10.85in; border: 1.4px solid #000; }
-        .frame > tbody { height: 100%; }
-        .frame > tbody > tr:last-child { height: 100%; }
-        .frame > tbody > tr:last-child > td { vertical-align: bottom; }
-        .frame > tbody > tr > td { border-top: 1.4px solid #000; padding: 8px 10px; }
+        .page { width: 7.65in; margin: 0.3in 0.31in; }
+        .frame { width: 7.65in; border: 1.4px solid #000; }
+        .frame > tbody > tr > td { border-top: 1.4px solid #000; padding: 10px 12px; }
         .frame > tbody > tr:first-child > td { border-top: none; }
-        .topline td { font-size: 10.5px; font-weight: bold; }
-        .topline .title { text-align: center; font-size: 15px; }
+        .topline td { font-size: 11.5px; font-weight: bold; }
+        .topline .title { text-align: center; font-size: 17px; }
         .topline .right { text-align: right; }
         .company { text-align: center; }
-        .company-logo { width: 52px; height: auto; margin-bottom: 2px; }
-        .company .name { font-size: 18px; font-weight: bold; }
-        .company .service { font-size: 11.5px; margin-top: 3px; }
-        .company .meta { font-size: 9.5px; margin-top: 3px; }
+        .company-logo { width: 58px; height: auto; margin-bottom: 3px; }
+        .company .name { font-size: 20px; font-weight: bold; }
+        .company .service { font-size: 12.5px; margin-top: 4px; }
+        .company .meta { font-size: 10.5px; margin-top: 4px; }
         .two-col > tbody > tr > td { width: 50%; padding: 0; border-top: none; }
-        .two-col > tbody > tr > td:first-child { border-right: 1.4px solid #000; padding-right: 10px; }
-        .two-col > tbody > tr > td:last-child { padding-left: 10px; }
-        .kv td { padding: 2px 0; font-size: 9.5px; }
-        .kv .label { width: 98px; font-weight: bold; }
-        .kv .colon { width: 9px; }
-        .section-title { font-weight: bold; font-size: 11px; margin-bottom: 5px; }
-        .summary-title { text-align: center; font-weight: bold; font-size: 11.5px; margin-bottom: 6px; }
+        .two-col > tbody > tr > td:first-child { border-right: 1.4px solid #000; padding-right: 12px; }
+        .two-col > tbody > tr > td:last-child { padding-left: 12px; }
+        .kv td { padding: 3px 0; font-size: 10.5px; }
+        .kv .label { width: 104px; font-weight: bold; }
+        .kv .colon { width: 10px; }
+        .section-title { font-weight: bold; font-size: 12px; margin-bottom: 6px; }
+        .summary-title { text-align: center; font-weight: bold; font-size: 12.5px; margin-bottom: 8px; }
         table.summary { table-layout: fixed; }
-        table.summary th, table.summary td { border: 1px solid #000; padding: 5px 4px; font-size: 9px; }
+        table.summary th, table.summary td { border: 1px solid #000; padding: 7px 5px; font-size: 10.5px; }
         table.summary th { text-align: center; background: #eee; font-weight: bold; vertical-align: middle; }
         table.summary td.center, table.summary th.center { text-align: center; }
         table.summary td.amount { text-align: right; }
@@ -45,20 +42,24 @@
         table.summary .col-duties { width: 12%; }
         table.summary .col-amount { width: 15%; }
         table.summary .total td { font-weight: bold; }
-        table.charges { table-layout: fixed; margin-top: 8px; }
-        table.charges td { padding: 3px 4px; font-size: 9.5px; word-wrap: break-word; }
+        table.charges { table-layout: fixed; margin-top: 10px; }
+        table.charges td { padding: 4px 4px; font-size: 10.5px; word-wrap: break-word; }
         table.charges .label { width: 78%; }
         table.charges .amount { text-align: right; width: 22%; }
         table.charges .strong td { font-weight: bold; border-top: 1px solid #000; }
-        .words-line { font-size: 10.5px; margin: 3px 0 5px; }
-        .tax-line { font-size: 9.5px; margin-top: 4px; }
-        .footer-col { width: 33.33%; padding: 0 8px; font-size: 9.25px; word-wrap: break-word; }
+        .words-line { font-size: 11.5px; margin: 4px 0 6px; }
+        .tax-line { font-size: 10.5px; margin-top: 5px; }
+        .footer-col { width: 33.33%; padding: 0 10px; font-size: 10px; word-wrap: break-word; }
         .footer-col:not(:first-child) { border-left: 1.4px solid #000; }
-        .footer-title { font-weight: bold; font-size: 10px; margin-bottom: 4px; }
-        .sign-line { margin-top: 72px; border-top: 1px solid #000; padding-top: 4px; }
-    </style>
+        .footer-title { font-weight: bold; font-size: 11px; margin-bottom: 5px; }
+        /* Many designations: tighter rows so the invoice still fits on one page. */
+        .compact table.summary th, .compact table.summary td { padding: 3px 5px; }
+        .compact table.charges { margin-top: 5px; }
+        .compact table.charges td { padding: 2px 4px; }
+        .compact .frame > tbody > tr > td { padding-top: 7px; padding-bottom: 7px; }
+        .sign-line { margin-top: 0.95in; border-top: 1px solid #000; padding-top: 4px; }    </style>
 </head>
-<body>
+<body class="{{ $dutySummary->count() > 6 ? 'compact' : '' }}">
 @php
     $tenant = $invoice->tenant;
     $client = $invoice->client;
@@ -136,7 +137,8 @@
             </td>
         </tr>
         <tr>
-            <td>
+            {{-- Extra height pushes the box down to the bottom of the page; it shrinks a little per extra designation. --}}
+            <td style="height:{{ number_format($dutySummary->count() <= 6 ? 5.08 : max(2.5, 5.08 - 0.12 * ($dutySummary->count() - 5)), 2, '.', '') }}in">
                 <div class="summary-title">Summary of Duties Performed in the Month of {{ $monthName }} {{ $invoice->year }}</div>
                 <table class="summary">
                     <thead>
@@ -155,7 +157,7 @@
                             <tr>
                                 <td class="center">{{ $index + 1 }}</td>
                                 <td>{{ $item['rank'] }}</td>
-                                <td class="center">{{ $item['sac'] ?? $hsnSac }}@if (!empty($item['sac_description']))<br><span style="font-size:7px">{{ $item['sac_description'] }}</span>@endif</td>
+                                <td class="center">{{ $item['sac'] ?? $hsnSac }}</td>
                                 <td class="amount">{{ number_format($item['rate'], 2) }}</td>
                                 <td class="center">{{ $item['persons'] }}</td>
                                 <td class="center">{{ number_format($item['duties'], 2) }}</td>
