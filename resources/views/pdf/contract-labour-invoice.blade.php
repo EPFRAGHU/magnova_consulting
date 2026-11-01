@@ -128,7 +128,7 @@
                                 <tr><td class="label">GSTIN</td><td class="colon">:</td><td>{{ $supplier['gstin'] ?: '—' }}</td></tr>
                                 <tr><td class="label">PAN No.</td><td class="colon">:</td><td>{{ $supplier['pan'] ?: '—' }}</td></tr>
                                 <tr><td class="label">Contact No.</td><td class="colon">:</td><td>{{ $supplier['phone'] ?? '—' }}</td></tr>
-                                <tr><td class="label">Billing Period</td><td class="colon">:</td><td>{{ \Illuminate\Support\Carbon::parse($d['period_start'] ?? $d['period_label'])->format('d-m-Y') }} to {{ \Illuminate\Support\Carbon::parse($d['period_start'] ?? $d['period_label'])->endOfMonth()->format('d-m-Y') }}</td></tr>
+                                <tr><td class="label">Billing Period</td><td class="colon">:</td><td>{{ \Illuminate\Support\Carbon::parse($d['billing_period_start'] ?? $d['period_start'] ?? $d['period_label'])->format('d-m-Y') }} to {{ isset($d['billing_period_end']) ? \Illuminate\Support\Carbon::parse($d['billing_period_end'])->format('d-m-Y') : \Illuminate\Support\Carbon::parse($d['period_start'] ?? $d['period_label'])->endOfMonth()->format('d-m-Y') }}</td></tr>
                             </table>
                         </td>
                     </tr>

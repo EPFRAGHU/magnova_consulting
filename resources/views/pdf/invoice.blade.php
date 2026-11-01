@@ -64,8 +64,9 @@
     $tenant = $invoice->tenant;
     $client = $invoice->client;
     $monthName = \Carbon\Carbon::create()->month($invoice->month)->format('F');
-    $billingPeriodStart = \Carbon\Carbon::create($invoice->year, $invoice->month, 1);
-    $billingPeriodEnd = $billingPeriodStart->copy()->endOfMonth();
+    // The whole calendar month, unless the user typed a different billing period on the invoice.
+    $billingPeriodStart = $invoice->billing_period_start ?? \Carbon\Carbon::create($invoice->year, $invoice->month, 1);
+    $billingPeriodEnd = $invoice->billing_period_end ?? \Carbon\Carbon::create($invoice->year, $invoice->month, 1)->endOfMonth();
     $hsnSac = config('magnova.hsn_sac_code');
     $supplierCoreName = trim(preg_replace('~^\s*m/s\.?\s*~i', '', (string) $tenant->name)) ?: 'Magnova Consulting Pvt. Ltd.';
     $supplierName = 'M/s '.$supplierCoreName;
