@@ -74,7 +74,7 @@ class PdfExportService
             'invoice' => $invoice,
             'dutySummary' => $dutySummary,
             'bonus' => $bonus,
-            'amountInWords' => $this->words->amountToWords((float) $invoice->grand_total),
+            'amountInWords' => $this->words->amountToWordsWithPaise((float) $invoice->grand_total),
             'logoDataUri' => $this->logoDataUri(),
         ])->setPaper('a4');
     }
@@ -172,7 +172,10 @@ class PdfExportService
                 'persons' => $items->count(),
                 'duties' => (float) $items->sum('working_days'),
                 'amount' => (float) $items->sum('wage_amount'),
+                // Highest skill in the group first: High-Skilled, Skilled, Semi-Skilled, Unskilled.
+                'skill_rank' => (int) $items->map(fn ($item) => array_search($item->employee->skill_category, Employee::SKILL_ORDER, true) ?: 0)->min(),
             ])
+            ->sortBy([['skill_rank', 'asc'], ['rank', 'asc']])
             ->values();
     }
 
