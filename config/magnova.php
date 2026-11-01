@@ -77,7 +77,7 @@ return [
     'state' => 'Odisha',
     // Place named in the jurisdiction line of the contract-labour tax invoice.
     'jurisdiction' => 'Bhubaneswar',
-    'company_cin' => env('MAGNOVA_COMPANY_CIN', 'U7499OR2019PTC030507'),
+    'company_cin' => env('MAGNOVA_COMPANY_CIN') ?: 'U7499OR2019PTC030507',
     'bank_account_type' => env('MAGNOVA_BANK_ACCOUNT_TYPE'),
 
     // Shown on the tax invoice unless the establishment has saved its own text. The payment-term and
