@@ -16,6 +16,8 @@ type Invoice = {
     ref_no: string | null;
     invoice_date: string;
     due_date: string | null;
+    billing_period_start: string | null;
+    billing_period_end: string | null;
     place_of_supply: string | null;
     reverse_charge: boolean;
     status: string;
@@ -85,6 +87,45 @@ export default function InvoiceEdit({ invoice }: { invoice: Invoice }) {
                                     />
                                     <InputError message={errors.due_date} />
                                 </div>
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="billing_period_start">
+                                        Billing Period From
+                                    </Label>
+                                    <Input
+                                        id="billing_period_start"
+                                        name="billing_period_start"
+                                        type="date"
+                                        defaultValue={
+                                            invoice.billing_period_start ?? ''
+                                        }
+                                    />
+                                    <InputError
+                                        message={errors.billing_period_start}
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="billing_period_end">
+                                        Billing Period To
+                                    </Label>
+                                    <Input
+                                        id="billing_period_end"
+                                        name="billing_period_end"
+                                        type="date"
+                                        defaultValue={
+                                            invoice.billing_period_end ?? ''
+                                        }
+                                    />
+                                    <InputError
+                                        message={errors.billing_period_end}
+                                    />
+                                </div>
+                                <p className="text-muted-foreground text-xs sm:col-span-2">
+                                    Leave both blank to print the whole month of
+                                    the invoice as the billing period.
+                                </p>
                             </div>
 
                             <div className="grid gap-4 sm:grid-cols-2">

@@ -66,6 +66,8 @@ class InvoiceController extends Controller
             'ref_no' => ['nullable', 'string', 'max:255'],
             'invoice_date' => ['required', 'date'],
             'due_date' => ['nullable', 'date'],
+            'billing_period_start' => ['nullable', 'date', 'required_with:billing_period_end'],
+            'billing_period_end' => ['nullable', 'date', 'required_with:billing_period_start', 'after_or_equal:billing_period_start'],
             'place_of_supply' => ['nullable', 'string', 'max:255'],
             'reverse_charge' => ['boolean'],
             'status' => ['required', 'in:draft,sent,paid'],
@@ -165,7 +167,7 @@ class InvoiceController extends Controller
 
         // A contract-labour invoice prints exactly the content it was issued with.
         if ($invoice->isContractLabour()) {
-            return $pdf->contractLabourInvoice($invoice->document)->download($fileName);
+            return $pdf->contractLabourInvoice($invoice->printableDocument())->download($fileName);
         }
 
         return $pdf->invoice($invoice)->download($fileName);

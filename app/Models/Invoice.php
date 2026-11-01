@@ -12,6 +12,8 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 /**
  * @property Carbon $invoice_date
  * @property Carbon|null $due_date
+ * @property Carbon|null $billing_period_start
+ * @property Carbon|null $billing_period_end
  * @property array<string, mixed>|null $document
  */
 class Invoice extends Model
@@ -19,7 +21,7 @@ class Invoice extends Model
     use BelongsToTenant;
 
     protected $fillable = [
-        'tenant_id', 'client_id', 'invoice_no', 'ref_no', 'invoice_date', 'due_date',
+        'tenant_id', 'client_id', 'invoice_no', 'ref_no', 'invoice_date', 'due_date', 'billing_period_start', 'billing_period_end',
         'place_of_supply', 'reverse_charge', 'month', 'year',
         'rate_per_day', 'no_of_persons', 'no_of_duties', 'base_amount',
         'epf_employer', 'epf_admin', 'edli_cont', 'esi_employer', 'taxable_value', 'service_charge',
@@ -31,6 +33,8 @@ class Invoice extends Model
         return [
             'invoice_date' => 'date:Y-m-d',
             'due_date' => 'date:Y-m-d',
+            'billing_period_start' => 'date:Y-m-d',
+            'billing_period_end' => 'date:Y-m-d',
             'reverse_charge' => 'boolean',
             'document' => 'array',
             'rate_per_day' => 'decimal:2',
@@ -68,6 +72,24 @@ class Invoice extends Model
     }
 
     /** True for an invoice issued from a contract-labour client's wage sheet (it carries its own printed content). */
+    /**
+     * The saved contract-labour document as it prints: the billing period typed on the edit page replaces the calendar
+     * month stored in the snapshot.
+     *
+     * @return array<string, mixed>
+     */
+    public function printableDocument(): array
+    {
+        $document = (array) $this->document;
+
+        if ($this->billing_period_start && $this->billing_period_end) {
+            $document['billing_period_start'] = $this->billing_period_start->toDateString();
+            $document['billing_period_end'] = $this->billing_period_end->toDateString();
+        }
+
+        return $document;
+    }
+
     public function isContractLabour(): bool
     {
         return ! empty($this->document);
