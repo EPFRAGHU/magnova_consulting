@@ -51,6 +51,7 @@ return [
     // Shown in the sidebar and the footer; change the version and its date with each release.
     'version' => '1.0.0',
     'version_date' => '2026-11-02',
+    'project_started' => '2026-09-12 07:40',   // the first commit of the project, India time
     'developer' => 'Digital Solutions Services',
     'legal_contact_email' => env('MAGNOVA_LEGAL_EMAIL') ?: 'admin@magnovahr.in',
 

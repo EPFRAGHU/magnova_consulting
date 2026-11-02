@@ -64,6 +64,13 @@ function formatVersionDate(value: string): string {
     return `${String(day).padStart(2, '0')} ${months[month - 1]} ${year}`;
 }
 
+// 2026-09-12 07:40 -> 12 Sep 2026, 07:40
+function formatStarted(value: string): string {
+    const [date, time = ''] = value.split(' ');
+
+    return `${formatVersionDate(date)}, ${time}`;
+}
+
 export function WorkspaceSidebar({ onNavigate }: { onNavigate?: () => void }) {
     const { auth, appInfo } = usePage().props;
     const { isCurrentOrParentUrl } = useCurrentUrl();
@@ -118,6 +125,8 @@ export function WorkspaceSidebar({ onNavigate }: { onNavigate?: () => void }) {
                 Version {appInfo.version}
                 <span aria-hidden="true"> &middot; </span>
                 {formatVersionDate(appInfo.versionDate)}
+                <br />
+                Started {formatStarted(appInfo.startedAt)}
             </p>
 
             <div className="mt-auto">

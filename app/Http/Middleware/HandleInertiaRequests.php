@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
             'appInfo' => [
                 'version' => config('magnova.version'),
                 'versionDate' => config('magnova.version_date'),
+                'startedAt' => config('magnova.project_started'),
                 'developer' => config('magnova.developer'),
                 'contactEmail' => config('magnova.legal_contact_email'),
             ],

@@ -22,6 +22,7 @@ class AppInfoAndLegalPagesTest extends TestCase
         $this->actingAs(User::factory()->create())->get(route('dashboard'))->assertInertia(fn ($page) => $page
             ->where('appInfo.version', config('magnova.version'))
             ->where('appInfo.versionDate', config('magnova.version_date'))
+            ->where('appInfo.startedAt', '2026-09-12 07:40')
             ->where('appInfo.developer', 'Digital Solutions Services')
             ->where('appInfo.contactEmail', config('magnova.legal_contact_email')));
     }
