@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Services\InvoiceRefresher;
+use App\Support\BonusRule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -59,7 +60,7 @@ class ClientController extends Controller
             : 'Client updated.']);
 
         $redirect = to_route('clients.index');
-        $settingsChanged = $client->wasChanged(['bonus_enabled', 'service_charge_on_basic', 'gst_exempt']);
+        $settingsChanged = $client->wasChanged(['bonus_enabled', 'bonus_type', 'bonus_value', 'bonus_prorate', 'bonus_limit_mode', 'bonus_ceiling', 'bonus_value_above', 'bonus_billed', 'bonus_in_esic', 'service_charge_on_basic', 'gst_exempt']);
         $drafts = $settingsChanged ? $refresher->draftInvoiceCount($client) : 0;
 
         // Ask before recalculating: the page shows a Yes/No question for this unit's draft invoices.
@@ -97,6 +98,13 @@ class ClientController extends Controller
         $request->merge([
             'active' => $request->boolean('active'),
             'bonus_enabled' => $request->boolean('bonus_enabled'),
+            'bonus_prorate' => $request->boolean('bonus_prorate'),
+            // Unticked boxes send nothing, so the form adds bonus_form; without it the invoice default (billed) stays.
+            'bonus_billed' => $request->has('bonus_form') ? $request->boolean('bonus_billed') : true,
+            // The form sends follow / yes / no; null means follow the ESIC settings.
+            'bonus_in_esic' => match ($request->input('bonus_in_esic')) {
+                'yes' => true, 'no' => false, default => null
+            },
             'service_charge_on_basic' => $request->boolean('service_charge_on_basic'),
             'gst_exempt' => $request->boolean('gst_exempt'),
             'esic_unit_mode' => $request->input('esic_unit_mode', 'statutory') ?: 'statutory',
@@ -116,6 +124,14 @@ class ClientController extends Controller
             'contact_email' => ['nullable', 'email', 'max:255'],
             'active' => ['boolean'],
             'bonus_enabled' => ['boolean'],
+            'bonus_type' => ['nullable', Rule::in(BonusRule::TYPES)],
+            'bonus_value' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
+            'bonus_prorate' => ['boolean'],
+            'bonus_limit_mode' => ['nullable', Rule::in(BonusRule::LIMITS)],
+            'bonus_ceiling' => ['nullable', 'numeric', 'min:0', 'max:10000000'],
+            'bonus_value_above' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
+            'bonus_billed' => ['boolean'],
+            'bonus_in_esic' => ['nullable', 'boolean'],
             'service_charge_on_basic' => ['boolean'],
             'gst_exempt' => ['boolean'],
             'esic_unit_mode' => ['required', Rule::in(Client::ESIC_UNIT_MODES)],

@@ -58,7 +58,9 @@ class EsicCalculator
         }
 
         $settings = $this->settingsFor($employee?->tenant_id, $month, $year);
-        $base = $wages + ($settings->include_bonus ? $bonus : 0.0);
+        // A client can override the establishment-wide "bonus counts as ESIC wages" choice.
+        $includeBonus = $employee?->client->bonus_in_esic ?? (bool) $settings->include_bonus;
+        $base = $wages + ($includeBonus ? $bonus : 0.0);
         $ceiling = (float) $settings->coverage_ceiling;
         // A unit can be set to ESIC on the ceiling (non-statutory) while every other unit stays statutory.
         $unitMode = $employee?->client?->esic_unit_mode;
@@ -100,7 +102,7 @@ class EsicCalculator
                 'employee_rate' => (float) $settings->employee_rate,
                 'employer_rate' => (float) $settings->employer_rate,
                 'daily_wage_exemption' => $settings->daily_wage_exemption,
-                'include_bonus' => (bool) $settings->include_bonus,
+                'include_bonus' => $includeBonus,
                 'rounding' => $settings->rounding,
                 'mode_source' => $unitOverride ? 'unit' : 'establishment',
             ],

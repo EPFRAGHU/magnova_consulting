@@ -67,13 +67,17 @@ class PdfExportService
                 (int) $invoice->month,
                 (int) $invoice->year,
                 (bool) $invoice->client?->bonus_enabled,
+                $invoice->client,
+                (float) $item->working_days,
             ),
         );
+        $bonusRule = ($invoice->client ?? new Client)->bonusRule();
 
         return Pdf::loadView('pdf.invoice', [
             'invoice' => $invoice,
             'dutySummary' => $dutySummary,
             'bonus' => $bonus,
+            'bonusRule' => $bonusRule,
             'amountInWords' => $this->words->amountToWordsWithPaise((float) $invoice->grand_total),
             'logoDataUri' => $this->logoDataUri(),
         ])->setPaper('a4');
@@ -254,7 +258,7 @@ class PdfExportService
         return Pdf::loadView('pdf.wage-register', [
             'client' => $client,
             'rows' => $rows,
-            'headings' => $this->wageRegisterCalculator->headings($month, $year, (bool) $client->service_charge_on_basic, (bool) $client->gst_exempt, $client->tenant_id, $client->esic_unit_mode),
+            'headings' => $this->wageRegisterCalculator->headings($month, $year, (bool) $client->service_charge_on_basic, (bool) $client->gst_exempt, $client->tenant_id, $client->esic_unit_mode, $client),
             'month' => $month,
             'year' => $year,
         ])->setPaper('a3', 'landscape');

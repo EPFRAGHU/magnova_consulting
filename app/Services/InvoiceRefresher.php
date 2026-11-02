@@ -54,6 +54,7 @@ class InvoiceRefresher
                         (bool) $client->gst_exempt,
                         $wage->employee,
                         $wage,
+                        (float) $wage->working_days,
                     );
 
                     $wage->update(['bonus' => $figures['bonus'], 'net_salary' => $figures['net_payable_salary']]);

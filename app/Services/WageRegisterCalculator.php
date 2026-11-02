@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\Attendance;
+use App\Models\Client;
 use App\Models\Employee;
 use App\Models\Wage;
+use App\Support\BonusRule;
 use Illuminate\Support\Carbon;
 
 class WageRegisterCalculator
@@ -103,7 +105,7 @@ class WageRegisterCalculator
      *
      * @return array<string, string>
      */
-    public function headings(int $month, int $year, ?bool $serviceChargeOnBasic = false, ?bool $gstExempt = false, ?int $tenantId = null, ?string $esicUnitMode = null): array
+    public function headings(int $month, int $year, ?bool $serviceChargeOnBasic = false, ?bool $gstExempt = false, ?int $tenantId = null, ?string $esicUnitMode = null, ?Client $client = null): array
     {
         $agency = $this->agencyHeading($serviceChargeOnBasic);
         $gst = $this->gstHeading($gstExempt);
@@ -145,26 +147,26 @@ class WageRegisterCalculator
             'epf' => "EPF @12% of Monthly Wage, ceiling {$ceiling}",
             'edli' => "EDLI and EPF Admin Charges @1% of Monthly Wage, ceiling {$ceiling}",
             'esic' => 'ESIC @'.rtrim(rtrim(number_format($esic->employer_rate, 2), '0'), '.')."% of ESIC wages ({$esicNote})",
-            'bonus' => "Bonus @8.33% of Monthly Wage ({$bonusLimit})",
+            'bonus' => $client && $client->bonus_enabled ? BonusRule::forClient($client)->heading() : "Bonus @8.33% of Monthly Wage ({$bonusLimit})",
             'epf_individual' => "EPF individual Contribution @12% of Monthly Wage, ceiling {$ceiling}",
             'esic_individual' => 'ESIC individual Contribution @'.rtrim(rtrim(number_format($esic->employee_rate, 2), '0'), '.')."% of ESIC wages ({$esicNote})",
         ];
     }
 
-    /** Bonus is a per-unit choice: when the unit has it switched off nobody in that unit gets any. */
-    public function bonusFor(float $monthlyWage, int $month, int $year, bool $bonusEnabled): float
+    /**
+     * Bonus is a per-client choice (type, value, wage limit; see BonusRule): when the unit has it switched off nobody in
+     * that unit gets any. $paidDays is needed for the per-day and reduced fixed-per-month types.
+     */
+    public function bonusFor(float $monthlyWage, int $month, int $year, bool $bonusEnabled, ?Client $client = null, ?float $paidDays = null): float
     {
-        if (! $bonusEnabled) {
-            return 0.0;
+        $rule = BonusRule::forClient($client, $bonusEnabled);
+
+        // Months before the current register rules keep their own cap logic for the original rule.
+        if ($rule->enabled && ! $this->usesCurrentRules($month, $year) && $rule->isOriginal()) {
+            return round(min($monthlyWage, config('magnova.bonus_cap')) * config('magnova.bonus_pct') / 100, 2);
         }
 
-        if ($this->usesCurrentRules($month, $year)) {
-            return $monthlyWage > (float) config('magnova.bonus_eligibility_ceiling')
-                ? 0.0
-                : round($monthlyWage * config('magnova.bonus_pct') / 100, 2);
-        }
-
-        return round(min($monthlyWage, config('magnova.bonus_cap')) * config('magnova.bonus_pct') / 100, 2);
+        return $rule->amount($monthlyWage, $paidDays, Carbon::create($year, $month, 1)->daysInMonth);
     }
 
     /**
@@ -195,6 +197,7 @@ class WageRegisterCalculator
                 (bool) $employee->client?->gst_exempt,
                 $employee,
                 $wage,
+                $daysDeployed,
             ),
             'saved' => $wage !== null,
         ];
@@ -207,7 +210,7 @@ class WageRegisterCalculator
      *
      * @return array<string, mixed>
      */
-    public function figures(float $monthlyWage, int $month, int $year, bool $bonusEnabled, bool $serviceChargeOnBasic = false, bool $gstExempt = false, ?Employee $employee = null, ?Wage $saved = null): array
+    public function figures(float $monthlyWage, int $month, int $year, bool $bonusEnabled, bool $serviceChargeOnBasic = false, bool $gstExempt = false, ?Employee $employee = null, ?Wage $saved = null, ?float $paidDays = null): array
     {
         $current = $this->usesCurrentRules($month, $year);
         // Every amount is kept to the paisa; nothing is rounded to the rupee.
@@ -216,7 +219,9 @@ class WageRegisterCalculator
 
         $epfBase = $this->epfWageBase($monthlyWage, $month, $year);
 
-        $bonus = $this->bonusFor($monthlyWage, $month, $year, $bonusEnabled);
+        $client = $employee?->client;
+        $bonus = $this->bonusFor($monthlyWage, $month, $year, $bonusEnabled, $client, $paidDays);
+        $bonusBilled = BonusRule::forClient($client, $bonusEnabled)->billed;
         $esic = $current ? $this->esic()->calculate($monthlyWage, $month, $year, $employee, $bonus, $saved) : null;
         $epfEmployer = round($epfBase * config('magnova.epf_employee_pct') / 100, $precision);
         $edliAndEpfAdmin = round(
@@ -226,7 +231,7 @@ class WageRegisterCalculator
         $esicEmployer = $esic
             ? $esic->employerAmount
             : round(min($monthlyWage, $esicCeiling) * config('magnova.esi_employer_pct') / 100, 2);
-        $totalGrossSalary = round($monthlyWage + $epfEmployer + $edliAndEpfAdmin + $esicEmployer + $bonus, $precision);
+        $totalGrossSalary = round($monthlyWage + $epfEmployer + $edliAndEpfAdmin + $esicEmployer + ($bonusBilled ? $bonus : 0.0), $precision);
         $gst = $gstExempt ? 0.0 : round(
             $totalGrossSalary * (config('magnova.cgst_pct') + config('magnova.sgst_pct')) / 100,
             $precision,
