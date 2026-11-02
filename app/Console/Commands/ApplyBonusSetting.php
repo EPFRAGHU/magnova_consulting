@@ -39,6 +39,7 @@ class ApplyBonusSetting extends Command
                     (bool) $wage->employee->client?->gst_exempt,
                     $wage->employee,
                     $wage,
+                    (float) $wage->working_days,
                 );
 
                 if ((float) $wage->bonus !== (float) $figures['bonus']

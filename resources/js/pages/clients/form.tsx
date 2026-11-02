@@ -27,6 +27,14 @@ type Client = {
     contact_email: string | null;
     active: boolean;
     bonus_enabled: boolean;
+    bonus_type: string;
+    bonus_value: string | null;
+    bonus_prorate: boolean;
+    bonus_limit_mode: string;
+    bonus_ceiling: string | null;
+    bonus_value_above: string | null;
+    bonus_billed: boolean;
+    bonus_in_esic: boolean | null;
     service_charge_on_basic: boolean;
     gst_exempt: boolean;
     esic_unit_mode: string;
@@ -46,6 +54,13 @@ export default function ClientForm({ client }: { client?: Client }) {
     const [profile, setProfile] = useState(
         client?.payroll_profile ?? 'standard',
     );
+    const [bonusOn, setBonusOn] = useState(client?.bonus_enabled ?? false);
+    const [bonusType, setBonusType] = useState(client?.bonus_type ?? 'percent');
+    const [bonusLimit, setBonusLimit] = useState(
+        client?.bonus_limit_mode ?? 'up_to',
+    );
+    const amountLabel =
+        bonusType === 'percent' ? 'Bonus percentage (%)' : 'Bonus amount (Rs)';
     const submitOptions = isEdit
         ? ClientController.update.form(client!.id)
         : ClientController.store.form();
@@ -423,8 +438,9 @@ export default function ClientForm({ client }: { client?: Client }) {
                                     <Checkbox
                                         id="bonus_enabled"
                                         name="bonus_enabled"
-                                        defaultChecked={
-                                            client?.bonus_enabled ?? false
+                                        checked={bonusOn}
+                                        onCheckedChange={(value) =>
+                                            setBonusOn(value === true)
                                         }
                                     />
                                     <Label htmlFor="bonus_enabled">
@@ -438,6 +454,215 @@ export default function ClientForm({ client }: { client?: Client }) {
                                 </div>
                                 <InputError message={errors.bonus_enabled} />
                             </div>
+
+                            {bonusOn && (
+                                <div className="grid gap-4 rounded-md border p-4">
+                                    <input
+                                        type="hidden"
+                                        name="bonus_form"
+                                        value="1"
+                                    />
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="bonus_type">
+                                                How is the bonus worked out?
+                                            </Label>
+                                            <SelectNative
+                                                id="bonus_type"
+                                                name="bonus_type"
+                                                value={bonusType}
+                                                onChange={(e) =>
+                                                    setBonusType(e.target.value)
+                                                }
+                                            >
+                                                <option value="percent">
+                                                    Percentage of the monthly
+                                                    wage
+                                                </option>
+                                                <option value="per_day">
+                                                    Fixed rupees for each day
+                                                    worked
+                                                </option>
+                                                <option value="per_month">
+                                                    Fixed rupees per month
+                                                </option>
+                                            </SelectNative>
+                                            <InputError
+                                                message={errors.bonus_type}
+                                            />
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="bonus_value">
+                                                {amountLabel}
+                                            </Label>
+                                            <Input
+                                                id="bonus_value"
+                                                name="bonus_value"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                placeholder={
+                                                    bonusType === 'percent'
+                                                        ? '8.33'
+                                                        : '0'
+                                                }
+                                                defaultValue={
+                                                    client?.bonus_value ?? ''
+                                                }
+                                            />
+                                            <InputError
+                                                message={errors.bonus_value}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {bonusType === 'per_month' && (
+                                        <div className="flex items-center gap-2">
+                                            <Checkbox
+                                                id="bonus_prorate"
+                                                name="bonus_prorate"
+                                                defaultChecked={
+                                                    client?.bonus_prorate ??
+                                                    false
+                                                }
+                                            />
+                                            <Label htmlFor="bonus_prorate">
+                                                Reduce the fixed amount for
+                                                fewer days (amount x paid days /
+                                                days in the month)
+                                            </Label>
+                                        </div>
+                                    )}
+
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="bonus_limit_mode">
+                                                Monthly wage limit
+                                            </Label>
+                                            <SelectNative
+                                                id="bonus_limit_mode"
+                                                name="bonus_limit_mode"
+                                                value={bonusLimit}
+                                                onChange={(e) =>
+                                                    setBonusLimit(
+                                                        e.target.value,
+                                                    )
+                                                }
+                                            >
+                                                <option value="up_to">
+                                                    No bonus above the limit
+                                                </option>
+                                                <option value="none">
+                                                    No limit (bonus on every
+                                                    wage)
+                                                </option>
+                                                <option value="different_above">
+                                                    A different bonus above the
+                                                    limit
+                                                </option>
+                                            </SelectNative>
+                                            <InputError
+                                                message={
+                                                    errors.bonus_limit_mode
+                                                }
+                                            />
+                                        </div>
+                                        {bonusLimit !== 'none' && (
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="bonus_ceiling">
+                                                    Limit (monthly wage, Rs)
+                                                </Label>
+                                                <Input
+                                                    id="bonus_ceiling"
+                                                    name="bonus_ceiling"
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    placeholder="21000"
+                                                    defaultValue={
+                                                        client?.bonus_ceiling ??
+                                                        ''
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors.bonus_ceiling
+                                                    }
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {bonusLimit === 'different_above' && (
+                                        <div className="grid gap-2 sm:max-w-xs">
+                                            <Label htmlFor="bonus_value_above">
+                                                Bonus above the limit (
+                                                {bonusType === 'percent'
+                                                    ? '%'
+                                                    : 'Rs'}
+                                                )
+                                            </Label>
+                                            <Input
+                                                id="bonus_value_above"
+                                                name="bonus_value_above"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                defaultValue={
+                                                    client?.bonus_value_above ??
+                                                    ''
+                                                }
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors.bonus_value_above
+                                                }
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            id="bonus_billed"
+                                            name="bonus_billed"
+                                            defaultChecked={
+                                                client?.bonus_billed ?? true
+                                            }
+                                        />
+                                        <Label htmlFor="bonus_billed">
+                                            Show the bonus on the invoice
+                                            (unticked: it is paid to the
+                                            employee but not billed)
+                                        </Label>
+                                    </div>
+
+                                    <div className="grid gap-2 sm:max-w-sm">
+                                        <Label htmlFor="bonus_in_esic">
+                                            Count the bonus in ESIC wages
+                                        </Label>
+                                        <SelectNative
+                                            id="bonus_in_esic"
+                                            name="bonus_in_esic"
+                                            defaultValue={
+                                                client?.bonus_in_esic ===
+                                                    null ||
+                                                client?.bonus_in_esic ===
+                                                    undefined
+                                                    ? 'follow'
+                                                    : client.bonus_in_esic
+                                                      ? 'yes'
+                                                      : 'no'
+                                            }
+                                        >
+                                            <option value="follow">
+                                                As per Settings &gt; ESIC
+                                            </option>
+                                            <option value="yes">Yes</option>
+                                            <option value="no">No</option>
+                                        </SelectNative>
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="grid gap-2">
                                 <div className="flex items-center gap-2">

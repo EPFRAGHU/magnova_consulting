@@ -63,6 +63,7 @@
 @php
     $tenant = $invoice->tenant;
     $client = $invoice->client;
+    $bonusRule = $bonusRule ?? $client->bonusRule();
     $monthName = \Carbon\Carbon::create()->month($invoice->month)->format('F');
     // The whole calendar month, unless the user typed a different billing period on the invoice.
     $billingPeriodStart = $invoice->billing_period_start ?? \Carbon\Carbon::create($invoice->year, $invoice->month, 1);
@@ -175,8 +176,8 @@
                     <tr><td class="label">EPFO @ {{ number_format(config('magnova.epf_employee_pct'), 2) }}% on capped monthly wages</td><td class="amount">{{ number_format($epfo, 2) }}</td></tr>
                     <tr><td class="label">EDLI and EPF Admin Charges @ {{ number_format(config('magnova.epf_admin_pct') + config('magnova.edli_cont_pct'), 2) }}% on capped monthly wages</td><td class="amount">{{ number_format($edliAndAdmin, 2) }}</td></tr>
                     <tr><td class="label">ESIC @ {{ number_format(app(\App\Services\EsicCalculator::class)->settingsFor($invoice->tenant_id, $invoice->month, $invoice->year)->employer_rate, 2) }}% on ESIC wages</td><td class="amount">{{ number_format($esic, 2) }}</td></tr>
-                    @if ($client->bonus_enabled)
-                    <tr><td class="label">Bonus @ {{ number_format(config('magnova.bonus_pct'), 2) }}% on capped monthly wages</td><td class="amount">{{ number_format($bonus, 2) }}</td></tr>
+                    @if ($bonusRule->enabled && $bonusRule->billed)
+                    <tr><td class="label">{{ $bonusRule->invoiceLabel() }}</td><td class="amount">{{ number_format($bonus, 2) }}</td></tr>
                     @endif
                     <tr class="strong"><td class="label">SUB-TOTAL (Taxable Value)</td><td class="amount">{{ number_format($taxableSubtotal, 2) }}</td></tr>
                     <tr><td class="label">Service Charges @ {{ number_format(config('magnova.service_charge_pct'), 2) }}% on {{ $client->service_charge_on_basic ? 'Basic Wages' : 'Gross Wages' }}</td><td class="amount">{{ number_format($invoice->service_charge, 2) }}</td></tr>

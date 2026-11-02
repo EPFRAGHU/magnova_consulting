@@ -51,7 +51,8 @@ class InvoiceCalculator
             fn (Wage $wage) => min((float) $wage->gross_wages, 21000)
                 * config('magnova.esi_employer_pct') / 100,
         ), 2);
-        $bonus = round((float) $wages->sum('bonus'), 2);
+        // Bonus a client does not want billed is paid to the employee but left off the invoice.
+        $bonus = $client->bonusRule()->billed ? round((float) $wages->sum('bonus'), 2) : 0.0;
         $taxableValue = round(
             $baseAmount + $epfEmployer + $epfAdmin + $edliCont + $esiEmployer + $bonus,
             2,
@@ -77,6 +78,7 @@ class InvoiceCalculator
                     (bool) $client->gst_exempt,
                     $wage->employee,
                     $wage,
+                    (float) $wage->working_days,
                 ),
             );
             $edliAndAdmin = round($figures->sum('edli_and_epf_admin'), 2);
