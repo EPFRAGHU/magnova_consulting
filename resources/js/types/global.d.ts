@@ -16,6 +16,7 @@ declare module '@inertiajs/core' {
             appInfo: {
                 version: string;
                 versionDate: string;
+                startedAt: string;
                 developer: string;
                 contactEmail: string;
             };
