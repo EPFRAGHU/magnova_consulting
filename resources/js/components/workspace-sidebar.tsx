@@ -42,8 +42,30 @@ export const workspaceNav: NavItem[] = [
 
 const SUPPORT_EMAIL = 'admin@magnovahr.in';
 
+// 2026-11-02 -> 02 Nov 2026 (read from the text, so the time zone cannot move the day).
+function formatVersionDate(value: string): string {
+    const [year, month, day] = value.split('-').map(Number);
+
+    const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+    ];
+
+    return `${String(day).padStart(2, '0')} ${months[month - 1]} ${year}`;
+}
+
 export function WorkspaceSidebar({ onNavigate }: { onNavigate?: () => void }) {
-    const { auth } = usePage().props;
+    const { auth, appInfo } = usePage().props;
     const { isCurrentOrParentUrl } = useCurrentUrl();
     const getInitials = useInitials();
 
@@ -91,6 +113,12 @@ export function WorkspaceSidebar({ onNavigate }: { onNavigate?: () => void }) {
                     );
                 })}
             </nav>
+
+            <p className="mx-3 mt-3 text-[10.5px] leading-snug text-[#8fa4c4]">
+                Version {appInfo.version}
+                <span aria-hidden="true"> &middot; </span>
+                {formatVersionDate(appInfo.versionDate)}
+            </p>
 
             <div className="mt-auto">
                 <div className="mx-0.5 mt-2.5 mb-4 rounded-xl border border-white/15 bg-white/5 p-3">

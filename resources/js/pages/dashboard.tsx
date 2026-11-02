@@ -15,6 +15,7 @@ import {
     Wallet,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { AppFooter } from '@/components/app-footer';
 import { MONTHS } from '@/components/filter-bar';
 import { StatusBadge } from '@/components/status-badge';
 import {
@@ -836,6 +837,8 @@ export default function Dashboard({
                         </p>
                     </Panel>
                 </div>
+
+                <AppFooter />
             </div>
         </>
     );

@@ -48,6 +48,12 @@ return [
 
     // Wage-sheet rules for a contract-labour client (principal employer arrangement), copied from the client's own
     // Wages sheet (Balmer Lawrie, September 2026). Each client can override any of these in clients.payroll_parameters.
+    // Shown in the sidebar and the footer; change the version and its date with each release.
+    'version' => '1.0.0',
+    'version_date' => '2026-11-02',
+    'developer' => 'Digital Solutions Services',
+    'legal_contact_email' => env('MAGNOVA_LEGAL_EMAIL') ?: 'admin@magnovahr.in',
+
     // The one line the contract-labour tax invoice prints under 'Particulars (Rank)'; the rank-wise split is on the annexure page.
     'contract_invoice_particulars' => 'Handling Manpower Contract',
 

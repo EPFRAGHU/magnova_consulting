@@ -43,6 +43,12 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'maintenance' => fn () => app(MaintenanceNotice::class)->message(),
+            'appInfo' => [
+                'version' => config('magnova.version'),
+                'versionDate' => config('magnova.version_date'),
+                'developer' => config('magnova.developer'),
+                'contactEmail' => config('magnova.legal_contact_email'),
+            ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
