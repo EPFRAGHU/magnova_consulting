@@ -15,6 +15,7 @@ void createInertiaApp({
         switch (true) {
             case name === 'welcome':
             case name === 'auth/login':
+            case name.startsWith('legal/'):
                 // These public pages draw their own full-page layout.
                 return null;
             case name.startsWith('auth/'):

@@ -13,6 +13,12 @@ declare module '@inertiajs/core' {
             auth: Auth;
             sidebarOpen: boolean;
             maintenance: string | null;
+            appInfo: {
+                version: string;
+                versionDate: string;
+                developer: string;
+                contactEmail: string;
+            };
             [key: string]: unknown;
         };
     }

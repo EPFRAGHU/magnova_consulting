@@ -15,6 +15,8 @@ use App\Http\Controllers\WageController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+Route::inertia('terms', 'legal/terms')->name('terms');
+Route::inertia('privacy', 'legal/privacy')->name('privacy');
 
 Route::middleware('guest')->group(function () {
     Route::post('login/otp/request', [LoginOtpController::class, 'request'])->name('login.otp.request');
