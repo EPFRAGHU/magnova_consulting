@@ -21,6 +21,7 @@ import {
     destroy,
     edit,
     index,
+    load,
     regenerateInvoices,
 } from '@/routes/clients';
 
@@ -55,10 +56,12 @@ type RegenerateAsk = { client_id: number; name: string; count: number };
 export default function ClientsIndex({
     clients,
     search,
+    loaded_client_id,
     regenerate,
 }: {
     clients: ClientRow[];
     search: string;
+    loaded_client_id: number | null;
     regenerate: RegenerateAsk | null;
 }) {
     const [query, setQuery] = useState(search ?? '');
@@ -172,6 +175,9 @@ export default function ClientsIndex({
                                         <th className="px-6 py-2 font-medium">
                                             Status
                                         </th>
+                                        <th className="px-6 py-2 font-medium">
+                                            Load
+                                        </th>
                                         <th className="px-6 py-2 font-medium" />
                                     </tr>
                                 </thead>
@@ -280,6 +286,45 @@ export default function ClientsIndex({
                                                     </>
                                                 )}
                                             </td>
+                                            <td className="px-6 py-2">
+                                                <button
+                                                    type="button"
+                                                    role="switch"
+                                                    aria-checked={
+                                                        client.id ===
+                                                        loaded_client_id
+                                                    }
+                                                    aria-label={`Load ${client.name}`}
+                                                    disabled={
+                                                        client.id ===
+                                                        loaded_client_id
+                                                    }
+                                                    onClick={() =>
+                                                        router.post(
+                                                            load(client.id).url,
+                                                            {},
+                                                            {
+                                                                preserveScroll: true,
+                                                            },
+                                                        )
+                                                    }
+                                                    className={`relative h-5 w-9 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                                                        client.id ===
+                                                        loaded_client_id
+                                                            ? 'bg-emerald-600'
+                                                            : 'bg-slate-300 dark:bg-slate-600'
+                                                    }`}
+                                                >
+                                                    <span
+                                                        className={`absolute top-0.5 left-0.5 size-4 rounded-full bg-white transition-transform ${
+                                                            client.id ===
+                                                            loaded_client_id
+                                                                ? 'translate-x-4'
+                                                                : ''
+                                                        }`}
+                                                    />
+                                                </button>
+                                            </td>
                                             <td className="px-6 py-2 text-right whitespace-nowrap">
                                                 <Button
                                                     asChild
@@ -304,7 +349,7 @@ export default function ClientsIndex({
                                     {clients.length === 0 && (
                                         <tr>
                                             <td
-                                                colSpan={6}
+                                                colSpan={7}
                                                 className="text-muted-foreground px-6 py-6 text-center"
                                             >
                                                 No clients found.

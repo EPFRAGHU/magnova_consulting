@@ -13,6 +13,11 @@ declare module '@inertiajs/core' {
             auth: Auth;
             sidebarOpen: boolean;
             maintenance: string | null;
+            loadedClient: {
+                id: number;
+                name: string;
+                unit_label: string | null;
+            } | null;
             appInfo: {
                 version: string;
                 versionDate: string;

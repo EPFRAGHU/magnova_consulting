@@ -184,7 +184,8 @@ class ContractWageSheetTest extends TestCase
         $this->attend($this->guard($this->contract), 26, 38);
         $this->attend($this->guard($this->standard), 20);
 
-        $this->actingAs($this->user)->get(route('wages.index', ['client_id' => $this->contract->id, 'month' => 9, 'year' => 2026]))
+        $this->loadClient($this->user, $this->contract);
+        $this->actingAs($this->user)->get(route('wages.index', ['month' => 9, 'year' => 2026]))
             ->assertInertia(fn ($page) => $page->component('wages/contract-labour')
                 ->where('client.principal_employer_name', 'Balmer Lawrie and Co. Ltd.')
                 ->has('rows', 1)
@@ -194,7 +195,8 @@ class ContractWageSheetTest extends TestCase
                 ->where('totals.figures.gross', fn ($v) => abs($v - 30431.2398) < 0.0001)
                 ->has('headings'));
 
-        $this->actingAs($this->user)->get(route('wages.index', ['client_id' => $this->standard->id, 'month' => 9, 'year' => 2026]))
+        $this->loadClient($this->user, $this->standard);
+        $this->actingAs($this->user)->get(route('wages.index', ['month' => 9, 'year' => 2026]))
             ->assertInertia(fn ($page) => $page->component('wages/index'));
     }
 

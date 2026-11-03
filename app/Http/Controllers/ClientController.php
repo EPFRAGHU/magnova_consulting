@@ -26,8 +26,21 @@ class ClientController extends Controller
         return Inertia::render('clients/index', [
             'clients' => $clients,
             'search' => $search,
+            'loaded_client_id' => $request->user()->loadedClient()?->id,
             'regenerate' => session('regenerate'),
         ]);
+    }
+
+    /** Switch this client ON: Guards, Attendance, Payroll, Invoices and Payslips show only it from now on. */
+    public function load(Request $request, Client $client): RedirectResponse
+    {
+        $user = $request->user();
+        $user->loaded_client_id = $client->id;
+        $user->save();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "{$client->name} is loaded. The menus now show this client."]);
+
+        return back();
     }
 
     public function create(): Response

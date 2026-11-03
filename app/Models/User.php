@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string $role
+ * @property int|null $loaded_client_id
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -35,6 +36,17 @@ class User extends Authenticatable
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    /**
+     * The client switched ON in Clients & Sites. Until one is chosen, or after it was archived, it is the first active
+     * client in the Clients list order (by name).
+     */
+    public function loadedClient(): ?Client
+    {
+        $client = $this->loaded_client_id ? Client::find($this->loaded_client_id) : null;
+
+        return $client ?? Client::where('active', true)->orderBy('name')->first();
     }
 
     /**
