@@ -127,8 +127,9 @@ export default function InvoiceEdit({ invoice }: { invoice: Invoice }) {
                                     />
                                 </div>
                                 <p className="text-muted-foreground text-xs sm:col-span-2">
-                                    Leave both blank to print the whole month of
-                                    the invoice as the billing period.
+                                    Leave both blank to print the client&apos;s
+                                    monthly billing period (set on the client
+                                    page), or the whole month if it has none.
                                 </p>
                             </div>
 

@@ -108,6 +108,8 @@ class ClientController extends Controller
             'service_charge_on_basic' => $request->boolean('service_charge_on_basic'),
             'gst_exempt' => $request->boolean('gst_exempt'),
             'esic_unit_mode' => $request->input('esic_unit_mode', 'statutory') ?: 'statutory',
+            'billing_from_month' => $request->input('billing_from_month') ?: 'same',
+            'billing_to_month' => $request->input('billing_to_month') ?: 'same',
         ]);
 
         return $request->validate([
@@ -135,6 +137,10 @@ class ClientController extends Controller
             'service_charge_on_basic' => ['boolean'],
             'gst_exempt' => ['boolean'],
             'esic_unit_mode' => ['required', Rule::in(Client::ESIC_UNIT_MODES)],
+            'billing_from_day' => ['nullable', 'integer', 'between:1,31', 'required_with:billing_to_day'],
+            'billing_from_month' => ['nullable', Rule::in(['previous', 'same'])],
+            'billing_to_day' => ['nullable', 'integer', 'between:1,31', 'required_with:billing_from_day'],
+            'billing_to_month' => ['nullable', Rule::in(['same', 'next'])],
             'payroll_profile' => ['sometimes', Rule::in(Client::PAYROLL_PROFILES)],
             'principal_employer_name' => [Rule::requiredIf($request->input('payroll_profile') === 'contract_labour'), 'nullable', 'string', 'max:255'],
             'principal_employer_address' => ['nullable', 'string', 'max:1000'],

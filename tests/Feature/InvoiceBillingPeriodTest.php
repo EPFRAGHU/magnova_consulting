@@ -123,4 +123,73 @@ class InvoiceBillingPeriodTest extends TestCase
         $this->assertSame('2026-10-05', $document['billing_period_start']);
         $this->assertSame('2026-11-04', $document['billing_period_end']);
     }
+
+    /** @param array<string, mixed> $rule */
+    private function rule(array $rule): void
+    {
+        $this->client->update($rule);
+    }
+
+    public function test_the_clients_monthly_period_prints_on_every_invoice(): void
+    {
+        $this->rule(['billing_from_day' => 26, 'billing_from_month' => 'previous', 'billing_to_day' => 25, 'billing_to_month' => 'same']);
+
+        $this->assertStringContainsString('26-09-2026 to 25-10-2026', $this->html($this->invoice()));
+    }
+
+    public function test_the_period_can_run_from_this_month_into_the_next(): void
+    {
+        $this->rule(['billing_from_day' => 26, 'billing_from_month' => 'same', 'billing_to_day' => 25, 'billing_to_month' => 'next']);
+
+        $this->assertStringContainsString('26-10-2026 to 25-11-2026', $this->html($this->invoice()));
+    }
+
+    public function test_a_day_the_month_does_not_have_becomes_its_last_day(): void
+    {
+        $this->rule(['billing_from_day' => 31, 'billing_from_month' => 'previous', 'billing_to_day' => 30, 'billing_to_month' => 'same']);
+
+        $this->assertSame(['2026-09-30', '2026-10-30'], array_map(fn ($d) => $d->toDateString(), $this->client->billingPeriodFor(10, 2026)));
+    }
+
+    public function test_a_period_typed_on_the_invoice_beats_the_clients_monthly_period(): void
+    {
+        $this->rule(['billing_from_day' => 26, 'billing_from_month' => 'previous', 'billing_to_day' => 25, 'billing_to_month' => 'same']);
+        $invoice = $this->invoice();
+        $this->save($invoice, ['billing_period_start' => '2026-10-05', 'billing_period_end' => '2026-11-04']);
+
+        $this->assertStringContainsString('05-10-2026 to 04-11-2026', $this->html($invoice->fresh()));
+    }
+
+    public function test_a_contract_labour_bill_gets_the_clients_period_too(): void
+    {
+        $this->rule(['billing_from_day' => 26, 'billing_from_month' => 'previous', 'billing_to_day' => 25, 'billing_to_month' => 'same']);
+        $invoice = Invoice::create([
+            'tenant_id' => $this->user->tenant_id, 'client_id' => $this->client->id, 'invoice_no' => 'MCPL/26-27/8', 'invoice_date' => '2026-11-02',
+            'month' => 10, 'year' => 2026, 'rate_per_day' => 0, 'no_of_persons' => 1, 'no_of_duties' => 1, 'base_amount' => 1, 'epf_employer' => 0,
+            'esi_employer' => 0, 'taxable_value' => 1, 'service_charge' => 0, 'cgst' => 0, 'sgst' => 0, 'grand_total' => 1, 'status' => 'draft',
+            'document' => ['period_start' => '2026-10-01'],
+        ]);
+
+        $document = $invoice->printableDocument();
+        $this->assertSame('2026-09-26', $document['billing_period_start']);
+        $this->assertSame('2026-10-25', $document['billing_period_end']);
+    }
+
+    public function test_the_client_form_saves_and_checks_the_period(): void
+    {
+        $this->actingAs($this->user)->put(route('clients.update', $this->client), [
+            'name' => 'Plain unit', 'billing_from_day' => 26, 'billing_from_month' => 'previous', 'billing_to_day' => 25, 'billing_to_month' => 'same',
+        ])->assertSessionHasNoErrors();
+        $this->assertSame(26, $this->client->fresh()->billing_from_day);
+        $this->assertSame('previous', $this->client->fresh()->billing_from_month);
+
+        $this->actingAs($this->user)->put(route('clients.update', $this->client), ['name' => 'Plain unit', 'billing_from_day' => 40, 'billing_to_day' => 25])
+            ->assertSessionHasErrors('billing_from_day');
+        $this->actingAs($this->user)->put(route('clients.update', $this->client), ['name' => 'Plain unit', 'billing_from_day' => 5])
+            ->assertSessionHasErrors('billing_to_day');
+
+        $this->actingAs($this->user)->put(route('clients.update', $this->client), ['name' => 'Plain unit', 'billing_from_day' => '', 'billing_to_day' => ''])->assertSessionHasNoErrors();
+        $this->assertNull($this->client->fresh()->billing_from_day);
+        $this->assertNull($this->client->fresh()->billingPeriodFor(10, 2026));
+    }
 }
