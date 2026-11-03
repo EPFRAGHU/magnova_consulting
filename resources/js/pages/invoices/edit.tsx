@@ -59,6 +59,10 @@ export default function InvoiceEdit({ invoice }: { invoice: Invoice }) {
                                         name="ref_no"
                                         defaultValue={invoice.ref_no ?? ''}
                                     />
+                                    <p className="text-muted-foreground text-xs">
+                                        Leave blank to print the client&apos;s
+                                        GEMC No.
+                                    </p>
                                     <InputError message={errors.ref_no} />
                                 </div>
                             </div>

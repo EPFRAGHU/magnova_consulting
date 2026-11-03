@@ -94,7 +94,11 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
                                 <tbody>
                                     <Row
                                         label="Ref No."
-                                        value={invoice.ref_no ?? '-'}
+                                        value={
+                                            invoice.ref_no ||
+                                            invoice.client.gemc_no ||
+                                            '-'
+                                        }
                                     />
                                     <Row
                                         label="Invoice Date"

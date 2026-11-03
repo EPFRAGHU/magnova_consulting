@@ -82,12 +82,30 @@ class Invoice extends Model
     {
         $document = (array) $this->document;
 
+        // Typed on the invoice, else the client's GEMC No. now; the saved snapshot is the last resort.
+        $document['ref_no'] = $this->printedRefNo() ?? ($document['ref_no'] ?? null);
+
         if ($this->billing_period_start && $this->billing_period_end) {
             $document['billing_period_start'] = $this->billing_period_start->toDateString();
             $document['billing_period_end'] = $this->billing_period_end->toDateString();
         }
 
         return $document;
+    }
+
+    /**
+     * The Ref no printed on the invoice: what was typed on the invoice, otherwise the client's GEMC No. as it is now.
+     */
+    public function printedRefNo(): ?string
+    {
+        $typed = trim((string) $this->ref_no);
+        if ($typed !== '') {
+            return $typed;
+        }
+
+        $gemc = trim((string) $this->client?->gemc_no);
+
+        return $gemc !== '' ? $gemc : null;
     }
 
     public function isContractLabour(): bool
