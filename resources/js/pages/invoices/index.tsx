@@ -51,9 +51,9 @@ export default function InvoicesIndex({
         undefined;
     const [genNumber, setGenNumber] = useState('');
     const now = new Date();
-    const [genClient, setGenClient] = useState<string>(
-        clients[0] ? String(clients[0].id) : '',
-    );
+    // Invoices are generated for the client loaded in Clients & Sites.
+    const genClient = clientId ? String(clientId) : '';
+    const loadedName = clients.find((c) => c.id === clientId)?.name;
     const wageMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const [genMonth, setGenMonth] = useState(String(wageMonth.getMonth() + 1));
     const [genYear, setGenYear] = useState(String(wageMonth.getFullYear()));
@@ -96,18 +96,9 @@ export default function InvoicesIndex({
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-wrap items-end gap-2">
-                        <SelectNative
-                            value={genClient}
-                            onChange={(e) => setGenClient(e.target.value)}
-                            className="w-56"
-                        >
-                            {clients.map((c) => (
-                                <option key={c.id} value={c.id}>
-                                    {c.name}
-                                    {c.unit_label ? ` - ${c.unit_label}` : ''}
-                                </option>
-                            ))}
-                        </SelectNative>
+                        <span className="bg-muted rounded-md border px-3 py-1.5 text-sm font-medium">
+                            {loadedName ?? 'No client'}
+                        </span>
                         <SelectNative
                             value={genMonth}
                             onChange={(e) => setGenMonth(e.target.value)}

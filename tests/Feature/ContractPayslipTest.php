@@ -73,6 +73,7 @@ class ContractPayslipTest extends TestCase
         $this->guard($this->contract, 'Amy Skilled');
         $this->saveWages();
 
+        $this->loadClient($this->user, $this->contract);
         $this->actingAs($this->user)->get(route('payslips.index', $this->filters($this->contract)))
             ->assertInertia(fn ($page) => $page
                 ->where('contract', true)
@@ -87,6 +88,7 @@ class ContractPayslipTest extends TestCase
     {
         $this->guard($this->contract, 'Amy');
 
+        $this->loadClient($this->user, $this->contract);
         $this->actingAs($this->user)->get(route('payslips.index', $this->filters($this->contract)))
             ->assertInertia(fn ($page) => $page->where('contract', true)->has('wages', 0));
     }
@@ -99,6 +101,7 @@ class ContractPayslipTest extends TestCase
             'gross_wages' => 15600, 'bonus' => 0, 'epf_employee' => 1872, 'esic_employee' => 0, 'net_salary' => 13728,
         ]);
 
+        $this->loadClient($this->user, $this->standard);
         $this->actingAs($this->user)->get(route('payslips.index', $this->filters($this->standard)))
             ->assertInertia(fn ($page) => $page->where('contract', false)->has('wages', 1)->where('wages.0.employee.name', 'Regular Rita'));
     }

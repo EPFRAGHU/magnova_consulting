@@ -15,7 +15,7 @@ class EmployeeController extends Controller
 {
     public function index(Request $request): Response
     {
-        $clientId = $request->integer('client_id') ?: null;
+        $clientId = $request->user()->loadedClient()?->id;
 
         $employees = Employee::query()
             ->with('client')

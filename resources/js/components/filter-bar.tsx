@@ -1,4 +1,5 @@
-import { router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
+import { index as clientsIndex } from '@/routes/clients';
 import {
     Select,
     SelectContent,
@@ -26,7 +27,6 @@ type ClientOption = { id: number; name: string; unit_label: string | null };
 
 export function FilterBar({
     url,
-    clients,
     clientId,
     month,
     year,
@@ -41,6 +41,7 @@ export function FilterBar({
     showClient?: boolean;
     showPeriod?: boolean;
 }) {
+    const { loadedClient } = usePage().props;
     const years = Array.from(
         { length: 6 },
         (_, i) => new Date().getFullYear() - 3 + i,
@@ -62,25 +63,19 @@ export function FilterBar({
     return (
         <div className="flex flex-wrap items-center gap-2">
             {showClient && (
-                <Select
-                    value={clientId ? String(clientId) : 'all'}
-                    onValueChange={(v) =>
-                        go({ client_id: v === 'all' ? undefined : v })
-                    }
-                >
-                    <SelectTrigger className="w-56">
-                        <SelectValue placeholder="All clients" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All clients</SelectItem>
-                        {clients?.map((c) => (
-                            <SelectItem key={c.id} value={String(c.id)}>
-                                {c.name}
-                                {c.unit_label ? ` - ${c.unit_label}` : ''}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2 text-sm">
+                    <span className="bg-muted rounded-md border px-3 py-1.5 font-medium">
+                        {loadedClient
+                            ? `${loadedClient.name}${loadedClient.unit_label ? ` - ${loadedClient.unit_label}` : ''}`
+                            : 'No client'}
+                    </span>
+                    <Link
+                        href={clientsIndex()}
+                        className="text-xs text-blue-700 hover:underline dark:text-blue-300"
+                    >
+                        Change client
+                    </Link>
+                </div>
             )}
 
             {showPeriod && (

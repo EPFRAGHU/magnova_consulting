@@ -66,16 +66,15 @@ class ContractAttendanceTest extends TestCase
         $this->guard($this->contract);
         $this->guard($this->standard);
 
-        $this->actingAs($this->user)->get(route('attendance.index', ['client_id' => $this->contract->id, 'month' => 9, 'year' => 2026]))
+        $this->loadClient($this->user, $this->contract);
+        $this->actingAs($this->user)->get(route('attendance.index', ['month' => 9, 'year' => 2026]))
             ->assertInertia(fn ($page) => $page->component('attendance/contract-labour')
                 ->where('client.principal_employer_name', 'Balmer Lawrie and Co. Ltd.')
                 ->has('employees', 1)
                 ->where('days_in_month', 30));
 
-        $this->actingAs($this->user)->get(route('attendance.index', ['client_id' => $this->standard->id, 'month' => 9, 'year' => 2026]))
-            ->assertInertia(fn ($page) => $page->component('attendance/index'));
-
-        $this->actingAs($this->user)->get(route('attendance.index'))
+        $this->loadClient($this->user, $this->standard);
+        $this->actingAs($this->user)->get(route('attendance.index', ['month' => 9, 'year' => 2026]))
             ->assertInertia(fn ($page) => $page->component('attendance/index'));
     }
 

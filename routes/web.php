@@ -28,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('clients', ClientController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::post('clients/{client}/load', [ClientController::class, 'load'])->name('clients.load');
     Route::post('clients/{client}/regenerate-invoices', [ClientController::class, 'regenerateInvoices'])->name('clients.regenerate-invoices');
     Route::resource('employees', EmployeeController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 

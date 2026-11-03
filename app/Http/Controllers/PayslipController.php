@@ -18,7 +18,7 @@ class PayslipController extends Controller
 {
     public function index(Request $request): Response
     {
-        $clientId = $request->integer('client_id') ?: null;
+        $clientId = $request->user()->loadedClient()?->id;
         $month = $request->integer('month') ?: WageMonth::month();
         $year = $request->integer('year') ?: WageMonth::year();
 
@@ -70,7 +70,7 @@ class PayslipController extends Controller
 
     public function bulk(Request $request, PdfExportService $pdf): HttpResponse
     {
-        $clientId = $request->integer('client_id') ?: null;
+        $clientId = $request->user()->loadedClient()?->id;
         $month = $request->integer('month');
         $year = $request->integer('year');
 

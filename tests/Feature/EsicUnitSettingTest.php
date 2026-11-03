@@ -198,8 +198,11 @@ class EsicUnitSettingTest extends TestCase
         $cutoff = $this->unit('Cutoff unit', 'cutoff');
         $plain = $this->unit('Plain unit', 'statutory');
 
-        $heading = fn (Client $unit) => $this->actingAs($user)->get(route('wages.index', ['client_id' => $unit->id, 'month' => 9, 'year' => 2026]))
-            ->viewData('page')['props']['headings']['esic'];
+        $heading = function (Client $unit) use ($user) {
+            $this->loadClient($user, $unit);
+
+            return $this->actingAs($user)->get(route('wages.index', ['month' => 9, 'year' => 2026]))->viewData('page')['props']['headings']['esic'];
+        };
 
         $this->assertStringContainsString('capped at Rs.21,000', $heading($ceiling));
         $this->assertStringContainsString('nil if wages above Rs.21,000', $heading($cutoff));
