@@ -190,8 +190,8 @@ export default function WagesIndex({
                             <table className="w-full table-fixed border-collapse border border-slate-300 text-[8px] dark:border-slate-600 [&_td]:border [&_td]:border-slate-200 dark:[&_td]:border-slate-700 [&_th]:border [&_th]:border-slate-300 [&_th]:text-center [&_th]:font-bold dark:[&_th]:border-slate-600">
                                 <colgroup>
                                     {[
-                                        2, 9, 8, 4, 5, 5, 5, 6, 5, 5, 6, 4, 5,
-                                        6, 6, 6, 4, 6, 3,
+                                        2, 8, 7, 4, 5, 5, 5, 5, 5, 5, 6, 4, 5,
+                                        6, 5, 5, 4, 6, 6, 3,
                                     ].map((width, index) => (
                                         <col
                                             key={index}
@@ -215,12 +215,14 @@ export default function WagesIndex({
                                             ),
                                         )}
                                         <th className="px-1 py-1" />
+                                        <th className="px-1 py-1" />
                                     </tr>
                                     <tr className="bg-muted/30 border-b text-center font-semibold">
                                         <th className="px-1 py-1" />
                                         <th colSpan={17} className="px-1 py-1">
                                             Particular
                                         </th>
+                                        <th className="px-1 py-1" />
                                         <th className="px-1 py-1" />
                                     </tr>
                                     <tr className="text-muted-foreground border-b">
@@ -283,6 +285,9 @@ export default function WagesIndex({
                                         <th className="px-1 py-1 align-top leading-tight font-medium break-words">
                                             Net Payable Salary of the Guard
                                             (F+J) - (O+P+Q)
+                                        </th>
+                                        <th className="px-1 py-1 align-top leading-tight font-medium break-words">
+                                            Signature
                                         </th>
                                         <th className="px-1 py-1 align-top leading-tight font-medium break-words" />
                                     </tr>
@@ -370,6 +375,7 @@ export default function WagesIndex({
                                                 <td className="px-1 py-1 text-center align-top font-medium break-words">
                                                     {formatMoney(values.net)}
                                                 </td>
+                                                <td className="h-7 px-1 py-1" />
                                                 <td className="px-1 py-1 text-center align-top break-words">
                                                     {row.saved && (
                                                         <Badge
@@ -449,12 +455,13 @@ export default function WagesIndex({
                                                 {formatMoney(totals.net)}
                                             </td>
                                             <td className="px-1 py-1" />
+                                            <td className="px-1 py-1" />
                                         </tr>
                                     )}
                                     {rows.length === 0 && (
                                         <tr>
                                             <td
-                                                colSpan={20}
+                                                colSpan={21}
                                                 className="text-muted-foreground px-4 py-6 text-center"
                                             >
                                                 No active employees for this

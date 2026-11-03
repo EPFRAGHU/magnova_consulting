@@ -29,6 +29,8 @@
         table.register .col-esic-individual { width: 6%; }
         table.register .col-other { width: 4%; }
         table.register .col-net { width: 7%; }
+        table.register .col-signature { width: 9%; }
+        table.register td.col-signature { height: 26px; }
         table.register .amt { text-align: right; }
         table.register .totals td { font-weight: bold; background: #f0f0f0; }
     </style>
@@ -47,10 +49,12 @@
                 @foreach (range('A', 'R') as $letter)
                     <th>{{ $letter }}</th>
                 @endforeach
+                <th></th>
             </tr>
             <tr>
                 <th></th>
                 <th colspan="17">Particular</th>
+                <th></th>
             </tr>
             <tr>
                 <th class="col-sl">Sl no.</th>
@@ -71,6 +75,7 @@
                 <th class="col-esic-individual">{{ $headings['esic_individual'] }}</th>
                 <th class="col-other">Any Other Deduction (Professional Tax etc.)</th>
                 <th class="col-net">Net Payable Salary of the Guard (F+J) - (O+P+Q)</th>
+                <th class="col-signature">Signature</th>
             </tr>
         </thead>
         <tbody>
@@ -107,6 +112,7 @@
                     <td class="amt">{{ number_format($row['esic_employee'], 2) }}</td>
                     <td class="amt">{{ number_format($row['other_deduction'], 2) }}</td>
                     <td class="amt">{{ number_format($row['net_payable_salary'], 2) }}</td>
+                    <td class="col-signature"></td>
                 </tr>
             @endforeach
             <tr class="totals">
@@ -126,6 +132,7 @@
                 <td class="amt">{{ number_format($total['esic_employee'], 2) }}</td>
                 <td class="amt">{{ number_format($total['other_deduction'], 2) }}</td>
                 <td class="amt">{{ number_format($total['net_payable_salary'], 2) }}</td>
+                <td></td>
             </tr>
         </tbody>
     </table>
