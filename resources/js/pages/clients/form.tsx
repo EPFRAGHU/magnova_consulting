@@ -47,6 +47,10 @@ type Client = {
     register_contractor_address: string | null;
     buyer_order_no: string | null;
     buyer_order_date: string | null;
+    billing_from_day: number | null;
+    billing_from_month: string;
+    billing_to_day: number | null;
+    billing_to_month: string;
 };
 
 export default function ClientForm({ client }: { client?: Client }) {
@@ -173,6 +177,100 @@ export default function ClientForm({ client }: { client?: Client }) {
                                     <InputError message={errors.gemc_no} />
                                 </div>
                             </div>
+
+                            <fieldset className="grid gap-3 rounded-lg border p-4">
+                                <legend className="px-1 text-sm font-medium">
+                                    Billing period on invoices
+                                </legend>
+                                <p className="text-muted-foreground text-xs">
+                                    Printed on every month&apos;s tax invoice
+                                    for this client. Leave the days blank for
+                                    the whole calendar month. Only the printed
+                                    period changes, not attendance or wages. A
+                                    period typed on one invoice still wins for
+                                    that invoice.
+                                </p>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="billing_from_day">
+                                            From day (1-31)
+                                        </Label>
+                                        <div className="flex gap-2">
+                                            <Input
+                                                id="billing_from_day"
+                                                name="billing_from_day"
+                                                type="number"
+                                                min={1}
+                                                max={31}
+                                                className="w-24"
+                                                defaultValue={
+                                                    client?.billing_from_day ??
+                                                    ''
+                                                }
+                                            />
+                                            <SelectNative
+                                                name="billing_from_month"
+                                                defaultValue={
+                                                    client?.billing_from_month ??
+                                                    'same'
+                                                }
+                                            >
+                                                <option value="same">
+                                                    of the invoice month
+                                                </option>
+                                                <option value="previous">
+                                                    of the month before
+                                                </option>
+                                            </SelectNative>
+                                        </div>
+                                        <InputError
+                                            message={errors.billing_from_day}
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="billing_to_day">
+                                            To day (1-31)
+                                        </Label>
+                                        <div className="flex gap-2">
+                                            <Input
+                                                id="billing_to_day"
+                                                name="billing_to_day"
+                                                type="number"
+                                                min={1}
+                                                max={31}
+                                                className="w-24"
+                                                defaultValue={
+                                                    client?.billing_to_day ?? ''
+                                                }
+                                            />
+                                            <SelectNative
+                                                name="billing_to_month"
+                                                defaultValue={
+                                                    client?.billing_to_month ??
+                                                    'same'
+                                                }
+                                            >
+                                                <option value="same">
+                                                    of the invoice month
+                                                </option>
+                                                <option value="next">
+                                                    of the month after
+                                                </option>
+                                            </SelectNative>
+                                        </div>
+                                        <InputError
+                                            message={errors.billing_to_day}
+                                        />
+                                    </div>
+                                </div>
+                                <p className="text-muted-foreground text-xs">
+                                    Example: from 26 of the month before, to 25
+                                    of the invoice month. The September invoice
+                                    then prints 26-08-2026 to 25-09-2026. A day
+                                    the month does not have (31 in June) becomes
+                                    its last day.
+                                </p>
+                            </fieldset>
 
                             <div className="grid gap-4 sm:grid-cols-3">
                                 <div className="grid gap-2">

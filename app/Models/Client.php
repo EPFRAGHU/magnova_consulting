@@ -17,6 +17,8 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  * @property string|null $bonus_ceiling
  * @property string|null $bonus_value_above
  * @property bool|null $bonus_in_esic
+ * @property int|null $billing_from_day
+ * @property int|null $billing_to_day
  */
 class Client extends Model
 {
@@ -33,6 +35,7 @@ class Client extends Model
         'bonus_type', 'bonus_value', 'bonus_prorate', 'bonus_limit_mode', 'bonus_ceiling', 'bonus_value_above', 'bonus_billed', 'bonus_in_esic',
         'service_charge_on_basic', 'gst_exempt', 'esic_unit_mode', 'payroll_profile', 'principal_employer_name',
         'principal_employer_address', 'principal_employer_gstin', 'contract_start', 'contract_end', 'register_contractor_address', 'buyer_order_no', 'buyer_order_date',
+        'billing_from_day', 'billing_from_month', 'billing_to_day', 'billing_to_month',
     ];
 
     protected function casts(): array
@@ -49,6 +52,29 @@ class Client extends Model
             'contract_end' => 'date:Y-m-d',
             'buyer_order_date' => 'date:Y-m-d',
         ];
+    }
+
+    /**
+     * The billing period this client's invoices print for a wage month, or null for the whole calendar month.
+     * "From" sits in the invoice month or the one before it, "to" in the invoice month or the one after; a day past
+     * the end of a short month (31 in June) becomes that month's last day.
+     *
+     * @return array{0: Carbon, 1: Carbon}|null
+     */
+    public function billingPeriodFor(int $month, int $year): ?array
+    {
+        if (! $this->billing_from_day || ! $this->billing_to_day) {
+            return null;
+        }
+
+        $anchor = Carbon::create($year, $month, 1);
+        $from = $this->billing_from_month === 'previous' ? $anchor->copy()->subMonthNoOverflow() : $anchor->copy();
+        $to = $this->billing_to_month === 'next' ? $anchor->copy()->addMonthNoOverflow() : $anchor->copy();
+
+        $start = $from->day(min($this->billing_from_day, $from->daysInMonth));
+        $end = $to->day(min($this->billing_to_day, $to->daysInMonth));
+
+        return $end->lt($start) ? null : [$start, $end];
     }
 
     /** This client's bonus rule (type, value, wage limit, billing and ESIC treatment). */

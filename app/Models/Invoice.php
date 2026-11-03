@@ -85,12 +85,34 @@ class Invoice extends Model
         // Typed on the invoice, else the client's GEMC No. now; the saved snapshot is the last resort.
         $document['ref_no'] = $this->printedRefNo() ?? ($document['ref_no'] ?? null);
 
-        if ($this->billing_period_start && $this->billing_period_end) {
-            $document['billing_period_start'] = $this->billing_period_start->toDateString();
-            $document['billing_period_end'] = $this->billing_period_end->toDateString();
+        if ($period = $this->customBillingPeriod()) {
+            $document['billing_period_start'] = $period[0]->toDateString();
+            $document['billing_period_end'] = $period[1]->toDateString();
         }
 
         return $document;
+    }
+
+    /**
+     * The billing period that prints: typed on this invoice, else the client's monthly rule, else the whole month.
+     *
+     * @return array{0: Carbon, 1: Carbon}
+     */
+    public function billingPeriod(): array
+    {
+        $month = Carbon::create($this->year, $this->month, 1);
+
+        return $this->customBillingPeriod() ?? [$month, $month->copy()->endOfMonth()];
+    }
+
+    /** @return array{0: Carbon, 1: Carbon}|null */
+    private function customBillingPeriod(): ?array
+    {
+        if ($this->billing_period_start && $this->billing_period_end) {
+            return [$this->billing_period_start, $this->billing_period_end];
+        }
+
+        return $this->client?->billingPeriodFor($this->month, $this->year);
     }
 
     /**
