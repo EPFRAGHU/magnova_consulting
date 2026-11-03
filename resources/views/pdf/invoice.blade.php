@@ -87,7 +87,7 @@
             <td>
                 <table class="topline">
                     <tr>
-                        <td style="width:33%">Ref no: {{ $invoice->ref_no ?: '—' }}</td>
+                        <td style="width:33%">Ref no: {{ $invoice->printedRefNo() ?: '—' }}</td>
                         <td class="title" style="width:34%">TAX INVOICE</td>
                         <td class="right" style="width:33%">Invoice No: {{ $invoice->invoice_no }}</td>
                     </tr>
