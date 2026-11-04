@@ -81,6 +81,18 @@ class LoadedClientTest extends TestCase
         $this->assertSame($this->alpha->id, $this->user->fresh()->loadedClient()->id);
     }
 
+    public function test_every_page_carries_the_loaded_clients_name_and_address_for_the_header(): void
+    {
+        $this->beta->update(['unit_label' => 'Site B', 'address' => "Plot 5\nBhubaneswar"]);
+        $this->loadClient($this->user, $this->beta);
+
+        $this->actingAs($this->user)->get(route('employees.index'))
+            ->assertInertia(fn ($page) => $page
+                ->where('loadedClient.name', 'Beta unit')
+                ->where('loadedClient.unit_label', 'Site B')
+                ->where('loadedClient.address', "Plot 5\nBhubaneswar"));
+    }
+
     public function test_the_choice_is_per_user(): void
     {
         $other = User::factory()->create(['tenant_id' => $this->user->tenant_id]);

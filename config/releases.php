@@ -14,6 +14,14 @@
  */
 return [
     [
+        'version' => '1.9.0',
+        'released_at' => '2026-11-04 09:15',
+        'title' => 'Client name in the top bar',
+        'changes' => [
+            ['new', 'The top bar shows the name, site and address of the client being worked on in Clients, Guards & Staff, Attendance, Payroll, Invoices and Payslips, so the user always sees whose data they are entering.'],
+        ],
+    ],
+    [
         'version' => '1.8.0',
         'released_at' => '2026-11-04 08:55',
         'title' => 'Same look on every module',

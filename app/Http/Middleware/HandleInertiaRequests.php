@@ -43,7 +43,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             // The client every data menu is showing (see User::loadedClient()).
-            'loadedClient' => fn () => $request->user()?->loadedClient()?->only(['id', 'name', 'unit_label']),
+            'loadedClient' => fn () => $request->user()?->loadedClient()?->only(['id', 'name', 'unit_label', 'address']),
             'maintenance' => fn () => app(MaintenanceNotice::class)->message(),
             'appInfo' => [
                 'version' => config('magnova.version'),
