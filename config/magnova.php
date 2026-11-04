@@ -1,5 +1,8 @@
 <?php
 
+// The newest release in config/releases.php gives the version shown in the sidebar and footer.
+$latestRelease = (require __DIR__.'/releases.php')[0];
+
 return [
     'epf_employee_pct' => 12.00,
     'esic_employee_pct' => 0.75,
@@ -48,9 +51,9 @@ return [
 
     // Wage-sheet rules for a contract-labour client (principal employer arrangement), copied from the client's own
     // Wages sheet (Balmer Lawrie, September 2026). Each client can override any of these in clients.payroll_parameters.
-    // Shown in the sidebar and the footer; change the version and its date with each release.
-    'version' => '1.0.0',
-    'version_date' => '2026-11-02',
+    // Shown in the sidebar and the footer; add a new entry at the top of config/releases.php with each release.
+    'version' => $latestRelease['version'],
+    'version_date' => substr($latestRelease['released_at'], 0, 10),
     'project_started' => '2026-09-12 07:40',   // the first commit of the project, India time
     'developer' => 'Digital Solutions Services',
     'legal_contact_email' => env('MAGNOVA_LEGAL_EMAIL') ?: 'admin@magnovahr.in',

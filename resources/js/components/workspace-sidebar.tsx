@@ -20,7 +20,7 @@ import { UserMenuContent } from '@/components/user-menu-content';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
-import { dashboard } from '@/routes';
+import { dashboard, versionHistory } from '@/routes';
 import { index as attendanceIndex } from '@/routes/attendance';
 import { index as clientsIndex } from '@/routes/clients';
 import { index as employeesIndex } from '@/routes/employees';
@@ -122,9 +122,16 @@ export function WorkspaceSidebar({ onNavigate }: { onNavigate?: () => void }) {
             </nav>
 
             <p className="mx-3 mt-3 text-[10.5px] leading-snug text-[#8fa4c4]">
-                Version {appInfo.version}
-                <span aria-hidden="true"> &middot; </span>
-                {formatVersionDate(appInfo.versionDate)}
+                <Link
+                    href={versionHistory()}
+                    onClick={onNavigate}
+                    title="See what changed in each version"
+                    className="hover:text-white hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                    Version {appInfo.version}
+                    <span aria-hidden="true"> &middot; </span>
+                    {formatVersionDate(appInfo.versionDate)}
+                </Link>
                 <br />
                 Started {formatStarted(appInfo.startedAt)}
             </p>
