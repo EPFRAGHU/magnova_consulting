@@ -17,6 +17,7 @@ declare module '@inertiajs/core' {
                 id: number;
                 name: string;
                 unit_label: string | null;
+                address: string | null;
             } | null;
             appInfo: {
                 version: string;

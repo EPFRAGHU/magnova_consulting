@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { Menu } from 'lucide-react';
+import { Building2, Menu } from 'lucide-react';
 import { useState } from 'react';
 import { MaintenanceBanner } from '@/components/maintenance-banner';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,20 @@ export default function AppWorkspaceLayout({
     children,
     breadcrumbs = [],
 }: AppLayoutProps) {
-    const { auth } = usePage().props;
+    const { props, url } = usePage();
+    const { auth, loadedClient } = props;
+    const path = url.split('?')[0].replace(/\/$/, '');
+    // The client whose data these pages show; named in the header so the user always knows whose data they enter.
+    const showClient =
+        loadedClient &&
+        [
+            '/clients',
+            '/employees',
+            '/attendance',
+            '/wages',
+            '/invoices',
+            '/payslips',
+        ].includes(path);
     const getInitials = useInitials();
     const [open, setOpen] = useState(false);
     const current = breadcrumbs[breadcrumbs.length - 1]?.title ?? 'Page';
@@ -71,6 +84,32 @@ export default function AppWorkspaceLayout({
                                 {current}
                             </strong>
                         </nav>
+
+                        {showClient && loadedClient && (
+                            <div className="hidden min-w-0 flex-1 justify-center md:flex">
+                                <div className="bg-muted/50 flex max-w-xl min-w-0 items-center gap-2.5 rounded-xl border px-3 py-1">
+                                    <Building2 className="text-muted-foreground size-4 shrink-0" />
+                                    <div className="min-w-0 leading-tight">
+                                        <div className="truncate text-sm font-semibold">
+                                            {loadedClient.name}
+                                            {loadedClient.unit_label &&
+                                                ` - ${loadedClient.unit_label}`}
+                                        </div>
+                                        {loadedClient.address && (
+                                            <div
+                                                className="text-muted-foreground truncate text-[11px]"
+                                                title={loadedClient.address}
+                                            >
+                                                {loadedClient.address.replace(
+                                                    /\s*\n\s*/g,
+                                                    ', ',
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="ml-auto flex items-center gap-3">
                             <span
