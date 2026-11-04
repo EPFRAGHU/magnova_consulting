@@ -25,6 +25,7 @@ export default function AppWorkspaceLayout({
     const showClient =
         loadedClient &&
         [
+            '/dashboard',
             '/clients',
             '/employees',
             '/attendance',
