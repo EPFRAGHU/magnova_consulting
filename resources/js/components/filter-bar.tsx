@@ -61,10 +61,10 @@ export function FilterBar({
     };
 
     return (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="bg-card flex flex-wrap items-center gap-2 rounded-2xl border p-3 shadow-sm">
             {showClient && (
                 <div className="flex items-center gap-2 text-sm">
-                    <span className="bg-muted rounded-md border px-3 py-1.5 font-medium">
+                    <span className="bg-muted rounded-xl border px-3 py-1.5 font-medium">
                         {loadedClient
                             ? `${loadedClient.name}${loadedClient.unit_label ? ` - ${loadedClient.unit_label}` : ''}`
                             : 'No client'}
@@ -84,7 +84,7 @@ export function FilterBar({
                         value={String(month)}
                         onValueChange={(v) => go({ month: v })}
                     >
-                        <SelectTrigger className="w-36">
+                        <SelectTrigger className="w-36 rounded-xl">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -100,7 +100,7 @@ export function FilterBar({
                         value={String(year)}
                         onValueChange={(v) => go({ year: v })}
                     >
-                        <SelectTrigger className="w-24">
+                        <SelectTrigger className="w-24 rounded-xl">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>

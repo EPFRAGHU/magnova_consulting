@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Pencil, Plus } from 'lucide-react';
 import { DeleteButton } from '@/components/delete-button';
 import Heading from '@/components/heading';
 import { FilterBar } from '@/components/filter-bar';
@@ -55,44 +55,34 @@ export default function EmployeesIndex({
                     showPeriod={false}
                 />
 
-                <Card>
+                <Card className="overflow-hidden rounded-2xl py-0 shadow-sm">
                     <CardContent className="px-0">
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="text-muted-foreground border-b text-left">
-                                        <th className="px-6 py-2 font-medium">
-                                            Code
-                                        </th>
-                                        <th className="px-6 py-2 font-medium">
-                                            Name
-                                        </th>
-                                        <th className="px-6 py-2 font-medium">
-                                            M/F
-                                        </th>
-                                        <th className="px-6 py-2 font-medium">
-                                            Client
-                                        </th>
-                                        <th className="px-6 py-2 font-medium">
+                                    <tr className="bg-muted/50 text-muted-foreground border-b text-left text-xs font-semibold tracking-wider uppercase">
+                                        <th className="px-6 py-3.5">Code</th>
+                                        <th className="px-6 py-3.5">Name</th>
+                                        <th className="px-6 py-3.5">M/F</th>
+                                        <th className="px-6 py-3.5">Client</th>
+                                        <th className="px-6 py-3.5">
                                             Designation
                                         </th>
-                                        <th className="px-6 py-2 font-medium">
+                                        <th className="px-6 py-3.5">
                                             Category
                                         </th>
-                                        <th className="px-6 py-2 font-medium">
+                                        <th className="px-6 py-3.5">
                                             Rate/Day
                                         </th>
-                                        <th className="px-6 py-2 font-medium">
-                                            Status
-                                        </th>
-                                        <th className="px-6 py-2 font-medium" />
+                                        <th className="px-6 py-3.5">Status</th>
+                                        <th className="px-6 py-3.5" />
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {employees.map((employee) => (
                                         <tr
                                             key={employee.id}
-                                            className="border-b last:border-0"
+                                            className="hover:bg-muted/40 border-b transition-colors last:border-0"
                                         >
                                             <td className="px-6 py-2">
                                                 {employee.employee_code ?? '-'}
@@ -135,12 +125,15 @@ export default function EmployeesIndex({
                                                 <Button
                                                     asChild
                                                     variant="ghost"
-                                                    size="sm"
+                                                    size="icon"
+                                                    className="text-muted-foreground hover:text-indigo-600"
                                                 >
                                                     <Link
                                                         href={edit(employee.id)}
+                                                        title="Edit employee"
+                                                        aria-label={`Edit ${employee.name}`}
                                                     >
-                                                        Edit
+                                                        <Pencil />
                                                     </Link>
                                                 </Button>
                                                 <DeleteButton

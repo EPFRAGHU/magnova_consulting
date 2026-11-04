@@ -35,7 +35,7 @@ export default function InvoiceEdit({ invoice }: { invoice: Invoice }) {
 
                 <Form
                     {...InvoiceController.update.form(invoice.id)}
-                    className="max-w-xl space-y-6"
+                    className="bg-card max-w-xl space-y-6 rounded-2xl border p-5 shadow-sm [&_input]:rounded-xl [&_input:not([type=checkbox]):not([type=hidden])]:h-10 [&_select]:h-10 [&_select]:rounded-xl [&_textarea]:rounded-xl"
                 >
                     {({ errors, processing }) => (
                         <>

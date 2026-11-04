@@ -89,7 +89,7 @@ export default function InvoicesIndex({
                     description="Monthly client bills generated from saved wages"
                 />
 
-                <Card>
+                <Card className="rounded-2xl shadow-sm">
                     <CardHeader>
                         <CardTitle className="text-sm">
                             Generate Invoice
@@ -172,35 +172,27 @@ export default function InvoicesIndex({
                     showPeriod={false}
                 />
 
-                <Card>
+                <Card className="overflow-hidden rounded-2xl py-0 shadow-sm">
                     <CardContent className="px-0">
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="text-muted-foreground border-b text-left">
-                                        <th className="px-6 py-2 font-medium">
+                                    <tr className="bg-muted/50 text-muted-foreground border-b text-left text-xs font-semibold tracking-wider uppercase">
+                                        <th className="px-6 py-3.5">
                                             Invoice No.
                                         </th>
-                                        <th className="px-6 py-2 font-medium">
-                                            Client
-                                        </th>
-                                        <th className="px-6 py-2 font-medium">
-                                            Period
-                                        </th>
-                                        <th className="px-6 py-2 font-medium">
-                                            Amount
-                                        </th>
-                                        <th className="px-6 py-2 font-medium">
-                                            Status
-                                        </th>
-                                        <th className="px-6 py-2 font-medium" />
+                                        <th className="px-6 py-3.5">Client</th>
+                                        <th className="px-6 py-3.5">Period</th>
+                                        <th className="px-6 py-3.5">Amount</th>
+                                        <th className="px-6 py-3.5">Status</th>
+                                        <th className="px-6 py-3.5" />
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {invoices.map((invoice) => (
                                         <tr
                                             key={invoice.id}
-                                            className="border-b last:border-0"
+                                            className="hover:bg-muted/40 border-b transition-colors last:border-0"
                                         >
                                             <td className="px-6 py-2">
                                                 {invoice.invoice_no}

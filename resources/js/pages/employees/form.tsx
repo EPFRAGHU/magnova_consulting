@@ -68,7 +68,10 @@ export default function EmployeeForm({
                     description="Deployment, statutory IDs and bank details"
                 />
 
-                <Form {...submitOptions} className="max-w-3xl space-y-6">
+                <Form
+                    {...submitOptions}
+                    className="bg-card max-w-3xl space-y-6 rounded-2xl border p-5 shadow-sm [&_input]:rounded-xl [&_input:not([type=checkbox]):not([type=hidden])]:h-10 [&_select]:h-10 [&_select]:rounded-xl [&_textarea]:rounded-xl"
+                >
                     {({ errors, processing }) => (
                         <>
                             <div className="grid gap-4 sm:grid-cols-3">
