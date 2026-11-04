@@ -14,6 +14,14 @@
  */
 return [
     [
+        'version' => '1.9.1',
+        'released_at' => '2026-11-04 09:58',
+        'title' => 'Client name on the Dashboard',
+        'changes' => [
+            ['improved', 'The Dashboard top bar also shows the name, site and address of the client being worked on.'],
+        ],
+    ],
+    [
         'version' => '1.9.0',
         'released_at' => '2026-11-04 09:15',
         'title' => 'Client name in the top bar',
