@@ -16,16 +16,25 @@ class ClientController extends Controller
     public function index(Request $request): Response
     {
         $search = $request->string('search')->toString();
+        $status = in_array($request->input('status'), ['active', 'inactive'], true) ? $request->input('status') : '';
 
         $clients = Client::query()
             ->withCount('employees')
-            ->when($search, fn ($q) => $q->where('name', 'like', "%{$search}%"))
+            ->when($search, fn ($q) => $q->where(fn ($q) => $q
+                ->where('name', 'like', "%{$search}%")
+                ->orWhere('unit_label', 'like', "%{$search}%")
+                ->orWhere('address', 'like', "%{$search}%")
+                ->orWhere('gstin', 'like', "%{$search}%")
+                ->orWhere('contact_person', 'like', "%{$search}%")
+                ->orWhere('contact_phone', 'like', "%{$search}%")))
+            ->when($status !== '', fn ($q) => $q->where('active', $status === 'active'))
             ->orderBy('name')
             ->get();
 
         return Inertia::render('clients/index', [
             'clients' => $clients,
             'search' => $search,
+            'status' => $status,
             'loaded_client_id' => $request->user()->loadedClient()?->id,
             'regenerate' => session('regenerate'),
         ]);
