@@ -84,8 +84,14 @@ return [
     'state' => 'Odisha',
     // Place named in the jurisdiction line of the contract-labour tax invoice.
     'jurisdiction' => 'Bhubaneswar',
-    'company_cin' => env('MAGNOVA_COMPANY_CIN') ?: 'U7499OR2019PTC030507',
+    'company_cin' => env('MAGNOVA_COMPANY_CIN') ?: 'U74999OR2019PTC030507',
     'bank_account_type' => env('MAGNOVA_BANK_ACCOUNT_TYPE'),
+
+    // Signature block at the foot of the AAD College and Indian Bank Zonal tax invoices.
+    'invoice_signatory_name' => 'Ranjita Mohapatra',
+    'invoice_signatory_title' => 'Managing Director',
+    'corporate_office' => 'Plot No. 725/17, Lingipur, Bhubaneswar – 751002',
+    'corporate_email' => 'magnovahr@gmail.com',
 
     // Shown on the tax invoice unless the establishment has saved its own text. The payment-term and
     // interest points were removed at the owner's request (17 Oct 2026).

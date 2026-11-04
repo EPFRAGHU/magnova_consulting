@@ -123,6 +123,7 @@ class ClientController extends Controller
             'esic_unit_mode' => $request->input('esic_unit_mode', 'statutory') ?: 'statutory',
             'billing_from_month' => $request->input('billing_from_month') ?: 'same',
             'billing_to_month' => $request->input('billing_to_month') ?: 'same',
+            'invoice_layout' => $request->input('invoice_layout') ?: 'standard',
         ]);
 
         return $request->validate([
@@ -154,6 +155,7 @@ class ClientController extends Controller
             'billing_from_month' => ['nullable', Rule::in(['previous', 'same'])],
             'billing_to_day' => ['nullable', 'integer', 'between:1,31', 'required_with:billing_from_day'],
             'billing_to_month' => ['nullable', Rule::in(['same', 'next'])],
+            'invoice_layout' => ['nullable', Rule::in(Client::INVOICE_LAYOUTS)],
             'payroll_profile' => ['sometimes', Rule::in(Client::PAYROLL_PROFILES)],
             'principal_employer_name' => [Rule::requiredIf($request->input('payroll_profile') === 'contract_labour'), 'nullable', 'string', 'max:255'],
             'principal_employer_address' => ['nullable', 'string', 'max:1000'],
