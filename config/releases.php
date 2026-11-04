@@ -14,6 +14,17 @@
  */
 return [
     [
+        'version' => '1.8.0',
+        'released_at' => '2026-11-04 08:55',
+        'title' => 'Same look on every module',
+        'changes' => [
+            ['improved', 'Edit Client is split into clear cards: Establishment, Billing details, Billing period, Contact, how the client is billed, and Status and payroll rules.'],
+            ['improved', 'Page titles use the same bold style in Guards & Staff, Attendance, Payroll, Invoices and Payslips.'],
+            ['improved', 'The client and month bar sits in a rounded card, and the Employees, Invoices and Payslips lists have the shaded header and row highlight of the Clients page.'],
+            ['improved', 'The employee and invoice forms sit in a rounded card, and Edit in the employee list is a pencil icon.'],
+        ],
+    ],
+    [
         'version' => '1.7.0',
         'released_at' => '2026-11-04 08:35',
         'title' => 'New Clients page',
