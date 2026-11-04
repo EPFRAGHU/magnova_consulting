@@ -58,7 +58,7 @@ class RegularInvoiceLayoutTest extends TestCase
             'logoDataUri' => null,
         ])->render();
 
-        $this->assertStringContainsString('CIN NO: U7499OR2019PTC030507', $html);
+        $this->assertStringContainsString('CIN NO: U74999OR2019PTC030507', $html);
         $this->assertStringContainsString('998525', $html);
         $this->assertStringNotContainsString('Guard services', $html, 'no SAC description under the code');
         $this->assertStringNotContainsString('font-size:7px', $html);

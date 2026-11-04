@@ -28,6 +28,12 @@ class Client extends Model
 
     public const PAYROLL_PROFILES = ['standard', 'contract_labour'];
 
+    /** Tax invoice designs for regular clients: 'aad_college' (AAD Gopalpur, rounded to the rupee) and 'indian_bank_zonal'. */
+    public const INVOICE_LAYOUTS = ['standard', 'aad_college', 'indian_bank_zonal'];
+
+    /** Designs whose GST is charged on the taxable value that includes the service charge. */
+    public const GST_ON_SERVICE_CHARGE_LAYOUTS = ['aad_college', 'indian_bank_zonal'];
+
     protected $fillable = [
         'tenant_id', 'name', 'unit_label', 'address', 'gstin', 'sac_code', 'gemc_no',
         'billing_name', 'billing_address',
@@ -35,7 +41,7 @@ class Client extends Model
         'bonus_type', 'bonus_value', 'bonus_prorate', 'bonus_limit_mode', 'bonus_ceiling', 'bonus_value_above', 'bonus_billed', 'bonus_in_esic',
         'service_charge_on_basic', 'gst_exempt', 'esic_unit_mode', 'payroll_profile', 'principal_employer_name',
         'principal_employer_address', 'principal_employer_gstin', 'contract_start', 'contract_end', 'register_contractor_address', 'buyer_order_no', 'buyer_order_date',
-        'billing_from_day', 'billing_from_month', 'billing_to_day', 'billing_to_month',
+        'billing_from_day', 'billing_from_month', 'billing_to_day', 'billing_to_month', 'invoice_layout',
     ];
 
     protected function casts(): array

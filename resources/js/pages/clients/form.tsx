@@ -51,6 +51,7 @@ type Client = {
     billing_from_month: string;
     billing_to_day: number | null;
     billing_to_month: string;
+    invoice_layout: string;
 };
 
 export default function ClientForm({ client }: { client?: Client }) {
@@ -176,6 +177,37 @@ export default function ClientForm({ client }: { client?: Client }) {
                                     />
                                     <InputError message={errors.gemc_no} />
                                 </div>
+                            </div>
+
+                            <div className="grid gap-2 sm:max-w-sm">
+                                <Label htmlFor="invoice_layout">
+                                    Tax invoice design
+                                </Label>
+                                <SelectNative
+                                    id="invoice_layout"
+                                    name="invoice_layout"
+                                    defaultValue={
+                                        client?.invoice_layout ?? 'standard'
+                                    }
+                                >
+                                    <option value="standard">
+                                        Standard design
+                                    </option>
+                                    <option value="aad_college">
+                                        AAD College (Gopalpur) design, total
+                                        rounded to the rupee
+                                    </option>
+                                    <option value="indian_bank_zonal">
+                                        Indian Bank Zonal Office design
+                                    </option>
+                                </SelectNative>
+                                <p className="text-muted-foreground text-xs">
+                                    Which tax invoice layout this client&apos;s
+                                    invoices and PDFs use. Contract-labour
+                                    clients keep their own bill. Regenerate a
+                                    draft invoice after changing it.
+                                </p>
+                                <InputError message={errors.invoice_layout} />
                             </div>
 
                             <fieldset className="grid gap-3 rounded-lg border p-4">

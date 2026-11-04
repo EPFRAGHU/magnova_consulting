@@ -73,7 +73,13 @@ class PdfExportService
         );
         $bonusRule = ($invoice->client ?? new Client)->bonusRule();
 
-        return Pdf::loadView('pdf.invoice', [
+        $view = match ($invoice->client?->invoice_layout) {
+            'aad_college' => 'pdf.invoice-aad',
+            'indian_bank_zonal' => 'pdf.invoice-zonal',
+            default => 'pdf.invoice',
+        };
+
+        return Pdf::loadView($view, [
             'invoice' => $invoice,
             'dutySummary' => $dutySummary,
             'bonus' => $bonus,

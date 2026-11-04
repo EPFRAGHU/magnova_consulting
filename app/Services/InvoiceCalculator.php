@@ -57,12 +57,14 @@ class InvoiceCalculator
             $baseAmount + $epfEmployer + $epfAdmin + $edliCont + $esiEmployer + $bonus,
             2,
         );
-        $cgst = $client->gst_exempt ? 0.0 : round($taxableValue * config('magnova.cgst_pct') / 100, 2);
-        $sgst = $client->gst_exempt ? 0.0 : round($taxableValue * config('magnova.sgst_pct') / 100, 2);
         $serviceCharge = round(
             ($client->service_charge_on_basic ? $baseAmount : $taxableValue) * config('magnova.service_charge_pct') / 100,
             2,
         );
+        // The AAD College and Indian Bank Zonal bills charge GST on the taxable value that includes the service charge.
+        $gstBase = in_array($client->invoice_layout, Client::GST_ON_SERVICE_CHARGE_LAYOUTS, true) ? $taxableValue + $serviceCharge : $taxableValue;
+        $cgst = $client->gst_exempt ? 0.0 : round($gstBase * config('magnova.cgst_pct') / 100, 2);
+        $sgst = $client->gst_exempt ? 0.0 : round($gstBase * config('magnova.sgst_pct') / 100, 2);
         $grandTotal = round($taxableValue + $serviceCharge + $cgst + $sgst, 2);
 
         // From the current register rules the invoice is the sum of the Register
@@ -92,6 +94,11 @@ class InvoiceCalculator
             $sgst = round($gst - $cgst, 2);
             $serviceCharge = round($figures->sum('agency_fee'), 2);
             $grandTotal = round($figures->sum('total_bill_amount'), 2);
+        }
+
+        // The AAD College invoice is billed in whole rupees; its PDF shows the difference as ROUNDED OFF.
+        if ($client->invoice_layout === 'aad_college') {
+            $grandTotal = round($grandTotal);
         }
 
         return DB::transaction(function () use ($client, $month, $year, $invoiceNo, $wages, $noOfPersons, $noOfDuties, $ratePerDay, $baseAmount, $epfEmployer, $epfAdmin, $edliCont, $esiEmployer, $taxableValue, $serviceCharge, $cgst, $sgst, $grandTotal) {

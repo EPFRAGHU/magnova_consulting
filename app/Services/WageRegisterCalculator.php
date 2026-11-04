@@ -91,11 +91,11 @@ class WageRegisterCalculator
     }
 
     /** GST heading; null means the register mixes units that charge GST with units that do not. */
-    private function gstHeading(?bool $gstExempt): string
+    private function gstHeading(?bool $gstExempt, bool $onServiceChargeToo = false): string
     {
         return match ($gstExempt) {
             true => 'GST (not charged to this unit)',
-            false => 'GST @ 18 % (K*0.18)',
+            false => $onServiceChargeToo ? 'GST @ 18 % ((K+M)*0.18)' : 'GST @ 18 % (K*0.18)',
             null => 'GST @ 18 % (K*0.18), nil for units without GST',
         };
     }
@@ -108,7 +108,7 @@ class WageRegisterCalculator
     public function headings(int $month, int $year, ?bool $serviceChargeOnBasic = false, ?bool $gstExempt = false, ?int $tenantId = null, ?string $esicUnitMode = null, ?Client $client = null): array
     {
         $agency = $this->agencyHeading($serviceChargeOnBasic);
-        $gst = $this->gstHeading($gstExempt);
+        $gst = $this->gstHeading($gstExempt, in_array($client?->invoice_layout, Client::GST_ON_SERVICE_CHARGE_LAYOUTS, true));
 
         if (! $this->usesCurrentRules($month, $year)) {
             return [
@@ -232,12 +232,14 @@ class WageRegisterCalculator
             ? $esic->employerAmount
             : round(min($monthlyWage, $esicCeiling) * config('magnova.esi_employer_pct') / 100, 2);
         $totalGrossSalary = round($monthlyWage + $epfEmployer + $edliAndEpfAdmin + $esicEmployer + ($bonusBilled ? $bonus : 0.0), $precision);
-        $gst = $gstExempt ? 0.0 : round(
-            $totalGrossSalary * (config('magnova.cgst_pct') + config('magnova.sgst_pct')) / 100,
-            $precision,
-        );
         $serviceChargeBase = $serviceChargeOnBasic ? $monthlyWage : $totalGrossSalary;
         $agencyFee = round($serviceChargeBase * config('magnova.service_charge_pct') / 100, $precision);
+        // The AAD College and Indian Bank Zonal bills charge GST on the taxable value that includes the service charge; others on K only.
+        $gstBase = in_array($client?->invoice_layout, Client::GST_ON_SERVICE_CHARGE_LAYOUTS, true) ? $totalGrossSalary + $agencyFee : $totalGrossSalary;
+        $gst = $gstExempt ? 0.0 : round(
+            $gstBase * (config('magnova.cgst_pct') + config('magnova.sgst_pct')) / 100,
+            $precision,
+        );
         $totalBillAmount = round($totalGrossSalary + $gst + $agencyFee, $precision);
         $epfEmployee = round($epfBase * config('magnova.epf_employee_pct') / 100, $precision);
         $esicEmployee = $esic
