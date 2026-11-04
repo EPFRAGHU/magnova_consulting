@@ -195,7 +195,7 @@ export default function AttendanceIndex({
                     ))}
                 </div>
 
-                <Card>
+                <Card className="rounded-2xl shadow-sm">
                     <CardContent className="px-0">
                         <div className="w-full overflow-hidden">
                             <table className="w-full table-fixed text-sm">

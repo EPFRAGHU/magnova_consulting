@@ -165,7 +165,7 @@ export default function WagesIndex({
                     year={year}
                 />
 
-                <Card>
+                <Card className="rounded-2xl shadow-sm">
                     <CardContent className="px-0">
                         <div className="border-b px-3 pt-3 pb-2 text-center">
                             <div className="text-sm font-bold">

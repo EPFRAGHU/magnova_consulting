@@ -61,26 +61,26 @@ export default function PayslipsIndex({
                     year={year}
                 />
 
-                <Card>
+                <Card className="overflow-hidden rounded-2xl py-0 shadow-sm">
                     <CardContent className="px-0">
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="text-muted-foreground border-b text-left">
-                                        <th className="px-6 py-2 font-medium">
+                                    <tr className="bg-muted/50 text-muted-foreground border-b text-left text-xs font-semibold tracking-wider uppercase">
+                                        <th className="px-6 py-3.5">
                                             Employee
                                         </th>
-                                        <th className="px-6 py-2 font-medium">
+                                        <th className="px-6 py-3.5">
                                             Net Salary
                                         </th>
-                                        <th className="px-6 py-2 font-medium" />
+                                        <th className="px-6 py-3.5" />
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {wages.map((wage) => (
                                         <tr
                                             key={wage.id}
-                                            className="border-b last:border-0"
+                                            className="hover:bg-muted/40 border-b transition-colors last:border-0"
                                         >
                                             <td className="px-6 py-2">
                                                 {wage.employee.name}

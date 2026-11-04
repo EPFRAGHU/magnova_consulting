@@ -83,7 +83,7 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-2">
-                    <Card>
+                    <Card className="rounded-2xl shadow-sm">
                         <CardHeader>
                             <CardTitle className="text-sm">
                                 Invoice Details
@@ -137,7 +137,7 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="rounded-2xl shadow-sm">
                         <CardHeader>
                             <CardTitle className="text-sm">
                                 Billing Summary
@@ -207,7 +207,7 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
                     </Card>
                 </div>
 
-                <Card>
+                <Card className="rounded-2xl shadow-sm">
                     <CardHeader>
                         <CardTitle className="text-sm">
                             Employee Breakup

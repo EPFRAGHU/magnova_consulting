@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Form, Head } from '@inertiajs/react';
 import ClientController from '@/actions/App/Http/Controllers/ClientController';
-import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -54,6 +53,31 @@ type Client = {
     invoice_layout: string;
 };
 
+// A titled card, so the long form reads as a few clear groups.
+function Section({
+    title,
+    description,
+    children,
+}: {
+    title: string;
+    description?: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <section className="bg-card grid gap-4 rounded-2xl border p-5 shadow-sm">
+            <div>
+                <h2 className="text-sm font-semibold">{title}</h2>
+                {description && (
+                    <p className="text-muted-foreground mt-0.5 text-xs">
+                        {description}
+                    </p>
+                )}
+            </div>
+            {children}
+        </section>
+    );
+}
+
 export default function ClientForm({ client }: { client?: Client }) {
     const isEdit = !!client;
     const [profile, setProfile] = useState(
@@ -74,146 +98,179 @@ export default function ClientForm({ client }: { client?: Client }) {
         <>
             <Head title={isEdit ? 'Edit Client' : 'Add Client'} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <Heading
-                    title={isEdit ? 'Edit Client' : 'Add Client'}
-                    description="Establishment details used on invoices and payslips"
-                />
+                <div className="min-w-0">
+                    <h1 className="text-2xl font-bold tracking-tight">
+                        {isEdit ? 'Edit Client' : 'Add Client'}
+                    </h1>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                        Establishment details used on invoices and payslips
+                    </p>
+                </div>
 
-                <Form {...submitOptions} className="max-w-2xl space-y-6">
+                <Form
+                    {...submitOptions}
+                    className="max-w-3xl space-y-5 [&_input]:rounded-xl [&_input:not([type=checkbox]):not([type=hidden])]:h-10 [&_select]:h-10 [&_select]:rounded-xl [&_textarea]:rounded-xl"
+                >
                     {({ errors, processing }) => (
                         <>
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="name">Name</Label>
-                                    <Input
-                                        id="name"
-                                        name="name"
-                                        defaultValue={client?.name}
-                                        required
-                                    />
-                                    <InputError message={errors.name} />
+                            <Section
+                                title="Establishment"
+                                description="The unit or site we supply manpower to."
+                            >
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="name">Name</Label>
+                                        <Input
+                                            id="name"
+                                            name="name"
+                                            defaultValue={client?.name}
+                                            required
+                                        />
+                                        <InputError message={errors.name} />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="unit_label">
+                                            Unit / Site Label
+                                        </Label>
+                                        <Input
+                                            id="unit_label"
+                                            name="unit_label"
+                                            defaultValue={
+                                                client?.unit_label ?? ''
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.unit_label}
+                                        />
+                                    </div>
                                 </div>
+
                                 <div className="grid gap-2">
-                                    <Label htmlFor="unit_label">
-                                        Unit / Site Label
+                                    <Label htmlFor="address">Address</Label>
+                                    <Textarea
+                                        id="address"
+                                        name="address"
+                                        defaultValue={client?.address ?? ''}
+                                        rows={3}
+                                    />
+                                    <InputError message={errors.address} />
+                                </div>
+                            </Section>
+
+                            <Section
+                                title="Billing details"
+                                description="Who is billed, and how the tax invoice looks."
+                            >
+                                <div className="grid gap-2">
+                                    <Label htmlFor="billing_name">
+                                        Billing Name{' '}
+                                        <span className="text-muted-foreground font-normal">
+                                            (only if a parent organization pays
+                                            the bill instead of this client —
+                                            leave blank otherwise)
+                                        </span>
                                     </Label>
                                     <Input
-                                        id="unit_label"
-                                        name="unit_label"
-                                        defaultValue={client?.unit_label ?? ''}
+                                        id="billing_name"
+                                        name="billing_name"
+                                        placeholder="e.g. The Head, Visakhapatnam Regional Centre of CMFRI"
+                                        defaultValue={
+                                            client?.billing_name ?? ''
+                                        }
                                     />
-                                    <InputError message={errors.unit_label} />
+                                    <InputError message={errors.billing_name} />
                                 </div>
-                            </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="address">Address</Label>
-                                <Textarea
-                                    id="address"
-                                    name="address"
-                                    defaultValue={client?.address ?? ''}
-                                    rows={3}
-                                />
-                                <InputError message={errors.address} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="billing_name">
-                                    Billing Name{' '}
-                                    <span className="text-muted-foreground font-normal">
-                                        (only if a parent organization pays the
-                                        bill instead of this client — leave
-                                        blank otherwise)
-                                    </span>
-                                </Label>
-                                <Input
-                                    id="billing_name"
-                                    name="billing_name"
-                                    placeholder="e.g. The Head, Visakhapatnam Regional Centre of CMFRI"
-                                    defaultValue={client?.billing_name ?? ''}
-                                />
-                                <InputError message={errors.billing_name} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="billing_address">
-                                    Billing Address
-                                </Label>
-                                <Textarea
-                                    id="billing_address"
-                                    name="billing_address"
-                                    defaultValue={client?.billing_address ?? ''}
-                                    rows={3}
-                                />
-                                <InputError message={errors.billing_address} />
-                            </div>
-
-                            <div className="grid gap-4 sm:grid-cols-3">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="gstin">GSTIN</Label>
-                                    <Input
-                                        id="gstin"
-                                        name="gstin"
-                                        defaultValue={client?.gstin ?? ''}
+                                    <Label htmlFor="billing_address">
+                                        Billing Address
+                                    </Label>
+                                    <Textarea
+                                        id="billing_address"
+                                        name="billing_address"
+                                        defaultValue={
+                                            client?.billing_address ?? ''
+                                        }
+                                        rows={3}
                                     />
-                                    <InputError message={errors.gstin} />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="sac_code">SAC Code</Label>
-                                    <Input
-                                        id="sac_code"
-                                        name="sac_code"
-                                        defaultValue={client?.sac_code ?? ''}
+                                    <InputError
+                                        message={errors.billing_address}
                                     />
-                                    <InputError message={errors.sac_code} />
                                 </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="gemc_no">GEMC No.</Label>
-                                    <Input
-                                        id="gemc_no"
-                                        name="gemc_no"
-                                        placeholder="GeM contract number"
-                                        defaultValue={client?.gemc_no ?? ''}
-                                    />
-                                    <InputError message={errors.gemc_no} />
-                                </div>
-                            </div>
 
-                            <div className="grid gap-2 sm:max-w-sm">
-                                <Label htmlFor="invoice_layout">
-                                    Tax invoice design
-                                </Label>
-                                <SelectNative
-                                    id="invoice_layout"
-                                    name="invoice_layout"
-                                    defaultValue={
-                                        client?.invoice_layout ?? 'standard'
-                                    }
-                                >
-                                    <option value="standard">
-                                        Standard design
-                                    </option>
-                                    <option value="aad_college">
-                                        AAD College (Gopalpur) design, total
-                                        rounded to the rupee
-                                    </option>
-                                    <option value="indian_bank_zonal">
-                                        Indian Bank Zonal Office design
-                                    </option>
-                                </SelectNative>
-                                <p className="text-muted-foreground text-xs">
-                                    Which tax invoice layout this client&apos;s
-                                    invoices and PDFs use. Contract-labour
-                                    clients keep their own bill. Regenerate a
-                                    draft invoice after changing it.
-                                </p>
-                                <InputError message={errors.invoice_layout} />
-                            </div>
+                                <div className="grid gap-4 sm:grid-cols-3">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="gstin">GSTIN</Label>
+                                        <Input
+                                            id="gstin"
+                                            name="gstin"
+                                            defaultValue={client?.gstin ?? ''}
+                                        />
+                                        <InputError message={errors.gstin} />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="sac_code">
+                                            SAC Code
+                                        </Label>
+                                        <Input
+                                            id="sac_code"
+                                            name="sac_code"
+                                            defaultValue={
+                                                client?.sac_code ?? ''
+                                            }
+                                        />
+                                        <InputError message={errors.sac_code} />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="gemc_no">
+                                            GEMC No.
+                                        </Label>
+                                        <Input
+                                            id="gemc_no"
+                                            name="gemc_no"
+                                            placeholder="GeM contract number"
+                                            defaultValue={client?.gemc_no ?? ''}
+                                        />
+                                        <InputError message={errors.gemc_no} />
+                                    </div>
+                                </div>
 
-                            <fieldset className="grid gap-3 rounded-lg border p-4">
-                                <legend className="px-1 text-sm font-medium">
-                                    Billing period on invoices
-                                </legend>
+                                <div className="grid gap-2 sm:max-w-sm">
+                                    <Label htmlFor="invoice_layout">
+                                        Tax invoice design
+                                    </Label>
+                                    <SelectNative
+                                        id="invoice_layout"
+                                        name="invoice_layout"
+                                        defaultValue={
+                                            client?.invoice_layout ?? 'standard'
+                                        }
+                                    >
+                                        <option value="standard">
+                                            Standard design
+                                        </option>
+                                        <option value="aad_college">
+                                            AAD College (Gopalpur) design, total
+                                            rounded to the rupee
+                                        </option>
+                                        <option value="indian_bank_zonal">
+                                            Indian Bank Zonal Office design
+                                        </option>
+                                    </SelectNative>
+                                    <p className="text-muted-foreground text-xs">
+                                        Which tax invoice layout this
+                                        client&apos;s invoices and PDFs use.
+                                        Contract-labour clients keep their own
+                                        bill. Regenerate a draft invoice after
+                                        changing it.
+                                    </p>
+                                    <InputError
+                                        message={errors.invoice_layout}
+                                    />
+                                </div>
+                            </Section>
+
+                            <Section title="Billing period on invoices">
                                 <p className="text-muted-foreground text-xs">
                                     Printed on every month&apos;s tax invoice
                                     for this client. Leave the days blank for
@@ -302,58 +359,60 @@ export default function ClientForm({ client }: { client?: Client }) {
                                     the month does not have (31 in June) becomes
                                     its last day.
                                 </p>
-                            </fieldset>
+                            </Section>
 
-                            <div className="grid gap-4 sm:grid-cols-3">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="contact_person">
-                                        Contact Person
-                                    </Label>
-                                    <Input
-                                        id="contact_person"
-                                        name="contact_person"
-                                        defaultValue={
-                                            client?.contact_person ?? ''
-                                        }
-                                    />
-                                    <InputError
-                                        message={errors.contact_person}
-                                    />
+                            <Section title="Contact">
+                                <div className="grid gap-4 sm:grid-cols-3">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="contact_person">
+                                            Contact Person
+                                        </Label>
+                                        <Input
+                                            id="contact_person"
+                                            name="contact_person"
+                                            defaultValue={
+                                                client?.contact_person ?? ''
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.contact_person}
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="contact_phone">
+                                            Contact Phone
+                                        </Label>
+                                        <Input
+                                            id="contact_phone"
+                                            name="contact_phone"
+                                            defaultValue={
+                                                client?.contact_phone ?? ''
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.contact_phone}
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="contact_email">
+                                            Contact Email
+                                        </Label>
+                                        <Input
+                                            id="contact_email"
+                                            type="email"
+                                            name="contact_email"
+                                            defaultValue={
+                                                client?.contact_email ?? ''
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.contact_email}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="contact_phone">
-                                        Contact Phone
-                                    </Label>
-                                    <Input
-                                        id="contact_phone"
-                                        name="contact_phone"
-                                        defaultValue={
-                                            client?.contact_phone ?? ''
-                                        }
-                                    />
-                                    <InputError
-                                        message={errors.contact_phone}
-                                    />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="contact_email">
-                                        Contact Email
-                                    </Label>
-                                    <Input
-                                        id="contact_email"
-                                        type="email"
-                                        name="contact_email"
-                                        defaultValue={
-                                            client?.contact_email ?? ''
-                                        }
-                                    />
-                                    <InputError
-                                        message={errors.contact_email}
-                                    />
-                                </div>
-                            </div>
+                            </Section>
 
-                            <div className="grid gap-4 rounded-md border p-4">
+                            <Section title="How this client is billed">
                                 <div className="grid gap-2">
                                     <Label htmlFor="payroll_profile">
                                         How is this client billed?
@@ -550,332 +609,353 @@ export default function ClientForm({ client }: { client?: Client }) {
                                         </div>
                                     </div>
                                 )}
-                            </div>
-                            <div className="grid gap-2">
-                                <div className="flex items-center gap-2">
-                                    <Checkbox
-                                        id="active"
-                                        name="active"
-                                        defaultChecked={client?.active ?? true}
-                                    />
-                                    <Label htmlFor="active">Active</Label>
-                                </div>
-                                <InputError message={errors.active} />
-                            </div>
+                            </Section>
 
-                            <div className="grid gap-2">
-                                <div className="flex items-center gap-2">
-                                    <Checkbox
-                                        id="bonus_enabled"
-                                        name="bonus_enabled"
-                                        checked={bonusOn}
-                                        onCheckedChange={(value) =>
-                                            setBonusOn(value === true)
-                                        }
-                                    />
-                                    <Label htmlFor="bonus_enabled">
-                                        Bonus applicable{' '}
-                                        <span className="text-muted-foreground font-normal">
-                                            (when ticked, every employee of this
-                                            unit gets bonus in wages, payslips
-                                            and invoices)
-                                        </span>
-                                    </Label>
-                                </div>
-                                <InputError message={errors.bonus_enabled} />
-                            </div>
-
-                            {bonusOn && (
-                                <div className="grid gap-4 rounded-md border p-4">
-                                    <input
-                                        type="hidden"
-                                        name="bonus_form"
-                                        value="1"
-                                    />
-                                    <div className="grid gap-4 sm:grid-cols-2">
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="bonus_type">
-                                                How is the bonus worked out?
-                                            </Label>
-                                            <SelectNative
-                                                id="bonus_type"
-                                                name="bonus_type"
-                                                value={bonusType}
-                                                onChange={(e) =>
-                                                    setBonusType(e.target.value)
-                                                }
-                                            >
-                                                <option value="percent">
-                                                    Percentage of the monthly
-                                                    wage
-                                                </option>
-                                                <option value="per_day">
-                                                    Fixed rupees for each day
-                                                    worked
-                                                </option>
-                                                <option value="per_month">
-                                                    Fixed rupees per month
-                                                </option>
-                                            </SelectNative>
-                                            <InputError
-                                                message={errors.bonus_type}
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="bonus_value">
-                                                {amountLabel}
-                                            </Label>
-                                            <Input
-                                                id="bonus_value"
-                                                name="bonus_value"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                placeholder={
-                                                    bonusType === 'percent'
-                                                        ? '8.33'
-                                                        : '0'
-                                                }
-                                                defaultValue={
-                                                    client?.bonus_value ?? ''
-                                                }
-                                            />
-                                            <InputError
-                                                message={errors.bonus_value}
-                                            />
-                                        </div>
+                            <Section
+                                title="Status & payroll rules"
+                                description="Bonus, service charge, GST and ESIC for this unit."
+                            >
+                                <div className="grid gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            id="active"
+                                            name="active"
+                                            defaultChecked={
+                                                client?.active ?? true
+                                            }
+                                        />
+                                        <Label htmlFor="active">Active</Label>
                                     </div>
+                                    <InputError message={errors.active} />
+                                </div>
 
-                                    {bonusType === 'per_month' && (
-                                        <div className="flex items-center gap-2">
-                                            <Checkbox
-                                                id="bonus_prorate"
-                                                name="bonus_prorate"
-                                                defaultChecked={
-                                                    client?.bonus_prorate ??
-                                                    false
-                                                }
-                                            />
-                                            <Label htmlFor="bonus_prorate">
-                                                Reduce the fixed amount for
-                                                fewer days (amount x paid days /
-                                                days in the month)
-                                            </Label>
-                                        </div>
-                                    )}
+                                <div className="grid gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            id="bonus_enabled"
+                                            name="bonus_enabled"
+                                            checked={bonusOn}
+                                            onCheckedChange={(value) =>
+                                                setBonusOn(value === true)
+                                            }
+                                        />
+                                        <Label htmlFor="bonus_enabled">
+                                            Bonus applicable{' '}
+                                            <span className="text-muted-foreground font-normal">
+                                                (when ticked, every employee of
+                                                this unit gets bonus in wages,
+                                                payslips and invoices)
+                                            </span>
+                                        </Label>
+                                    </div>
+                                    <InputError
+                                        message={errors.bonus_enabled}
+                                    />
+                                </div>
 
-                                    <div className="grid gap-4 sm:grid-cols-2">
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="bonus_limit_mode">
-                                                Monthly wage limit
-                                            </Label>
-                                            <SelectNative
-                                                id="bonus_limit_mode"
-                                                name="bonus_limit_mode"
-                                                value={bonusLimit}
-                                                onChange={(e) =>
-                                                    setBonusLimit(
-                                                        e.target.value,
-                                                    )
-                                                }
-                                            >
-                                                <option value="up_to">
-                                                    No bonus above the limit
-                                                </option>
-                                                <option value="none">
-                                                    No limit (bonus on every
-                                                    wage)
-                                                </option>
-                                                <option value="different_above">
-                                                    A different bonus above the
-                                                    limit
-                                                </option>
-                                            </SelectNative>
-                                            <InputError
-                                                message={
-                                                    errors.bonus_limit_mode
-                                                }
-                                            />
-                                        </div>
-                                        {bonusLimit !== 'none' && (
+                                {bonusOn && (
+                                    <div className="bg-muted/30 grid gap-4 rounded-xl border p-4">
+                                        <input
+                                            type="hidden"
+                                            name="bonus_form"
+                                            value="1"
+                                        />
+                                        <div className="grid gap-4 sm:grid-cols-2">
                                             <div className="grid gap-2">
-                                                <Label htmlFor="bonus_ceiling">
-                                                    Limit (monthly wage, Rs)
+                                                <Label htmlFor="bonus_type">
+                                                    How is the bonus worked out?
+                                                </Label>
+                                                <SelectNative
+                                                    id="bonus_type"
+                                                    name="bonus_type"
+                                                    value={bonusType}
+                                                    onChange={(e) =>
+                                                        setBonusType(
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                >
+                                                    <option value="percent">
+                                                        Percentage of the
+                                                        monthly wage
+                                                    </option>
+                                                    <option value="per_day">
+                                                        Fixed rupees for each
+                                                        day worked
+                                                    </option>
+                                                    <option value="per_month">
+                                                        Fixed rupees per month
+                                                    </option>
+                                                </SelectNative>
+                                                <InputError
+                                                    message={errors.bonus_type}
+                                                />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="bonus_value">
+                                                    {amountLabel}
                                                 </Label>
                                                 <Input
-                                                    id="bonus_ceiling"
-                                                    name="bonus_ceiling"
+                                                    id="bonus_value"
+                                                    name="bonus_value"
                                                     type="number"
                                                     step="0.01"
                                                     min="0"
-                                                    placeholder="21000"
+                                                    placeholder={
+                                                        bonusType === 'percent'
+                                                            ? '8.33'
+                                                            : '0'
+                                                    }
                                                     defaultValue={
-                                                        client?.bonus_ceiling ??
+                                                        client?.bonus_value ??
+                                                        ''
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={errors.bonus_value}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {bonusType === 'per_month' && (
+                                            <div className="flex items-center gap-2">
+                                                <Checkbox
+                                                    id="bonus_prorate"
+                                                    name="bonus_prorate"
+                                                    defaultChecked={
+                                                        client?.bonus_prorate ??
+                                                        false
+                                                    }
+                                                />
+                                                <Label htmlFor="bonus_prorate">
+                                                    Reduce the fixed amount for
+                                                    fewer days (amount x paid
+                                                    days / days in the month)
+                                                </Label>
+                                            </div>
+                                        )}
+
+                                        <div className="grid gap-4 sm:grid-cols-2">
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="bonus_limit_mode">
+                                                    Monthly wage limit
+                                                </Label>
+                                                <SelectNative
+                                                    id="bonus_limit_mode"
+                                                    name="bonus_limit_mode"
+                                                    value={bonusLimit}
+                                                    onChange={(e) =>
+                                                        setBonusLimit(
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                >
+                                                    <option value="up_to">
+                                                        No bonus above the limit
+                                                    </option>
+                                                    <option value="none">
+                                                        No limit (bonus on every
+                                                        wage)
+                                                    </option>
+                                                    <option value="different_above">
+                                                        A different bonus above
+                                                        the limit
+                                                    </option>
+                                                </SelectNative>
+                                                <InputError
+                                                    message={
+                                                        errors.bonus_limit_mode
+                                                    }
+                                                />
+                                            </div>
+                                            {bonusLimit !== 'none' && (
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="bonus_ceiling">
+                                                        Limit (monthly wage, Rs)
+                                                    </Label>
+                                                    <Input
+                                                        id="bonus_ceiling"
+                                                        name="bonus_ceiling"
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        placeholder="21000"
+                                                        defaultValue={
+                                                            client?.bonus_ceiling ??
+                                                            ''
+                                                        }
+                                                    />
+                                                    <InputError
+                                                        message={
+                                                            errors.bonus_ceiling
+                                                        }
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {bonusLimit === 'different_above' && (
+                                            <div className="grid gap-2 sm:max-w-xs">
+                                                <Label htmlFor="bonus_value_above">
+                                                    Bonus above the limit (
+                                                    {bonusType === 'percent'
+                                                        ? '%'
+                                                        : 'Rs'}
+                                                    )
+                                                </Label>
+                                                <Input
+                                                    id="bonus_value_above"
+                                                    name="bonus_value_above"
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    defaultValue={
+                                                        client?.bonus_value_above ??
                                                         ''
                                                     }
                                                 />
                                                 <InputError
                                                     message={
-                                                        errors.bonus_ceiling
+                                                        errors.bonus_value_above
                                                     }
                                                 />
                                             </div>
                                         )}
-                                    </div>
 
-                                    {bonusLimit === 'different_above' && (
-                                        <div className="grid gap-2 sm:max-w-xs">
-                                            <Label htmlFor="bonus_value_above">
-                                                Bonus above the limit (
-                                                {bonusType === 'percent'
-                                                    ? '%'
-                                                    : 'Rs'}
-                                                )
+                                        <div className="flex items-center gap-2">
+                                            <Checkbox
+                                                id="bonus_billed"
+                                                name="bonus_billed"
+                                                defaultChecked={
+                                                    client?.bonus_billed ?? true
+                                                }
+                                            />
+                                            <Label htmlFor="bonus_billed">
+                                                Show the bonus on the invoice
+                                                (unticked: it is paid to the
+                                                employee but not billed)
                                             </Label>
-                                            <Input
-                                                id="bonus_value_above"
-                                                name="bonus_value_above"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                defaultValue={
-                                                    client?.bonus_value_above ??
-                                                    ''
-                                                }
-                                            />
-                                            <InputError
-                                                message={
-                                                    errors.bonus_value_above
-                                                }
-                                            />
                                         </div>
-                                    )}
 
+                                        <div className="grid gap-2 sm:max-w-sm">
+                                            <Label htmlFor="bonus_in_esic">
+                                                Count the bonus in ESIC wages
+                                            </Label>
+                                            <SelectNative
+                                                id="bonus_in_esic"
+                                                name="bonus_in_esic"
+                                                defaultValue={
+                                                    client?.bonus_in_esic ===
+                                                        null ||
+                                                    client?.bonus_in_esic ===
+                                                        undefined
+                                                        ? 'follow'
+                                                        : client.bonus_in_esic
+                                                          ? 'yes'
+                                                          : 'no'
+                                                }
+                                            >
+                                                <option value="follow">
+                                                    As per Settings &gt; ESIC
+                                                </option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                            </SelectNative>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="grid gap-2">
                                     <div className="flex items-center gap-2">
                                         <Checkbox
-                                            id="bonus_billed"
-                                            name="bonus_billed"
+                                            id="service_charge_on_basic"
+                                            name="service_charge_on_basic"
                                             defaultChecked={
-                                                client?.bonus_billed ?? true
+                                                client?.service_charge_on_basic ??
+                                                false
                                             }
                                         />
-                                        <Label htmlFor="bonus_billed">
-                                            Show the bonus on the invoice
-                                            (unticked: it is paid to the
-                                            employee but not billed)
+                                        <Label htmlFor="service_charge_on_basic">
+                                            Service charge on Basic Wages{' '}
+                                            <span className="text-muted-foreground font-normal">
+                                                (ticked: service charge is
+                                                worked out on Basic Wages.
+                                                Unticked: on Gross Wages,
+                                                including EPF, ESIC and bonus)
+                                            </span>
                                         </Label>
                                     </div>
+                                    <InputError
+                                        message={errors.service_charge_on_basic}
+                                    />
+                                </div>
 
-                                    <div className="grid gap-2 sm:max-w-sm">
-                                        <Label htmlFor="bonus_in_esic">
-                                            Count the bonus in ESIC wages
-                                        </Label>
-                                        <SelectNative
-                                            id="bonus_in_esic"
-                                            name="bonus_in_esic"
-                                            defaultValue={
-                                                client?.bonus_in_esic ===
-                                                    null ||
-                                                client?.bonus_in_esic ===
-                                                    undefined
-                                                    ? 'follow'
-                                                    : client.bonus_in_esic
-                                                      ? 'yes'
-                                                      : 'no'
+                                <div className="grid gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            id="gst_exempt"
+                                            name="gst_exempt"
+                                            defaultChecked={
+                                                client?.gst_exempt ?? false
                                             }
-                                        >
-                                            <option value="follow">
-                                                As per Settings &gt; ESIC
-                                            </option>
-                                            <option value="yes">Yes</option>
-                                            <option value="no">No</option>
-                                        </SelectNative>
+                                        />
+                                        <Label htmlFor="gst_exempt">
+                                            No GST{' '}
+                                            <span className="text-muted-foreground font-normal">
+                                                (ticked: CGST and SGST are 0 in
+                                                this unit's invoices and
+                                                register. For educational
+                                                institutions, government
+                                                departments and other exempt
+                                                clients)
+                                            </span>
+                                        </Label>
                                     </div>
+                                    <InputError message={errors.gst_exempt} />
                                 </div>
-                            )}
 
-                            <div className="grid gap-2">
-                                <div className="flex items-center gap-2">
-                                    <Checkbox
-                                        id="service_charge_on_basic"
-                                        name="service_charge_on_basic"
-                                        defaultChecked={
-                                            client?.service_charge_on_basic ??
-                                            false
-                                        }
-                                    />
-                                    <Label htmlFor="service_charge_on_basic">
-                                        Service charge on Basic Wages{' '}
-                                        <span className="text-muted-foreground font-normal">
-                                            (ticked: service charge is worked
-                                            out on Basic Wages. Unticked: on
-                                            Gross Wages, including EPF, ESIC and
-                                            bonus)
-                                        </span>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="esic_unit_mode">
+                                        ESIC for this unit
                                     </Label>
-                                </div>
-                                <InputError
-                                    message={errors.service_charge_on_basic}
-                                />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <div className="flex items-center gap-2">
-                                    <Checkbox
-                                        id="gst_exempt"
-                                        name="gst_exempt"
-                                        defaultChecked={
-                                            client?.gst_exempt ?? false
+                                    <SelectNative
+                                        id="esic_unit_mode"
+                                        name="esic_unit_mode"
+                                        defaultValue={
+                                            client?.esic_unit_mode ??
+                                            'statutory'
                                         }
+                                        className="max-w-md"
+                                    >
+                                        <option value="statutory">
+                                            Follow the ESIC rules (statutory)
+                                        </option>
+                                        <option value="ceiling">
+                                            ESIC on the wage ceiling, even above
+                                            it
+                                        </option>
+                                        <option value="cutoff">
+                                            No ESIC when wages are above the
+                                            ceiling
+                                        </option>
+                                    </SelectNative>
+                                    <p className="text-muted-foreground text-xs">
+                                        The last two are arrangements with this
+                                        client, not the ESI Act rule. With the
+                                        ceiling at Rs. 21,000, &quot;on the
+                                        ceiling&quot; charges ESIC on Rs. 21,000
+                                        for everyone in this unit, and &quot;no
+                                        ESIC above the ceiling&quot; charges
+                                        nothing for anyone above it, even if
+                                        they were covered earlier. Other units
+                                        are not affected.
+                                    </p>
+                                    <InputError
+                                        message={errors.esic_unit_mode}
                                     />
-                                    <Label htmlFor="gst_exempt">
-                                        No GST{' '}
-                                        <span className="text-muted-foreground font-normal">
-                                            (ticked: CGST and SGST are 0 in this
-                                            unit's invoices and register. For
-                                            educational institutions, government
-                                            departments and other exempt
-                                            clients)
-                                        </span>
-                                    </Label>
                                 </div>
-                                <InputError message={errors.gst_exempt} />
-                            </div>
+                            </Section>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="esic_unit_mode">
-                                    ESIC for this unit
-                                </Label>
-                                <SelectNative
-                                    id="esic_unit_mode"
-                                    name="esic_unit_mode"
-                                    defaultValue={
-                                        client?.esic_unit_mode ?? 'statutory'
-                                    }
-                                    className="max-w-md"
-                                >
-                                    <option value="statutory">
-                                        Follow the ESIC rules (statutory)
-                                    </option>
-                                    <option value="ceiling">
-                                        ESIC on the wage ceiling, even above it
-                                    </option>
-                                    <option value="cutoff">
-                                        No ESIC when wages are above the ceiling
-                                    </option>
-                                </SelectNative>
-                                <p className="text-muted-foreground text-xs">
-                                    The last two are arrangements with this
-                                    client, not the ESI Act rule. With the
-                                    ceiling at Rs. 21,000, &quot;on the
-                                    ceiling&quot; charges ESIC on Rs. 21,000 for
-                                    everyone in this unit, and &quot;no ESIC
-                                    above the ceiling&quot; charges nothing for
-                                    anyone above it, even if they were covered
-                                    earlier. Other units are not affected.
-                                </p>
-                                <InputError message={errors.esic_unit_mode} />
-                            </div>
                             <div className="flex gap-2">
                                 <Button type="submit" disabled={processing}>
                                     {isEdit ? 'Save Changes' : 'Create Client'}
