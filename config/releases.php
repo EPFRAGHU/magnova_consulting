@@ -14,6 +14,18 @@
  */
 return [
     [
+        'version' => '1.7.0',
+        'released_at' => '2026-11-04 08:35',
+        'title' => 'New Clients page',
+        'changes' => [
+            ['improved', 'Clients page redesigned: a total count, uppercase headings, GSTIN chips, staff count badges, soft coloured status badges and icon buttons for edit and delete.'],
+            ['new', 'Export CSV button downloads the clients on screen as a spreadsheet.'],
+            ['new', 'Status filter (All, Active, Inactive) and a reset button next to the search.'],
+            ['new', 'A copy button next to each client phone number.'],
+            ['improved', 'Search finds a client by name, location, GSTIN, contact person or phone.'],
+        ],
+    ],
+    [
         'version' => '1.6.0',
         'released_at' => '2026-11-04 07:30',
         'title' => 'Version history',
