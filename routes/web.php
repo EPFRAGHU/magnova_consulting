@@ -11,6 +11,7 @@ use App\Http\Controllers\EcrController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PayslipController;
+use App\Http\Controllers\VersionHistoryController;
 use App\Http\Controllers\WageController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('version-history', VersionHistoryController::class)->name('version-history');
 
     Route::resource('clients', ClientController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::post('clients/{client}/load', [ClientController::class, 'load'])->name('clients.load');
