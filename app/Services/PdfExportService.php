@@ -60,7 +60,7 @@ class PdfExportService
     {
         $invoice->loadMissing('client', 'lineItems.employee', 'tenant');
 
-        $dutySummary = $this->dutySummary($invoice);
+        $dutySummary = $this->dutySummary($invoice, $invoice->client?->invoice_layout === 'akashvani');
         $bonus = (float) $invoice->lineItems->sum(
             fn ($item) => $this->wageRegisterCalculator->bonusFor(
                 (float) $item->wage_amount,
@@ -76,6 +76,7 @@ class PdfExportService
         $view = match ($invoice->client?->invoice_layout) {
             'aad_college' => 'pdf.invoice-aad',
             'indian_bank_zonal' => 'pdf.invoice-zonal',
+            'akashvani' => 'pdf.invoice-akashvani',
             default => 'pdf.invoice',
         };
 
@@ -86,7 +87,49 @@ class PdfExportService
             'bonusRule' => $bonusRule,
             'amountInWords' => $this->words->amountToWordsWithPaise((float) $invoice->grand_total),
             'logoDataUri' => $this->logoDataUri(),
-        ])->setPaper('a4');
+        ] + ($view === 'pdf.invoice-akashvani' ? ['epfLines' => $this->epfLines($invoice)] : []))->setPaper('a4');
+    }
+
+    /**
+     * EPF (12% + EDLI and admin 1%) as the Akashvani bill prints it: one line for the guards whose wage reaches the EPF
+     * ceiling ("13% of 15000 of 9") and one for those below it ("13% of 14456 of 1"). If the lines cannot add up to the
+     * invoice's own EPF total (months before the current rules), a single line with that total is returned.
+     *
+     * @return list<array{label: string, amount: float}>
+     */
+    public function epfLines(Invoice $invoice): array
+    {
+        $invoice->loadMissing('lineItems');
+        $month = (int) $invoice->month;
+        $year = (int) $invoice->year;
+        $pct = config('magnova.epf_employee_pct') + config('magnova.edli_cont_pct') + config('magnova.epf_admin_pct');
+        $trim = fn (float $v) => rtrim(rtrim(number_format($v, 2, '.', ''), '0'), '.');
+        $ceilingBase = $this->wageRegisterCalculator->epfWageBase(1e9, $month, $year);
+
+        $groups = ['at' => ['n' => 0, 'base' => 0.0, 'amount' => 0.0], 'below' => ['n' => 0, 'base' => 0.0, 'amount' => 0.0]];
+        foreach ($invoice->lineItems as $item) {
+            $base = $this->wageRegisterCalculator->epfWageBase((float) $item->wage_amount, $month, $year);
+            $key = $base >= $ceilingBase - 0.005 ? 'at' : 'below';
+            $groups[$key]['n']++;
+            $groups[$key]['base'] += $base;
+            $groups[$key]['amount'] += round($base * config('magnova.epf_employee_pct') / 100, 2)
+                + round($base * (config('magnova.epf_admin_pct') + config('magnova.edli_cont_pct')) / 100, 2);
+        }
+
+        $lines = [];
+        foreach (['at' => $groups['at'], 'below' => $groups['below']] as $key => $group) {
+            if ($group['n'] > 0) {
+                $of = $key === 'at' ? $ceilingBase : $group['base'];
+                $lines[] = ['label' => 'EPF @ '.$trim((float) $pct).'% of '.$trim($of).' of '.$group['n'], 'amount' => round($group['amount'], 2)];
+            }
+        }
+
+        $invoiceEpf = round((float) $invoice->epf_employer + (float) $invoice->edli_cont + (float) $invoice->epf_admin, 2);
+        if (abs(array_sum(array_column($lines, 'amount')) - $invoiceEpf) > 0.02) {
+            return [['label' => 'EPF @ '.$trim((float) $pct).'%', 'amount' => $invoiceEpf]];
+        }
+
+        return $lines;
     }
 
     /**
@@ -154,7 +197,7 @@ class PdfExportService
      *
      * @return Collection<int, non-empty-array<string, mixed>>
      */
-    public function dutySummary(Invoice $invoice): Collection
+    public function dutySummary(Invoice $invoice, bool $splitByRate = false): Collection
     {
         $invoice->loadMissing('lineItems.employee');
 
@@ -166,17 +209,18 @@ class PdfExportService
 
         return $invoice->lineItems
             ->sortBy(fn ($item) => $item->employee->skillSortKey())
-            ->groupBy(function ($item) use ($baseDesignation) {
+            ->groupBy(function ($item) use ($baseDesignation, $splitByRate) {
                 $designation = $baseDesignation($item);
 
                 if (strtolower($designation) === 'security guard' && $item->employee->gender) {
                     $designation .= ' '.ucfirst((string) $item->employee->gender);
                 }
 
-                return $designation;
+                // Some bills show one row for each rate paid to a designation, so the row's rate times duties is its amount.
+                return $splitByRate ? $designation."\0".(float) $item->rate_per_day : $designation;
             })
-            ->map(fn ($items, $designation) => [
-                'rank' => $designation,
+            ->map(fn ($items, $key) => [
+                'rank' => explode("\0", (string) $key)[0],
                 ...$this->sacRow($invoice->tenant_id, $baseDesignation($items->first())),
                 'rate' => (float) ($items->first()->rate_per_day ?? 0),
                 'persons' => $items->count(),
@@ -185,7 +229,7 @@ class PdfExportService
                 // Highest skill in the group first: High-Skilled, Skilled, Semi-Skilled, Unskilled.
                 'skill_rank' => (int) $items->map(fn ($item) => array_search($item->employee->skill_category, Employee::SKILL_ORDER, true) ?: 0)->min(),
             ])
-            ->sortBy([['skill_rank', 'asc'], ['rank', 'asc']])
+            ->sortBy([['skill_rank', 'asc'], ['rank', 'asc'], ['rate', 'desc']])
             ->values();
     }
 

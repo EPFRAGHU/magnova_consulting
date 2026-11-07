@@ -28,11 +28,11 @@ class Client extends Model
 
     public const PAYROLL_PROFILES = ['standard', 'contract_labour'];
 
-    /** Tax invoice designs for regular clients: 'aad_college' (AAD Gopalpur, rounded to the rupee) and 'indian_bank_zonal'. */
-    public const INVOICE_LAYOUTS = ['standard', 'aad_college', 'indian_bank_zonal'];
+    /** Tax invoice designs for regular clients: 'aad_college' (AAD Gopalpur, rounded to the rupee), 'indian_bank_zonal' and 'akashvani'. */
+    public const INVOICE_LAYOUTS = ['standard', 'aad_college', 'indian_bank_zonal', 'akashvani'];
 
     /** Designs whose GST is charged on the taxable value that includes the service charge. */
-    public const GST_ON_SERVICE_CHARGE_LAYOUTS = ['aad_college', 'indian_bank_zonal'];
+    public const GST_ON_SERVICE_CHARGE_LAYOUTS = ['aad_college', 'indian_bank_zonal', 'akashvani'];
 
     protected $fillable = [
         'tenant_id', 'name', 'unit_label', 'address', 'gstin', 'sac_code', 'gemc_no',
