@@ -14,6 +14,15 @@
  */
 return [
     [
+        'version' => '1.10.0',
+        'released_at' => '2026-11-07 21:25',
+        'title' => 'Akashvani Cuttack tax invoice design',
+        'changes' => [
+            ['new', 'Akashvani Cuttack design for the tax invoice, chosen per client: GST IN and SAC code under the receiver, GEMC above the bank details, and one duty row for each rate.'],
+            ['new', 'EPF prints as one line for guards at the ceiling and one for those below it, then SUB-TOTAL, service charge, TOTAL, CGST and SGST, and the grand total in exact paise.'],
+        ],
+    ],
+    [
         'version' => '1.9.1',
         'released_at' => '2026-11-04 09:58',
         'title' => 'Client name on the Dashboard',

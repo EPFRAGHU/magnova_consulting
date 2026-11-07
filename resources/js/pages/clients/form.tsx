@@ -256,6 +256,9 @@ export default function ClientForm({ client }: { client?: Client }) {
                                         <option value="indian_bank_zonal">
                                             Indian Bank Zonal Office design
                                         </option>
+                                        <option value="akashvani">
+                                            Akashvani Cuttack design
+                                        </option>
                                     </SelectNative>
                                     <p className="text-muted-foreground text-xs">
                                         Which tax invoice layout this
